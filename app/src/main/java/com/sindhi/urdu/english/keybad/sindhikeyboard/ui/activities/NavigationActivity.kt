@@ -25,6 +25,9 @@ import com.sindhi.urdu.english.keybad.databinding.ActivityNavigationBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.*
 import androidx.activity.result.contract.ActivityResultContracts
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ACTION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION1
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION3
 
 class NavigationActivity : AppCompatBaseActivity() {
     private lateinit var binding: ActivityNavigationBinding
@@ -32,7 +35,7 @@ class NavigationActivity : AppCompatBaseActivity() {
     private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
     private var isPurchased: Boolean? = null
     private lateinit var appUpdateManager: AppUpdateManager
-
+    private  var action:String? = null
     private val updateActivityResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
@@ -45,7 +48,8 @@ class NavigationActivity : AppCompatBaseActivity() {
         binding = ActivityNavigationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
-
+        action = intent?.getStringExtra(ACTION)
+        Log.d("action", "action NavigationActivity:$action ")
         binding.inclToolBar.clSubDiv.let { subDiv ->
             ViewCompat.setOnApplyWindowInsetsListener(subDiv) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -71,17 +75,28 @@ class NavigationActivity : AppCompatBaseActivity() {
         // Set navigation graph start destination
         navController = findNavController(R.id.nav_host_fragment_content_navigation)
         val navGraph = navController.navInflater.inflate(R.navigation.mobile_navigation)
-        val moveTo = intent.getStringExtra("MoveTo")
-        navGraph.setStartDestination(
-            when (moveTo) {
-                "Settings" -> R.id.settingsFragment
-                "Themes" -> R.id.themesFragment
-                else -> R.id.nav_home
-            }
-        )
+
+
+        val moveTo = intent?.getStringExtra("MoveTo")
+
+// Combine logic: Check 'action' first, then 'moveTo', then default
+        val startDest = when {
+            action == DESTINATION1 -> R.id.nav_editor
+            action == DESTINATION3 -> R.id.themesFragment
+            moveTo == "Settings" -> R.id.settingsFragment
+            moveTo == "Themes" -> R.id.themesFragment
+            else -> R.id.nav_home
+        }
+
+        Log.d("action", "Setting Start Destination to: $startDest")
+        navGraph.setStartDestination(startDest)
         navController.graph = navGraph
 
-        // ✅ Check for updates
+// Clean up intent so it doesn't re-trigger on config changes
+        intent?.removeExtra(ACTION)
+        intent?.removeExtra("MoveTo")
+        action = null
+        navController.graph = navGraph
         checkForUpdates()
     }
 

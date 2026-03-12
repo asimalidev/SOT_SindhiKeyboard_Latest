@@ -58,7 +58,10 @@
     <string name="label_keyboard_settings">Keyboard Settings</string>
     <string name="label_test_line">Test Your Keyboard</string>
     <string name="label_test_theme">Test Theme</string>
-
+    <string name="survey_1">Feature does not working</string>
+    <string name="survey_2">Too many ads</string>
+    <string name="survey_3">I don’t need it</string>
+    <string name="survey_4">Other</string>
     <string name="label_message">Message</string>
     <string name="label_next">Next</string>
     <string name="done">Done</string>
@@ -166,4 +169,6 @@
     <string name="_100_ads_free_experience">100% Ads Free Experience</string>
     <string name="no_ads">No Ads</string>
     <string name="unlimited_access">Unlimited Access</string>
+    <string name="uninstall">UnInstall</string>
+    <string name="change_theme">Change Theme</string>
 </resources>

@@ -48,6 +48,10 @@
         android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.UrduEditorFragment"
         tools:layout="@layout/fragment_urdu_editor">
 
+
+        <action
+            android:id="@+id/action_nav_editor_to_nav_home"
+            app:destination="@id/nav_home" />
     </fragment>
 
 

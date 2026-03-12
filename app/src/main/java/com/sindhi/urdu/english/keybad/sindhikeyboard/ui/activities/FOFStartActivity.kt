@@ -123,8 +123,16 @@ import kotlinx.coroutines.withContext
 import androidx.core.content.edit
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.BillingManager
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ACTION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_UNINSTAL
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATVE_SURVAY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_THEMES_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION1
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION2
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION3
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.FROM_SHORTCUT
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 
 class FOFStartActivity : AppCompatActivity() {
     private var firstOpenFlowAdIds: HashMap<String, String> = HashMap()
@@ -133,7 +141,8 @@ class FOFStartActivity : AppCompatActivity() {
     private lateinit var sotAdsConfigurations: SOTAdsConfigurations
     private var isDuplicateScreenStarted = true
     private lateinit var prefs: SharedPreferences
-
+    private var notificationTarget: String? = null
+    private var action: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFofstartBinding.inflate(layoutInflater)
@@ -187,6 +196,10 @@ class FOFStartActivity : AppCompatActivity() {
             .skipMemoryCache(true)
             .into(binding.ivSplashTextIcon)
         initializeRemoteConfigAndStartFlow()
+
+
+        notificationTarget = intent?.getStringExtra("target_screen")
+        action = intent?.getStringExtra(ACTION)
 
     }
 
@@ -345,36 +358,70 @@ class FOFStartActivity : AppCompatActivity() {
     }
 
     private fun gotoMainActivity() {
-        val time = if (PrefHelper(this).getBooleanDefault("StartScreens", default = false)) {
-            0
+        Log.d("action", "intent?.action :${intent?.action } ")
+        Log.d("action", "action :$action ")
+        if (intent?.action == "android.intent.action.SHORTCUT_UNINSTALL_APP") {
+            val uninstallIntent =
+                Intent(this@FOFStartActivity, ConfirmUninstallActivity::class.java)
+            uninstallIntent.putExtra(FROM_SHORTCUT, intent?.getStringExtra(FROM_SHORTCUT))
+            startActivity(uninstallIntent)
+            finish()
         } else {
-            if (NetworkCheck.isNetworkAvailable(this)) {
-                0
+            if (action != null) {
+                when (action) {
+                    DESTINATION1 -> {
+                        startActivity(
+                            Intent(this, NavigationActivity::class.java).putExtra(
+                                ACTION,
+                                action
+                            )
+                        )
+                        action = null
+
+                    }
+
+                    DESTINATION2 -> {
+                        startActivity(Intent(this, StickersViewActivity::class.java))
+                        action = null
+                        finish()
+                    }
+
+                    DESTINATION3 -> {
+                        Log.d("action", "action :$action ")
+                        startActivity(
+                            Intent(this, NavigationActivity::class.java).putExtra(
+                                ACTION,
+                                action
+                            )
+                        )
+                        action = null
+                    }
+
+                }
+
             } else {
-                3000
+                val intent: Intent =
+                    if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
+                        Intent(this, KeyboardSelectionActivity::class.java).putExtra(
+                            "MoveTo", intent.getStringExtra("MoveTo")
+                        )
+                    } else if (intent.getStringExtra("MoveTo").equals("Stickers")) {
+                        Intent(this, StickersViewActivity::class.java).putExtra(
+                            "MoveTo",
+                            intent.getStringExtra("MoveTo")
+                        )
+                    } else {
+                        Intent(this, NavigationActivity::class.java).putExtra(
+                            "MoveTo",
+                            intent.getStringExtra("MoveTo")
+                        )
+                    }
+                startActivity(intent)
+                finish()
             }
         }
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent: Intent = if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
-                Intent(this, KeyboardSelectionActivity::class.java).putExtra(
-                    "MoveTo", intent.getStringExtra("MoveTo")
-                )
-            } else if (intent.getStringExtra("MoveTo").equals("Stickers")) {
-                Intent(this, StickersViewActivity::class.java).putExtra(
-                    "MoveTo",
-                    intent.getStringExtra("MoveTo")
-                )
-            } else {
-                Intent(this, NavigationActivity::class.java).putExtra(
-                    "MoveTo",
-                    intent.getStringExtra("MoveTo")
-                )
-            }
-            startActivity(intent)
-            finish()
-        }, time.toLong())
-    }
 
+    }
     private fun getWalkThroughList(context: Context): ArrayList<WalkThroughItem> {
         val localizedContext = ContextWrapper(this).createConfigurationContext(
             resources.configuration.apply { MyLocaleHelper.onAttach(context, "en") }
@@ -634,7 +681,7 @@ class FOFStartActivity : AppCompatActivity() {
     }
 
     private fun saveAllValues(onCompleteSave: (() -> Unit)? = null) {
-        val editor = getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+        val editor = getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE).edit()
         mFirebaseRemoteConfig?.apply {
             getString(RemoteConfigConst.RESUME_INTER_SPLASH).trim().takeIf { it.isNotEmpty() }
                 ?.let {
@@ -644,9 +691,9 @@ class FOFStartActivity : AppCompatActivity() {
                 BANNER_SPLASH, getBoolean(BANNER_SPLASH)
             )
 
-            editor.putBoolean(
-                RemoteConfigConst.RESUME_OVERALL, getBoolean(RemoteConfigConst.RESUME_OVERALL)
-            )
+            editor.putBoolean(RemoteConfigConst.RESUME_OVERALL, getBoolean(RemoteConfigConst.RESUME_OVERALL))
+            editor.putBoolean(RemoteConfigConst.NATIVE_UNINSTALL, getBoolean(RemoteConfigConst.NATIVE_UNINSTALL))
+            editor.putBoolean(RemoteConfigConst.NATIVE_SURVEY, getBoolean(RemoteConfigConst.NATIVE_SURVEY))
 
             Log.e("resume", "value of ${getBoolean(RemoteConfigConst.RESUME_OVERALL)}")
 
@@ -816,22 +863,45 @@ class FOFStartActivity : AppCompatActivity() {
         }
 
         if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLY).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
                     ADS_NATIVE_THEMES_APPLY,
                     mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLY)
-                ).apply()
+                )
+            }
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(AD_ID_NATVE_SURVAY).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
+                    AD_ID_NATVE_SURVAY,
+                    mFirebaseRemoteConfig!!.getString(AD_ID_NATVE_SURVAY)
+                )
+            }
         }
 
         if (!TextUtils.isEmpty(
                 mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLIED_TEST).trim()
             )
         ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
                     ADS_NATIVE_THEMES_APPLIED_TEST,
                     mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLIED_TEST)
-                ).apply()
+                )
+            }
+        }
+
+        if (!TextUtils.isEmpty(
+                mFirebaseRemoteConfig!!.getString(AD_ID_NATIVE_UNINSTAL).trim()
+            )
+        ) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
+                    AD_ID_NATIVE_UNINSTAL,
+                    mFirebaseRemoteConfig!!.getString(AD_ID_NATIVE_UNINSTAL)
+                )
+            }
         }
 
         if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_POETRY).trim())) {

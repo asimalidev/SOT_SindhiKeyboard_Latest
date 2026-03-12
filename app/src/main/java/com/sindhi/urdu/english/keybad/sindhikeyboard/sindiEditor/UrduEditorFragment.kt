@@ -832,7 +832,6 @@ class UrduEditorFragment : Fragment() {
         if (text.isNotEmpty()) {
 
             activity?.hideKeyboard()
-            // Hide editor UI components
             binding.clTextEditor.visibility = View.GONE
             binding.rvFonts.visibility = View.GONE
             binding.clFontsRV.visibility = View.GONE

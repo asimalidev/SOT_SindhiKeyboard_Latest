@@ -2,16 +2,13 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.ads
 
 import android.app.Application
 import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import com.sindhi.urdu.english.keybad.R
+import android.os.Build
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.applovin.sdk.AppLovinPrivacySettings
-import com.applovin.sdk.AppLovinSdk
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.remoteconfig.ConfigUpdate
@@ -22,17 +19,23 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.mbridge.msdk.MBridgeSDK
 import com.mbridge.msdk.out.MBridgeSDKFactory
 import com.mbridge.msdk.out.SDKInitStatusListener
+import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.DataBaseCopyOperationsKt
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.SuggestionItems
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes.CustomTheme
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.FOFStartActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.DictionaryObject.suggestionList
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ACTION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION1
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION2
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION3
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.FROM_SHORTCUT
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.KEYPAD_AD_MEDIATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.KEYPAD_AD_VISIBILITY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 
 
 class ApplicationClass : Application() {
@@ -64,9 +67,77 @@ class ApplicationClass : Application() {
         CoroutineScope(Dispatchers.Default).launch {
             initMintegralSdk()
         }
+        initShortCut()
 
         CoroutineScope(Dispatchers.Main).launch {
             loadSuggestions()
+        }
+    }
+    private fun initShortCut() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            val manager = getSystemService(ShortcutManager::class.java)
+            try {
+                manager.removeAllDynamicShortcuts()
+
+                // 1. Junk Cleaner
+                val junkCleanerShortCut = ShortcutInfo.Builder(this, DESTINATION1)
+                    .setShortLabel(getString(R.string.sindhi_editor))
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_sindi_editor))
+                    .setIntent(Intent(this, FOFStartActivity::class.java).apply {
+                        action = Intent.ACTION_VIEW // <-- ADDED THIS
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(ACTION, DESTINATION1)
+                    })
+                    .setRank(1)
+                    .build()
+
+                // 2. AI Clean
+                val aiCleanShortCut = ShortcutInfo.Builder(this, "action_ai_clean")
+                    .setShortLabel(getString(R.string.sindhi_stickers))
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_sindhi_stickers))
+                    .setIntent(Intent(this, FOFStartActivity::class.java).apply {
+                        action = Intent.ACTION_VIEW // <-- ADDED THIS
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(ACTION, DESTINATION2)
+                    })
+                    .setRank(2)
+                    .build()
+
+                // 3. Battery Info
+                val batteryShortCut = ShortcutInfo.Builder(this, DESTINATION3)
+                    .setShortLabel(getString(R.string.change_theme))
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_change_theme))
+                    .setIntent(Intent(this, FOFStartActivity::class.java).apply {
+                        action = Intent.ACTION_VIEW // <-- ADDED THIS
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        putExtra(ACTION, DESTINATION3)
+                    })
+                    .setRank(3)
+                    .build()
+
+                // 4. Uninstall Shortcut (Ranked last)
+                val uninstallShortCut = ShortcutInfo.Builder(this, "ACTION_OPEN_UNINSTALL")
+                    .setShortLabel(getString(R.string.uninstall))
+                    .setIcon(Icon.createWithResource(this, R.drawable.ic_uninstall))
+                    .setIntent(Intent(this, FOFStartActivity::class.java).apply {
+                        action = "android.intent.action.SHORTCUT_UNINSTALL_APP" // This one was already fine!
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        putExtra(FROM_SHORTCUT, "ACTION_OPEN_UNINSTALL")
+                    })
+                    .setRank(4)
+                    .build()
+
+                // Add all 4 to the list
+                manager.dynamicShortcuts = listOf(
+                    junkCleanerShortCut,
+                    aiCleanShortCut,
+                    batteryShortCut,
+                    uninstallShortCut
+                )
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
