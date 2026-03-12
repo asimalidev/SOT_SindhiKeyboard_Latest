@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import com.sindhi.urdu.english.keybad.BuildConfig
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
@@ -20,12 +19,6 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.manual.mediation.library.sotadlib.utils.AdLoadingDialog
 import com.sindhi.urdu.english.keybad.R
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.OPEN_AD_ENABLE_KEYBOARD
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.OPEN_AD_INSIDE_APP
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.RESUME_OVERALL
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.RESUME_OVER_ALL
 
 class ResumeAd(private val myApplicationClass: ApplicationClass) : Application.ActivityLifecycleCallbacks, LifecycleObserver {
     private var adVisible = false
