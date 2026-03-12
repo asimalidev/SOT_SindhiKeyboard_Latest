@@ -51,7 +51,6 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
         if (isAdAvailable()) {
             return
         }
-
         if (myApplicationClass != null) {
             if (!NetworkCheck.isNetworkAvailable(myApplicationClass)) {
                 return

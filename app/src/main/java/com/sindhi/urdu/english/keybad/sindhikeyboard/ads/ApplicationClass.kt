@@ -80,7 +80,7 @@ class ApplicationClass : Application() {
                 manager.removeAllDynamicShortcuts()
 
                 // 1. Junk Cleaner
-                val junkCleanerShortCut = ShortcutInfo.Builder(this, DESTINATION1)
+                /*val junkCleanerShortCut = ShortcutInfo.Builder(this, DESTINATION1)
                     .setShortLabel(getString(R.string.sindhi_editor))
                     .setIcon(Icon.createWithResource(this, R.drawable.ic_sindi_editor))
                     .setIntent(Intent(this, FOFStartActivity::class.java).apply {
@@ -89,7 +89,7 @@ class ApplicationClass : Application() {
                         putExtra(ACTION, DESTINATION1)
                     })
                     .setRank(1)
-                    .build()
+                    .build()*/
 
                 // 2. AI Clean
                 val aiCleanShortCut = ShortcutInfo.Builder(this, "action_ai_clean")
@@ -100,7 +100,7 @@ class ApplicationClass : Application() {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         putExtra(ACTION, DESTINATION2)
                     })
-                    .setRank(2)
+                    .setRank(1)
                     .build()
 
                 // 3. Battery Info
@@ -112,7 +112,7 @@ class ApplicationClass : Application() {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         putExtra(ACTION, DESTINATION3)
                     })
-                    .setRank(3)
+                    .setRank(2)
                     .build()
 
                 // 4. Uninstall Shortcut (Ranked last)
@@ -124,12 +124,11 @@ class ApplicationClass : Application() {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                         putExtra(FROM_SHORTCUT, "ACTION_OPEN_UNINSTALL")
                     })
-                    .setRank(4)
+                    .setRank(3)
                     .build()
 
                 // Add all 4 to the list
                 manager.dynamicShortcuts = listOf(
-                    junkCleanerShortCut,
                     aiCleanShortCut,
                     batteryShortCut,
                     uninstallShortCut
