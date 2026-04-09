@@ -160,13 +160,6 @@ fun PreferenceScreen(
 
                 Divider(color = MaterialTheme.colorScheme.surfaceVariant)
 
-//                SettingItem(
-//                    text = stringResource(id = R.string.label_app_language),
-//                    drawableResource = R.drawable.ic_language_updated){
-//                    val intent = Intent(requireActivity, LanguageScreenOne::class.java)
-//                    intent.putExtra("comeFrom", "AppSettings")
-//                    context.startActivity(intent)
-//                }
 
                 SettingItem(
                     text = stringResource(id = R.string.label_app_language),

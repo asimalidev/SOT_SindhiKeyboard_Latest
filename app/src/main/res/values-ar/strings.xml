@@ -69,8 +69,12 @@
     <string name="label_favourite">المفضلة</string>
     <string name="label_coming_soon">قريباً</string>
     <string name="label_text_resize">Text Resize</string>
-    <string name="label_text_reverse">Text Reverse</string>
     <string name="label_text_translator">Text Translator</string>
     <string name="label_text_to_audio_file">Text to audio file</string>
+    <string name="label_manage_subscrptions">إدارة الاشتراك</string>
+    <string name="label_app_update">التحقق من تحديث التطبيق</string>
+    <string name="sindhi_stickers">ملصقات سندية</string>
+    <string name="sindhi_editor">محرر سندي</string>
+    <string name="label_text_reverse">عكس النص</string>
     <string name="ad">Ad</string>
 </resources>

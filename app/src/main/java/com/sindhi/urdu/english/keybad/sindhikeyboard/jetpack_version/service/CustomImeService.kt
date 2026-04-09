@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -154,11 +153,13 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
 
     lateinit var myContext: Context
 
+    // THE FIX: Use 'by lazy' to prevent initialization during class creation
+    private val serviceScope by lazy { CoroutineScope(Dispatchers.Main + SupervisorJob()) }
+
     var mainSuggestionList: MutableList<SuggestionItems> = mutableListOf()
 
     var mFirebaseRemoteConfig: FirebaseRemoteConfig? = null
 
-    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var adManagerStarted = false
     private val DATABASE_NAME = "dictionary.db"
@@ -247,16 +248,14 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
 
 
         if (!adManagerStarted) {
-            CoroutineScope(Dispatchers.Main).launch {
+            // USE serviceScope, don't create a new CoroutineScope() here
+            serviceScope.launch {
                 try {
                     withContext(Dispatchers.IO) {
-                        Log.e("AdManagerDebug", "Fetching ad config in onStartInputView...")
-                        fetchAdIDS(this@CustomImeService) // This updates your database
+                        Log.e("AdManagerDebug", "Fetching ad config...")
+                        fetchAdIDS(this@CustomImeService)
                     }
-                    Log.e("AdManagerDebug", "Config fetch complete. Starting AdManager loop.")
-
-                    adManagerStarted = true // Mark as started
-
+                    adManagerStarted = true
                 } catch (e: Exception) {
                     Log.e("AdManagerDebug", "Error fetching Ad IDs", e)
                 }
@@ -293,6 +292,44 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         imeActionType = info.imeOptions and EditorInfo.IME_MASK_ACTION
     }
 
+//    override fun onCreate() {
+//        super.onCreate() // View inflation happens here
+//        Log.i("CustomImeService", "onCreate()")
+//        try {
+//            savedStateRegistryVar.performRestore(null)
+//            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+//
+//            // MOVED EVERYTHING TO THE BACKGROUND
+//            serviceScope.launch(Dispatchers.IO) {
+//                try {
+//                    // 1. Initialize DB off the main thread
+//                    DataBaseCopyOperationsKt.init(this@CustomImeService)
+//                    MobileAds.initialize(this@CustomImeService) { initializationStatus ->
+//                        Log.i("AdManagerDebug", "AdMob pre-warmed in background")
+//                    }
+//
+//                    // 2. Read values from DB/Disk
+//                    val iap = DataBaseCopyOperationsKt.getInAppPurchases()
+//                    val configVis = DataBaseCopyOperationsKt.getRemoteConfigVisibility()
+//                    val configAdmob = DataBaseCopyOperationsKt.getRemoteConfigAdmob()
+//                    val configMintegral = DataBaseCopyOperationsKt.getRemoteConfigMintegral()
+//
+//                    // 3. Update State on Main Thread for Compose
+//                    withContext(Dispatchers.Main) {
+//                        getInAppPurchases = iap
+//                        getRemoteConfigVisibility = configVis
+//                        getRemoteConfigAdmob = configAdmob
+//                        getRemoteConfigMintegral = configMintegral
+//                    }
+//                } catch (e: Exception) {
+//                    Log.e("CustomImeService", "Error loading config", e)
+//                }
+//            }
+//        } catch (e: Exception) {
+//            Log.e("CustomImeService", "Error in onCreate", e)
+//        }
+//    }
+
     override fun onCreate() {
         super.onCreate() // View inflation happens here
         Log.i("CustomImeService", "onCreate()")
@@ -300,22 +337,17 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
             savedStateRegistryVar.performRestore(null)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
 
-            // MOVED EVERYTHING TO THE BACKGROUND
+            // 2. BACKGROUND THREAD: Database and Remote Config operations
             serviceScope.launch(Dispatchers.IO) {
                 try {
-                    // 1. Initialize DB off the main thread
                     DataBaseCopyOperationsKt.init(this@CustomImeService)
-                    MobileAds.initialize(this@CustomImeService) { initializationStatus ->
-                        Log.i("AdManagerDebug", "AdMob pre-warmed in background")
-                    }
 
-                    // 2. Read values from DB/Disk
                     val iap = DataBaseCopyOperationsKt.getInAppPurchases()
                     val configVis = DataBaseCopyOperationsKt.getRemoteConfigVisibility()
                     val configAdmob = DataBaseCopyOperationsKt.getRemoteConfigAdmob()
                     val configMintegral = DataBaseCopyOperationsKt.getRemoteConfigMintegral()
 
-                    // 3. Update State on Main Thread for Compose
+                    // 3. Update State back on Main Thread for Compose
                     withContext(Dispatchers.Main) {
                         getInAppPurchases = iap
                         getRemoteConfigVisibility = configVis
@@ -536,7 +568,7 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     }
 
     fun commitEmoji(emoji: String) {
-        GlobalScope.launch {
+        serviceScope.launch {
             currentInputConnection?.commitText(emoji, 1)
         }
     }

@@ -3,9 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/home_bg_color"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    tools:context=".sindhikeyboard.ui.fragments.SettingsFragment">
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/composeView"

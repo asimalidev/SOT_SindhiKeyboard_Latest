@@ -67,7 +67,7 @@ class StickersViewActivity : AppCompatBaseActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (intent.getStringExtra("MoveTo").equals("Stickers")) {
+                if (intent.getStringExtra("MoveTo").equals("sindhi_stickers")) {
                     val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
                     startActivity(intent)
                 }
@@ -76,7 +76,7 @@ class StickersViewActivity : AppCompatBaseActivity() {
         })
 
         binding.ivBackPress.blockingClickListener {
-            if (intent.getStringExtra("MoveTo").equals("Stickers")) {
+            if (intent.getStringExtra("MoveTo").equals("sindhi_stickers")) {
                 val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
                 startActivity(intent)
             }

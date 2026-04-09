@@ -93,43 +93,41 @@ class SettingsFragment : Fragment() {
             })
     }
 
+
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
         super.onResume()
-        val ivClose = requireActivity().findViewById<ImageView>(R.id.ivClose)
-        if (ivClose != null) {
-            ivClose.visibility = View.INVISIBLE
-        }
 
-        val ivPurchase = requireActivity().findViewById<LottieAnimationView>(R.id.ivPurchase)
+        // Use activity?.let to avoid multiple requireActivity() calls
+        activity?.let { act ->
+            // 1. Hide all unwanted icons
+            act.findViewById<ImageView>(R.id.ivClose)?.visibility = View.INVISIBLE
+            act.findViewById<LottieAnimationView>(R.id.ivPurchase)?.visibility = View.INVISIBLE
 
-        if (ivPurchase != null) {
-            ivPurchase.visibility = View.INVISIBLE
-        }
+            // NEW: Explicitly hide the settings icon so it doesn't show up
+            act.findViewById<ImageView>(R.id.ivSettings)?.visibility = View.INVISIBLE
 
-        if (ivClose != null) {
-            ivClose.visibility = View.INVISIBLE
-        }
+            // 2. Setup the Toolbar Text
+            val txtSindhiKeyboard = act.findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
 
+            // FIX: Add an isAdded check and use 'act' context inside the async .post block
+            txtSindhiKeyboard?.post {
+                if (!isAdded) return@post // Prevents the crash if the fragment is detached
 
+                txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
+                    ContextCompat.getDrawable(act, R.drawable.back), // Use 'act' instead of requireContext()
+                    null, null, null
+                )
+                txtSindhiKeyboard.text = act.getString(R.string.label_settings) // Use 'act.getString()'
+            }
 
-        val txtSindhiKeyboard =
-            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
-        if (txtSindhiKeyboard != null) {
-            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.back
-                ), null, null, null
-            )
-            txtSindhiKeyboard.text = resources.getString(R.string.label_settings)
-
-            val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
-
-            txtSindhiKeyboard.setOnTouchListener { _, event ->
+            txtSindhiKeyboard?.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
+                    val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
                     if (event.x <= (startDrawable?.bounds?.width() ?: 0)) {
-                        activity?.onBackPressedDispatcher?.onBackPressed()
+                        act.onBackPressedDispatcher.onBackPressed()
                         return@setOnTouchListener true
                     }
                 }

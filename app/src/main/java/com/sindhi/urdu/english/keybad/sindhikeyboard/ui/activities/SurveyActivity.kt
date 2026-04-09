@@ -7,8 +7,11 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.ActivitySurveyBinding
@@ -19,6 +22,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_SURVEY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideSystemUIUpdated
 
 class SurveyActivity : AppCompatActivity() {
     private  var _binding: ActivitySurveyBinding? =null
@@ -31,6 +35,17 @@ class SurveyActivity : AppCompatActivity() {
 
         setContentView(binding?.root)
         supportActionBar?.hide()
+        hideSystemUIUpdated()
+
+        binding?.main.let { mainView ->
+            if (mainView != null) {
+                ViewCompat.setOnApplyWindowInsetsListener(mainView) { v, insets ->
+                    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                    v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                    insets
+                }
+            }
+        }
         loadNativeAd()
         binding?.btnCancel?.blockingClickListener {
             whenBack()

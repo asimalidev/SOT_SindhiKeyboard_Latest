@@ -322,7 +322,7 @@ fun openThemes(context: Context?) {
     if (!(ForegroundCheckTask().execute(context).get())) {
         val intent = Intent(context, FOFStartActivity::class.java).apply {
             flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-            putExtra("MoveTo", "Themes")
+            putExtra("MoveTo", "themes")
         }
         context?.startActivity(intent)
     }

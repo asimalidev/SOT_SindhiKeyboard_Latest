@@ -295,9 +295,13 @@ class HomeFragment : Fragment(), IBillingHandler {
         navController = findNavController()
         isPurchased = requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
             ?.getBoolean(IS_PURCHASED, false) == true
-        binding?.clEditor?.setOnClickListener {
-            val action = HomeFragmentDirections.actionNavHomeToNavEditors()
-            navController?.navigate(action)
+
+        binding?.clEditor?.blockingClickListener {
+            if (isAdded && navController != null) {
+                val action = HomeFragmentDirections.actionNavHomeToNavEditors()
+                // Use safeNavigate to ensure the action exists for the current destination
+                navController?.safeNavigate(action)
+            }
         }
 
         bundle.putString("HomeFragment", "HomeFragment")

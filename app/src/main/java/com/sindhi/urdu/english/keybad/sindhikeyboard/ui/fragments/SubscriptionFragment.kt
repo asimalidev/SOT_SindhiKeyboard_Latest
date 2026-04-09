@@ -108,6 +108,14 @@ class SubscriptionFragment : Fragment() {
             // Store the selected index from the list
             selectedListIndex = itemDs.planIndex // Assuming planIndex stores the list position
             PrefHelper(requireContext()).putString("SubscriberPosition", selectedListIndex.toString())
+
+            // --- NEW CODE: Update bottom text on click ---
+            if (selectedListIndex != -1 && selectedListIndex < mappedOffers.size) {
+                val (_, offerDetails) = mappedOffers[selectedListIndex]
+                val basePlanId = offerDetails.basePlanId
+                updateSubscriptionUI(basePlanId)
+            }
+            // ---------------------------------------------
         }
         binding.rvSubscription.layoutManager = LinearLayoutManager(requireContext())
         binding.rvSubscription.adapter = adapter
@@ -224,9 +232,6 @@ class SubscriptionFragment : Fragment() {
         activity?.findViewById<ImageView>(R.id.ivClosePurchase)?.visibility = View.VISIBLE
     }
 
-    // endregion
-
-    // region --- Data & Billing ---
 
     private fun setupObservers() {
         lifecycleScope.launch {
@@ -245,86 +250,8 @@ class SubscriptionFragment : Fragment() {
         }
     }
 
-//    private fun processBillingList(productDetailsList: List<ProductDetails>) {
-//        if (productDetailsList.isEmpty()) return
-//
-//        subscriptionsArrayList.clear()
-//        mappedOffers.clear()
-//
-//        val processedPlans = HashSet<String>()
-//        var listIndex = 0
-//
-//        for (productDetails in productDetailsList) {
-//            productDetails.subscriptionOfferDetails?.forEach { offerDetails ->
-//                val basePlanId = offerDetails.basePlanId
-//
-//                if (!processedPlans.contains(basePlanId)) {
-//                    var periodTitle = ""
-//                    var detailsLine = ""
-//                    var billingLine = ""
-//                    var suffix = ""
-//                    var isValid = false
-//
-//                    when (basePlanId) {
-//                        "sindhikeyboard-weekly" -> {
-//                            periodTitle = "Week"
-//                            detailsLine = "Auto Renewal"
-//                            billingLine = "Billed Weekly"
-//                            isValid = true
-//                        }
-//                        "sindhikeyboard-monthly" -> {
-//                            periodTitle = "Month"
-//                            detailsLine = "3 Days Free Trial, Auto Renewal"
-//                            billingLine = "Billed Monthly"
-//                            suffix = " (After Free Trial)"
-//                            isValid = true
-//                        }
-//                        "sindhikeyboard-yearly" -> {
-//                            periodTitle = "Yearly"
-//                            detailsLine = "7 Days Free Trial, Auto Renewal"
-//                            billingLine = "Billed Yearly"
-//                            suffix = " (After Free Trial)"
-//                            isValid = true
-//                        }
-//                    }
-//
-//                    if (isValid) {
-//                        val pricingPhase = offerDetails.pricingPhases.pricingPhaseList.lastOrNull()
-//                        val price = pricingPhase?.formattedPrice ?: "N/A"
-//
-//                        val headerText = "$price / $periodTitle$suffix"
-//                        val fullDetails = "$detailsLine\n$billingLine"
-//
-//                        // Add to UI List
-//                        subscriptionsArrayList.add(itemDs(fullDetails, headerText, listIndex))
-//
-//                        // Add to Mapping List (Crucial for correct purchase)
-//                        mappedOffers.add(Pair(productDetails, offerDetails))
-//
-//                        processedPlans.add(basePlanId)
-//                        listIndex++
-//                    }
-//                }
-//            }
-//        }
-//
-//        // Sort: Week (1), Month (2), Yearly (3)
-//        // Note: We must sort both lists (UI and Map) identically to keep indices synced
-//        // Using a combined object would be better, but sticking to logic for now:
-//        val combined = subscriptionsArrayList.zip(mappedOffers).sortedBy { (item, _) ->
-//            if (item.formattedPrice.contains("Week")) 1
-//            else if (item.formattedPrice.contains("Month")) 2
-//            else 3
-//        }
-//
-//        subscriptionsArrayList.clear()
-//        subscriptionsArrayList.addAll(combined.map { it.first })
-//
-//        mappedOffers.clear()
-//        mappedOffers.addAll(combined.map { it.second })
-//
-//        updateAdapterAndSelection()
-//    }
+
+
 private fun processBillingList(productDetailsList: List<ProductDetails>) {
     if (productDetailsList.isEmpty()) return
 
@@ -410,6 +337,22 @@ private fun processBillingList(productDetailsList: List<ProductDetails>) {
     updateAdapterAndSelection()
 }
 
+
+    private fun updateSubscriptionUI(basePlanId: String) {
+        // Note: Replace 'bottomTextView' with your actual TextView ID from XML
+        if (basePlanId == "sindhikeyboard-weekly") {
+            // Plan without a free trial
+            binding.txtCancelAnytime.text = "Billed Immediately, Cancel Anytime"
+
+            // Or if you prefer to hide it completely, uncomment the line below:
+            // binding.bottomTextView.visibility = View.GONE
+        } else {
+            // Plans with a free trial (Monthly / Yearly)
+            binding.txtCancelAnytime.text = "No Initial Payment, Cancel Anytime"
+            binding.txtCancelAnytime.visibility = View.VISIBLE
+        }
+    }
+
     private fun updateAdapterAndSelection() {
         if (!isAdded) return
 
@@ -429,6 +372,14 @@ private fun processBillingList(productDetailsList: List<ProductDetails>) {
 
             selectedListIndex = defaultPosition // Set selected index
             PrefHelper(requireContext()).putString("SubscriberPosition", defaultPosition.toString())
+
+            // --- NEW CODE: Set initial text for the default plan ---
+            if (selectedListIndex != -1 && selectedListIndex < mappedOffers.size) {
+                val (_, offerDetails) = mappedOffers[selectedListIndex]
+                val basePlanId = offerDetails.basePlanId
+                updateSubscriptionUI(basePlanId)
+            }
+            // -------------------------------------------------------
 
             // Note: If you want the adapter to visually update the radio button immediately:
             adapter.notifyDataSetChanged()

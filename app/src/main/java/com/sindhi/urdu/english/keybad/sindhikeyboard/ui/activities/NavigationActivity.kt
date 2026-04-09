@@ -35,7 +35,7 @@ class NavigationActivity : AppCompatBaseActivity() {
     private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
     private var isPurchased: Boolean? = null
     private lateinit var appUpdateManager: AppUpdateManager
-    private  var action:String? = null
+    private var action: String? = null
     private val updateActivityResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
@@ -67,10 +67,11 @@ class NavigationActivity : AppCompatBaseActivity() {
             }
         }
 
-
         // Initialize consent + purchase
-        googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(applicationContext)
-        isPurchased = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PURCHASE, false)
+        googleMobileAdsConsentManager =
+            GoogleMobileAdsConsentManager.getInstance(applicationContext)
+        isPurchased =
+            PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PURCHASE, false)
 
         // Set navigation graph start destination
         navController = findNavController(R.id.nav_host_fragment_content_navigation)
@@ -84,7 +85,11 @@ class NavigationActivity : AppCompatBaseActivity() {
             action == DESTINATION1 -> R.id.nav_editor
             action == DESTINATION3 -> R.id.themesFragment
             moveTo == "Settings" -> R.id.settingsFragment
-            moveTo == "Themes" -> R.id.themesFragment
+            moveTo == "themes" -> R.id.themesFragment
+            moveTo == "sindhi_status" -> R.id.navSindhiStatus
+            moveTo == "sindhi_editor" -> R.id.nav_editor
+            moveTo == "text_translator" -> R.id.navTextTranslator
+            moveTo =="speech_to_text" -> R.id.speechFragment
             else -> R.id.nav_home
         }
 
@@ -111,7 +116,12 @@ class NavigationActivity : AppCompatBaseActivity() {
             if (inputMethodManager.enabledInputMethodList.toString().contains(packageName)) {
                 if (checkIfKeyboardEnabled()) {
                     if (!isInputMethodEnabled()) {
-                        startActivity(Intent(this@NavigationActivity, KeyboardSelectionActivity::class.java))
+                        startActivity(
+                            Intent(
+                                this@NavigationActivity,
+                                KeyboardSelectionActivity::class.java
+                            )
+                        )
                     }
                 }
             }

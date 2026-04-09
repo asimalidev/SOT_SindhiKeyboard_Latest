@@ -69,8 +69,12 @@
     <string name="label_favourite">Favoriten</string>
     <string name="label_coming_soon">Demnächst verfügbar</string>
     <string name="label_text_resize">Text Resize</string>
-    <string name="label_text_reverse">Text Reverse</string>
+    <string name="label_text_reverse">Text umkehren</string>
     <string name="label_text_translator">Text Translator</string>
     <string name="label_text_to_audio_file">Text to audio file</string>
+    <string name="label_manage_subscrptions">Abonnement verwalten</string>
+    <string name="label_app_update">App-Update prüfen</string>
+    <string name="sindhi_stickers">Sindhi-Sticker</string>
+    <string name="sindhi_editor">Sindhi-Editor</string>
     <string name="ad">Ad</string>
 </resources>

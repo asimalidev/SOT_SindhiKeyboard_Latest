@@ -371,44 +371,7 @@ fun MyCandidateView(
                 )
             }
 
-//            if (getSelectedLanguage(context!!) == "English" || getSelectedLanguage(context) == "Sindhi") {
-//                Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(50))
-//                        .width(60.dp)
-//                        .height(40.dp)
-//                        .background(MaterialTheme.colorScheme.tertiaryContainer)
-//                        .clickable(true, onClick = {
-//                            onSuggestedWordSelected()
-//                            onChangeLanguageBtnClick("Urdu")
-//                        }),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        text = /*if (getSelectedLanguage(context!!) == "English") { */"اردو"/* } else { "Eng" }*/,
-//                        color = textColor,
-//                        fontSize = 20.sp,
-//                        maxLines = 1)
-//                }
-//            }
-//
-//            if (getSelectedLanguage(context) != "English" && getSelectedLanguage(context) != "Sindhi") {
-//                Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(50))
-//                        .height(40.dp)
-//                        .background(MaterialTheme.colorScheme.tertiaryContainer)
-//                        .clickable(true, onClick = {
-//                            onHusnEguftarSwitchClick()
-//                        }),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        text = "  حُسن گفتار  ",
-//                        color = textColor,
-//                        fontSize = 14.sp)
-//                }
-//            }
+
 
             // In MyCandidateView composable, use the currentLanguage parameter instead of getSelectedLanguage(context)
             if (currentLanguage == "English" || currentLanguage == "Sindhi") {

@@ -69,8 +69,12 @@
     <string name="label_favourite">पसंदीदा</string>
     <string name="label_coming_soon">जल्द आ रहा है</string>
     <string name="label_text_resize">Text Resize</string>
-    <string name="label_text_reverse">Text Reverse</string>
-    <string name="label_text_translator">Text Translator</string>
+    <string name="label_text_translator">Text Translator</string>fv
     <string name="label_text_to_audio_file">Text to audio file</string>
+    <string name="label_manage_subscrptions">सदस्यता प्रबंधित करें</string>
+    <string name="label_app_update">ऐप अपडेट जांचें</string>
+    <string name="sindhi_stickers">सिंधी स्टिकर</string>
+    <string name="sindhi_editor">सिंधी संपादक</string>
+    <string name="label_text_reverse">टेक्स्ट उल्टा करें</string>
     <string name="ad">Ad</string>
 </resources>

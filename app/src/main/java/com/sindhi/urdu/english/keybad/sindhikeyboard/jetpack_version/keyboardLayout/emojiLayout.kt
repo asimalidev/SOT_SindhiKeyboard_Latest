@@ -142,7 +142,7 @@ fun EmojiLayout(
                             if (!isInForeground || isHuaweiDevice()) {
                                 val intent = Intent(ctx, FOFStartActivity::class.java).apply {
                                     flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    putExtra("MoveTo", "Stickers")
+                                    putExtra("MoveTo", "sindhi_stickers")
                                 }
                                 ctx?.startActivity(intent)
                             }
@@ -157,7 +157,7 @@ fun EmojiLayout(
                             if (!isInForeground || isHuaweiDevice()) {
                                 val intent = Intent(ctx, FOFStartActivity::class.java).apply {
                                     flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TOP
-                                    putExtra("MoveTo", "Stickers")
+                                    putExtra("MoveTo", "sindhi_stickers")
                                 }
                                 ctx?.startActivity(intent)
                             }

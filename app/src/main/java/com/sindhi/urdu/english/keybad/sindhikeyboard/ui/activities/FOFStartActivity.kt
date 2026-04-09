@@ -121,6 +121,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.content.edit
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass.Companion.applicationClass
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ResumeAd
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.BillingManager
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ACTION
@@ -148,10 +150,6 @@ class FOFStartActivity : AppCompatActivity() {
         binding = ActivityFofstartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        GlobalScope.launch(Dispatchers.Main) {
-            initMobileAds()
-        }
-
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 FirebaseApp.initializeApp(this@FOFStartActivity)
@@ -166,14 +164,6 @@ class FOFStartActivity : AppCompatActivity() {
         hideSystemUIUpdated()
         setStatusBarColor(this, resources.getColor(R.color.board_theme__red))
         supportActionBar?.hide()
-
-        try {
-            Handler(Looper.getMainLooper()).postDelayed({
-                initializeAds()
-            }, 1000) // Delay by 1 second to allow user unlock
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
 
         Glide.with(this@FOFStartActivity)
             .asBitmap()
@@ -265,22 +255,41 @@ class FOFStartActivity : AppCompatActivity() {
                 )
             )
             .setOnConsentGatheredCallback {
-                Log.i("ConsentMessage", "SOTStartActivity: setOnConsentGatheredCallback")
 
-                // Use the already fetched remoteConfigData
-                sotAdsConfigurations.setRemoteConfigData(
-                    activityContext = this@FOFStartActivity,
-                    myRemoteConfigData = remoteConfigData
-                )
+
+                if (NetworkCheck.isNetworkAvailable(this) && !prefs.getBoolean(
+                        IS_PURCHASED,
+                        false
+                    )
+                ) {
+                    ResumeAd(applicationClass)
+                    val sdk: MBridgeSDK = MBridgeSDKFactory.getMBridgeSDK()
+                    sdk.setDoNotTrackStatus(false)
+                    sdk.setConsentStatus(this, MBridgeConstans.IS_SWITCH_ON)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    sotAdsConfigurations.setRemoteConfigData(
+                        activityContext = this@FOFStartActivity,
+                        myRemoteConfigData = remoteConfigData
+                    )
+                }
 
                 if (NetworkCheck.isNetworkAvailable(this) && remoteConfigData.getValue(BANNER_SPLASH) == true && !prefs.getBoolean(
-                        IS_PURCHASED,false)){
+                        IS_PURCHASED,
+                        false
+                    )
+                ) {
+                    Log.d("SOT_ADS_TAG", "startFirstOpenFlow: trrr")
                     binding.bannerAd.visibility = View.VISIBLE
-                    Log.e("bannerid", "${remoteConfigData.getValue(BANNER_SPLASH)}")
-                    loadAdmobBannerAd()
+                    loadAdmobBannerAd() // This is now safe to call
+                } else {
+                    Log.d("SOT_ADS_TAG", "startFirstOpenFlow: falss")
+                    binding.bannerAd.visibility = View.GONE
                 }
             }
             .build()
+
         val welcomeScreensConfiguration = WelcomeScreensConfiguration.Builder()
             .setActivityContext(this)
             .setXMLLayout(setUpWelcomeScreen(this))
@@ -358,7 +367,7 @@ class FOFStartActivity : AppCompatActivity() {
     }
 
     private fun gotoMainActivity() {
-        Log.d("action", "intent?.action :${intent?.action } ")
+        Log.d("action", "intent?.action :${intent?.action} ")
         Log.d("action", "action :$action ")
         if (intent?.action == "android.intent.action.SHORTCUT_UNINSTALL_APP") {
             val uninstallIntent =
@@ -400,17 +409,53 @@ class FOFStartActivity : AppCompatActivity() {
                 }
 
             } else {
-                val intent: Intent =
-                    if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
+                val intent: Intent = if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
                         Intent(this, KeyboardSelectionActivity::class.java).putExtra(
                             "MoveTo", intent.getStringExtra("MoveTo")
                         )
-                    } else if (intent.getStringExtra("MoveTo").equals("Stickers")) {
+                    } else if (intent.getStringExtra("MoveTo").equals("sindhi_stickers")) {
                         Intent(this, StickersViewActivity::class.java).putExtra(
                             "MoveTo",
                             intent.getStringExtra("MoveTo")
                         )
-                    } else {
+                    }
+                else if (intent.getStringExtra("MoveTo").equals("themes")) {
+                    Intent(this, NavigationActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+
+                else if (intent.getStringExtra("MoveTo").equals("sindhi_status")) {
+                    Intent(this, NavigationActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+                else if (intent.getStringExtra("MoveTo").equals("sindhi_editor")) {
+                    Intent(this, NavigationActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+
+                else if (intent.getStringExtra("MoveTo").equals("text_translator")) {
+                    Intent(this, NavigationActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+
+                else if (intent.getStringExtra("MoveTo").equals("speech_to_text")) {
+                    Intent(this, NavigationActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+
+                else if (intent.getStringExtra("MoveTo").equals("conversation")) {
+                    Intent(this, NavigationActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+
+
+                else {
                         Intent(this, NavigationActivity::class.java).putExtra(
                             "MoveTo",
                             intent.getStringExtra("MoveTo")
@@ -422,6 +467,7 @@ class FOFStartActivity : AppCompatActivity() {
         }
 
     }
+
     private fun getWalkThroughList(context: Context): ArrayList<WalkThroughItem> {
         val localizedContext = ContextWrapper(this).createConfigurationContext(
             resources.configuration.apply { MyLocaleHelper.onAttach(context, "en") }
@@ -691,9 +737,18 @@ class FOFStartActivity : AppCompatActivity() {
                 BANNER_SPLASH, getBoolean(BANNER_SPLASH)
             )
 
-            editor.putBoolean(RemoteConfigConst.RESUME_OVERALL, getBoolean(RemoteConfigConst.RESUME_OVERALL))
-            editor.putBoolean(RemoteConfigConst.NATIVE_UNINSTALL, getBoolean(RemoteConfigConst.NATIVE_UNINSTALL))
-            editor.putBoolean(RemoteConfigConst.NATIVE_SURVEY, getBoolean(RemoteConfigConst.NATIVE_SURVEY))
+            editor.putBoolean(
+                RemoteConfigConst.RESUME_OVERALL,
+                getBoolean(RemoteConfigConst.RESUME_OVERALL)
+            )
+            editor.putBoolean(
+                RemoteConfigConst.NATIVE_UNINSTALL,
+                getBoolean(RemoteConfigConst.NATIVE_UNINSTALL)
+            )
+            editor.putBoolean(
+                RemoteConfigConst.NATIVE_SURVEY,
+                getBoolean(RemoteConfigConst.NATIVE_SURVEY)
+            )
 
             Log.e("resume", "value of ${getBoolean(RemoteConfigConst.RESUME_OVERALL)}")
 
@@ -795,13 +850,17 @@ class FOFStartActivity : AppCompatActivity() {
                 ).trim()
             )
         ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit().putString(BANNER_THEMES_LIST,
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit().putString(
+                BANNER_THEMES_LIST,
                 mFirebaseRemoteConfig!!.getString(BANNER_THEMES_LIST)
-                ).apply()
+            ).apply()
         }
 
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SUBSCRIPTION_EXIT).trim()))
-        { getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+        if (!TextUtils.isEmpty(
+                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SUBSCRIPTION_EXIT).trim()
+            )
+        ) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
                 putString(
                     INTERSTITIAL_SUBSCRIPTION_EXIT,
                     mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SUBSCRIPTION_EXIT)
@@ -1272,9 +1331,11 @@ class FOFStartActivity : AppCompatActivity() {
             this["ADMOB_NATIVE_SURVEY_2"] = remoteConfig.getString(ADMOB_NATIVE_SURVEY_2)
             this["ADMOB_NATIVE_WALKTHROUGH_1"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_1)
             this["ADMOB_NATIVE_WALKTHROUGH_2"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_2)
-            this["ADMOB_NATIVE_WALKTHROUGH_FULLSCR"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_FULLSCR)
+            this["ADMOB_NATIVE_WALKTHROUGH_FULLSCR"] =
+                remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_FULLSCR)
             this["ADMOB_NATIVE_WALKTHROUGH_3"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_3)
-            this["ADMOB_INTERSTITIAL_LETS_START"] = remoteConfig.getString(ADMOB_INTERSTITIAL_LETS_START)
+            this["ADMOB_INTERSTITIAL_LETS_START"] =
+                remoteConfig.getString(ADMOB_INTERSTITIAL_LETS_START)
 
             Log.d("AdConfig", "===== Loaded Ad IDs =====")
             forEach { (key, value) ->
@@ -1296,41 +1357,14 @@ class FOFStartActivity : AppCompatActivity() {
             this["ADMOB_NATIVE_SURVEY_2"] = getString(R.string.ADMOB_NATIVE_SURVEY_2)
             this["ADMOB_NATIVE_WALKTHROUGH_1"] = getString(R.string.ADMOB_NATIVE_WALKTHROUGH_1)
             this["ADMOB_NATIVE_WALKTHROUGH_2"] = getString(R.string.ADMOB_NATIVE_WALKTHROUGH_2)
-            this["ADMOB_NATIVE_WALKTHROUGH_FULLSCR"] = getString(R.string.ADMOB_NATIVE_WALKTHROUGH_FULLSCR)
+            this["ADMOB_NATIVE_WALKTHROUGH_FULLSCR"] =
+                getString(R.string.ADMOB_NATIVE_WALKTHROUGH_FULLSCR)
             this["ADMOB_NATIVE_WALKTHROUGH_3"] = getString(R.string.ADMOB_NATIVE_WALKTHROUGH_3)
-            this["ADMOB_INTERSTITIAL_LETS_START"] = getString(R.string.ADMOB_INTERSTITIAL_LETS_START)
+            this["ADMOB_INTERSTITIAL_LETS_START"] =
+                getString(R.string.ADMOB_INTERSTITIAL_LETS_START)
         }
     }
 
-    private fun initializeAds() {
-        MobileAds.initialize(this) { initializationStatus ->
-            val statusMap = initializationStatus.adapterStatusMap
-            AppLovinSdk.getInstance(this)
-            AppLovinPrivacySettings.setHasUserConsent(true, this)
-            AppLovinPrivacySettings.setDoNotSell(true, this)
-
-            // Configure Mintegral
-            val sdk: MBridgeSDK = MBridgeSDKFactory.getMBridgeSDK()
-            sdk.setDoNotTrackStatus(false) // Disable tracking for testing
-            sdk.setConsentStatus(this, MBridgeConstans.IS_SWITCH_ON)
-
-        }
-    }
-
-    private suspend fun initMobileAds() {
-        if (GoogleApiAvailabilityLight.getInstance()
-                .isGooglePlayServicesAvailable(this) == ConnectionResult.SUCCESS
-        ) {
-            // MobileAds.initialize MUST be on main thread
-            withContext(Dispatchers.Main) {
-                MobileAds.initialize(this@FOFStartActivity) {
-                    Log.d(logTagAdmob, "Mobile Ads initialized.")
-                }
-            }
-        } else {
-            Log.w(logTagAdmob, "Google Play Services not available — skipping AdMob init")
-        }
-    }
 
     override fun onResume() {
         super.onResume()

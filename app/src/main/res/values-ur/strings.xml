@@ -93,8 +93,12 @@
     <string name="label_favourite">پسندیدہ</string>
     <string name="label_coming_soon">جلد آرہا ہے</string>
     <string name="label_text_resize">Text Resize</string>
-    <string name="label_text_reverse">Text Reverse</string>
     <string name="label_text_translator">Text Translator</string>
     <string name="label_text_to_audio_file">Text to audio file</string>
+    <string name="label_manage_subscrptions">سبسکرپشن کا نظم کریں</string>
+    <string name="label_app_update">ایپ اپ ڈیٹ چیک کریں</string>
+    <string name="sindhi_stickers">سندھی اسٹیکرز</string>
+    <string name="sindhi_editor">سندھی ایڈیٹر</string>
+    <string name="label_text_reverse">متن الٹ دیں</string>
     <string name="ad">Ad</string>
 </resources>

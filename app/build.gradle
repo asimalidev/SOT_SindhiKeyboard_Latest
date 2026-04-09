@@ -23,8 +23,8 @@ android {
         applicationId "com.sindhi.urdu.english.keybad"
         minSdk 23
         targetSdk 36
-        versionCode 63
-        versionName '5.9'
+        versionCode 66
+        versionName '6.2'
         multiDexEnabled true
         setProperty("archivesBaseName","SindhiKeyboard_VN" + versionName + "("+versionCode+")_" + new Date().format('dd-MM-YYYY'))
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -73,6 +73,7 @@ android {
             resValue("string", "ADMOB_NATIVE_WALKTHROUGH_2", "ca-app-pub-3747520410546258/4329107991")
             resValue("string", "ADMOB_INTERSTITIAL_LETS_START", "ca-app-pub-3747520410546258/3016026325")
             resValue "string", "MINTEGRAL_BANNER_KEYPAD", '"2339869-5085280"'
+            resValue "string", "NATIVE_INSIDE_BIDDING", '"ca-app-pub-3747520410546258/8117321523"'
 
         }
 
@@ -92,6 +93,7 @@ android {
             resValue "string", "admob_native_home", '"ca-app-pub-3940256099942544/2247696110"'
             resValue "string", "admob_native_conversation", '"ca-app-pub-3940256099942544/2247696110"'
             resValue "string", "admob_app_open", '"ca-app-pub-3940256099942544/9257395921"'
+            resValue "string", "NATIVE_INSIDE_BIDDING", '"ca-app-pub-3940256099942544/2247696110"'
 
             resValue "string", "admob_banner_inside", '"ca-app-pub-3940256099942544/9214589741"'
             resValue "string", "BANNER_BIDDING", '"ca-app-pub-3940256099942544/9214589741"'

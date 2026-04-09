@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
@@ -17,6 +18,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_UNINSTALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideSystemUIUpdated
 
 class ConfirmUninstallActivity : AppCompatActivity() {
     private  var _binding: ActivityConfirmUninstallBinding? =null
@@ -27,6 +29,7 @@ class ConfirmUninstallActivity : AppCompatActivity() {
         _binding = ActivityConfirmUninstallBinding.inflate(layoutInflater)
         setContentView(binding?.root)
         supportActionBar?.hide()
+     hideSystemUIUpdated()
         pref = getSharedPreferences(REMOTE_CONFIG, Context.MODE_PRIVATE)
         loadNativeAd()
         _binding?.imgBack?.blockingClickListener {

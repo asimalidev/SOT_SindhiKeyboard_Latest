@@ -63,6 +63,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideKeyboard
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.viewModels.StickerViewModel
 import kotlin.collections.iterator
 import androidx.core.view.isGone
+import androidx.navigation.NavOptions
 
 class UrduEditorFragment : Fragment() {
     private lateinit var binding: FragmentUrduEditorBinding
@@ -908,7 +909,7 @@ class UrduEditorFragment : Fragment() {
                 val bitmap = binding.textEditorView.captureAsBitmap()
                 imgSaveOrShare(bitmap = bitmap, context = ctx, notInCache = true)
                 binding.clExitDialog.visibility = View.GONE
-                navController?.popBackStack()
+                navigateBackOrHome()
             }
 
             binding.imgClose.blockingClickListener {
@@ -917,11 +918,24 @@ class UrduEditorFragment : Fragment() {
 
             binding.btnCancel.blockingClickListener {
                 binding.clExitDialog.visibility = View.GONE
-                navController?.popBackStack()
+                navigateBackOrHome()
             }
         } ?: run {
             // Handle the case where the fragment is not attached to the activity
             Log.e("UrduEditorFragment", "Fragment is not attached to activity")
+        }
+    }
+
+    private fun navigateBackOrHome() {
+        val popped = navController?.popBackStack() ?: false
+
+        // If 'popped' is false, we opened this directly via Intent
+        if (!popped) {
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.nav_editor, true) // Clear the editor from history
+                .build()
+
+            navController?.navigate(R.id.nav_home, null, navOptions)
         }
     }
 

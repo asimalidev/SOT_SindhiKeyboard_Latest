@@ -69,8 +69,10 @@
     <string name="label_favourite">Favorieten</string>
     <string name="label_coming_soon">Binnenkort beschikbaar</string>
     <string name="label_text_resize">Text Resize</string>
-    <string name="label_text_reverse">Text Reverse</string>
     <string name="label_text_translator">Text Translator</string>
     <string name="label_text_to_audio_file">Text to audio file</string>
+    <string name="sindhi_stickers">Sindhi-stickers</string>
+    <string name="sindhi_editor">Sindhi-editor</string>
+    <string name="label_text_reverse">Tekst omkeren</string>
     <string name="ad">Ad</string>
 </resources>
