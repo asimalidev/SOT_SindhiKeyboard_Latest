@@ -126,15 +126,15 @@ class tocountry_fragment : Fragment() {
                     Preferences.ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT,"ON").equals("ON",true)) {
                 val pref =requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId  =if (!BuildConfig.DEBUG){
-                    pref.getString(NATIVE_OVER_ALL,"ca-app-pub-3747520410546258/1702944653")
+                    pref.getString(NATIVE_OVER_ALL,resources.getString(R.string.admob_native))
                 }
                 else{
-                    resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                    resources.getString(R.string.admob_native)
                 }
                     NewNativeAdClass.checkAdRequestAdmob(
                         mContext = requireActivity(),
                         adId = adId!!,//getString(R.string.admob_native),
-                        fragmentName = "SelectLanguageFragment",
+                        fragmentName = "tocontoury",
                         isMedia = false,
                         adContainer = binding.nativeAdContainerAd,
                         isMediumAd = false,

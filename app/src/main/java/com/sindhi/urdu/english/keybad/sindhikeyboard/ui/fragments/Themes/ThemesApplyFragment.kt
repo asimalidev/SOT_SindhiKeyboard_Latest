@@ -59,7 +59,6 @@ class ThemesApplyFragment : Fragment() {
     var isPurchased: Boolean? = null
     var navController: NavController? = null
     val argsThemes: ThemesApplyFragmentArgs by navArgs()
-    private val defBanner = "ca-app-pub-3747520410546258/3066582155"
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -93,9 +92,9 @@ class ThemesApplyFragment : Fragment() {
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
                 .getString(BANNER_THEMES_APPLIED, "ON").equals("ON", true)
         ) {
-            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeFragment")) {
+            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("Theme")) {
                 val collapsibleAdView: AdView? =
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"]
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["Theme"]
                 binding.shimmerLayoutBanner.stopShimmer()
                 binding.shimmerLayoutBanner.visibility = View.GONE
                 binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
@@ -182,9 +181,9 @@ class ThemesApplyFragment : Fragment() {
     private fun loadBanner() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_THEMES, defBanner)
+            pref.getString(ADMOB_BANNER_THEMES, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
@@ -204,7 +203,7 @@ class ThemesApplyFragment : Fragment() {
                 if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                         .getString(OVERALL_BANNER_RELOADING, "SAVE").equals("SAVE")
                 ) {
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"] = adView
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["Theme"] = adView
                 }
 
                 binding.shimmerLayoutBanner.stopShimmer()
@@ -287,15 +286,15 @@ class ThemesApplyFragment : Fragment() {
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(Preferences.ADS_NATIVE_THEMES_APPLY,"ON").equals("ON",true)) {
                 val pref =requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId  =if (!BuildConfig.DEBUG){
-                    pref.getString(ADS_NATIVE_THEMES_APPLY,"ca-app-pub-3747520410546258/6696428641")
+                    pref.getString(ADS_NATIVE_THEMES_APPLY,resources.getString(R.string.admob_native))
                 }
                 else{
-                    resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                    resources.getString(R.string.admob_native)
                 }
                     NewNativeAdClass.checkAdRequestAdmob(
                         mContext = requireActivity(),
                         adId = adId!!,//getString(R.string.admob_native),
-                        fragmentName = "ThemesFragment",
+                        fragmentName = "ApplyThemesFragment",
                         isMedia = true,
                         isMediaOnLeft = true,
                         adContainer = binding.nativeAdContainerAd,

@@ -492,29 +492,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             }
         }
 
-        /*if (isPurchased!!) {
-            binding.nativeAdContainerAd.visibility = View.GONE
-        } else {
-            if (NetworkCheck.isNetworkAvailable(requireContext())
-                && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(Preferences.ADS_NATIVE_CONVERSATION,"ON").equals("ON",true)) {
-                NewNativeAdClass.checkAdRequestAdmob(
-                    mContext = requireActivity(),
-                    adId = getString(R.string.admob_native_conversation),
-                    fragmentName = "OverallTranslationConvo",
-                    isMedia = false,
-                    adContainer = binding.nativeAdContainerAd,
-                    isMediumAd = false,
-                    onfailed = {
-                        binding.nativeAdContainerAd.visibility = View.GONE
-                    },
-                    onAddLoaded = {
-                        binding.shimmerLayout.stopShimmer()
-                        binding.shimmerLayout.visibility = View.GONE
-                    })
-            } else {
-                binding.nativeAdContainerAd.visibility = View.GONE
-            }
-        }*/
+
         if (NetworkCheck.isNetworkAvailable(requireActivity())
             && !isPurchased!!
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
@@ -541,9 +519,9 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun loadAdmobNativeAd() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(NATIVE_CONVERSATION, "ca-app-pub-3747520410546258/5450617979")
+            pref.getString(NATIVE_CONVERSATION,resources.getString(R.string.admob_native))
         } else {
-            resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+            resources.getString(R.string.admob_native)
         }
         NewNativeAdClass.checkAdRequestAdmob(
             mContext = requireActivity(),
@@ -586,9 +564,9 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         adView.adUnitId = adId!!//getString(R.string.admob_banner_inside)
         //adView.adUnitId = getString(R.string.admob_banner_inside)

@@ -131,9 +131,9 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
                 BANNER_SINDHI_STATUS_SHOW, "ON"
             ).equals("ON", true)
         ) {
-            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeActivity")) {
+            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("showFragment")) {
                 val collapsibleAdView: AdView? =
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeActivity"]
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["showFragment"]
                 Handler().postDelayed({
                     binding.shimmerLayoutBanner.stopShimmer()
                     binding.shimmerLayoutBanner.visibility = View.GONE
@@ -180,9 +180,9 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
         Log.d("jdjasjjsa", "loading: ")
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_SINDHI_STATUS, "ca-app-pub-3747520410546258/5122866133")
+            pref.getString(ADMOB_BANNER_SINDHI_STATUS, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
@@ -194,7 +194,7 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
             override fun onAdLoaded() {
                 binding.adViewContainer.removeAllViews()
                 binding.adViewContainer.addView(adView)
-                NativeMaster.collapsibleBannerAdMobHashMap!!["baner_pet"] = adView
+                NativeMaster.collapsibleBannerAdMobHashMap!!["showFragment"] = adView
                 Log.d("jdjasjjsa", "onAdLoaded: ")
 
             }
@@ -263,14 +263,14 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
             ) {
                 val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_OVER_ALL, "ca-app-pub-3747520410546258/1702944653")
+                    pref.getString(NATIVE_OVER_ALL,  resources.getString(R.string.admob_banner_inside))
                 } else {
-                    resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                    resources.getString(R.string.admob_banner_inside)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
                     adId = adId!!,//getString(R.string.admob_native),
-                    fragmentName = "OverallAtPoetryExit",
+                    fragmentName = "showFragment",
                     isMedia = false,
                     adContainer = binding.nativeAdContainerAd,
                     isMediumAd = false,

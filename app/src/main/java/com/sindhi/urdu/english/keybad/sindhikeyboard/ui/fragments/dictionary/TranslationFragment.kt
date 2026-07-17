@@ -104,9 +104,9 @@ class TranslationFragment : Fragment() {
         ) {
             val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
             val adId = if (!BuildConfig.DEBUG) {
-                pref.getString(NATIVE_CONVERSATION, "ca-app-pub-3747520410546258/5450617979")
+                pref.getString(NATIVE_CONVERSATION,  resources.getString(R.string.admob_native))
             } else {
-                resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                resources.getString(R.string.admob_native)
             }
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
@@ -353,9 +353,9 @@ class TranslationFragment : Fragment() {
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_TRANSLATION, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(ADMOB_BANNER_TRANSLATION,  resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         adView.adUnitId = adId!!
 

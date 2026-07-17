@@ -79,7 +79,7 @@ class SindhiStatusFragment : Fragment() {
                 if (isNetworkAvailable(context) && !(PreferenceManager.getDefaultSharedPreferences(
                         requireActivity()
                     ).getBoolean(PURCHASE, false))
-                    && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                    && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                         .getString(Preferences.INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK, "ON")
                         .equals("ON", true)
                 ) {
@@ -133,14 +133,14 @@ class SindhiStatusFragment : Fragment() {
     private fun checkForLoadBanner() {
         if (isNetworkAvailable(requireContext()) && requireActivity().getSharedPreferences(
                 "RemoteConfig",
-                Context.MODE_PRIVATE
+                MODE_PRIVATE
             ).getString(
                 BANNER_POETRY, "ON"
             ).equals("ON", true)
         ) {
-            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeActivity")) {
+            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("sindiStatus")) {
                 val collapsibleAdView: AdView? =
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeActivity"]
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["sindiStatus"]
                 Handler().postDelayed({
                     binding.shimmerLayoutBanner.stopShimmer()
                     binding.shimmerLayoutBanner.visibility = View.GONE
@@ -187,9 +187,9 @@ class SindhiStatusFragment : Fragment() {
         Log.d("jdjasjjsa", "loading: ")
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_SINDHI_STATUS, "ca-app-pub-3747520410546258/5122866133")
+            pref.getString(ADMOB_BANNER_SINDHI_STATUS, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
@@ -201,7 +201,7 @@ class SindhiStatusFragment : Fragment() {
             override fun onAdLoaded() {
                 binding.adViewContainer.removeAllViews()
                 binding.adViewContainer.addView(adView)
-                NativeMaster.collapsibleBannerAdMobHashMap!!["baner_pet"] = adView
+                NativeMaster.collapsibleBannerAdMobHashMap!!["sindiStatus"] = adView
                 Log.d("jdjasjjsa", "onAdLoaded: ")
 
             }
@@ -273,14 +273,14 @@ class SindhiStatusFragment : Fragment() {
 
                 val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_OVER_ALL, "ca-app-pub-3747520410546258/1702944653")
+                    pref.getString(NATIVE_OVER_ALL, resources.getString(R.string.admob_native))
                 } else {
-                    resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                    resources.getString(R.string.admob_native)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
                     adId = adId!!,//,getString(R.string.NATIVE_INSIDE_BIDDING),
-                    fragmentName = "OverallAtPoetryExit",
+                    fragmentName = "sindiStatus",
                     isMedia = true,
                     isMediaOnLeft = true,
                     adContainer = binding.nativeAdContainerAd1,

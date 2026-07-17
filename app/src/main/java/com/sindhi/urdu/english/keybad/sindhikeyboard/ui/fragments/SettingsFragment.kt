@@ -169,9 +169,9 @@ class SettingsFragment : Fragment() {
     private fun loadAdmobNativeAd() {
         val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(NATIVE_OVER_ALL, "ca-app-pub-3747520410546258/1702944653")
+            pref.getString(NATIVE_OVER_ALL, resources.getString(R.string.admob_native))
         } else {
-            resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+            resources.getString(R.string.admob_native)
         }
         NewNativeAdClass.checkAdRequestAdmob(
             mContext = requireActivity(),
@@ -214,9 +214,9 @@ class SettingsFragment : Fragment() {
     private fun loadCollapsibleBanner() {
         val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(BANNER_INSIDE,resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+            resources.getString(R.string.admob_banner_inside)
         }
 
         val adView = AdView(requireActivity())

@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.myproject.todoappwithnodejs.retrofitgenericresponse.Baseresponse
+import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentDailystatusBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
@@ -40,6 +41,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Re
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.models.dailystatusResponse
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -178,6 +180,13 @@ class DailystatusFragment : Fragment(), shayaricategoryclicklistner {
                 false
             }
         }
+        val pref =requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId  =if (!BuildConfig.DEBUG){
+            pref.getString(NATIVE_OVER_ALL,resources.getString(R.string.admob_native))
+        }
+        else{
+            resources.getString(R.string.admob_native)
+        }
 
         if (isPurchased!!) {
             binding.nativeAdContainerAd.visibility = View.GONE
@@ -185,7 +194,7 @@ class DailystatusFragment : Fragment(), shayaricategoryclicklistner {
             if (NetworkCheck.isNetworkAvailable(requireContext())) {
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
-                    adId = getString(R.string.admob_native),
+                    adId = adId!!,
                     fragmentName = "DailyStatusFragment",
                     isMedia = false,
                     adContainer = binding.nativeAdContainerAd,

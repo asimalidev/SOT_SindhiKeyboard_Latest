@@ -11,14 +11,12 @@ import android.util.Log
 import kotlinx.coroutines.launch
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.DataBaseCopyOperationsKt
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.SuggestionItems
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes.CustomTheme
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.FOFStartActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.withContext
-import com.google.firebase.analytics.FirebaseAnalytics
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener

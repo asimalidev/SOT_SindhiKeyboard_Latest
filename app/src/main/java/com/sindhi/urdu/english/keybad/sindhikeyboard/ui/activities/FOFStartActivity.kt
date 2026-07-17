@@ -16,6 +16,7 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatTextView
@@ -109,6 +110,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import androidx.lifecycle.lifecycleScope
 import com.bytedance.sdk.openadsdk.api.PAGConstant
 import com.google.ads.mediation.pangle.PangleMediationAdapter
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -141,6 +143,8 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NAT
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.RESUME_OVER_ALL
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class FOFStartActivity : AppCompatActivity() {
     private var firstOpenFlowAdIds: HashMap<String, String> = HashMap()
@@ -167,12 +171,19 @@ class FOFStartActivity : AppCompatActivity() {
             }
         }
 
-        checkAppUpdate(this)
+      //  checkAppUpdate(this)
         prefs = getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         hideSystemUIUpdated()
         setStatusBarColor(this, resources.getColor(R.color.board_theme__red))
         supportActionBar?.hide()
-        initializeRemoteConfigAndStartFlow()
+       // initializeRemoteConfigAndStartFlow()
+        checkAppUpdate(this) {
+            lifecycleScope.launch {
+                val remoteConfigData = initializeRemoteConfigAndAdIds()
+                startFirstOpenFlow(remoteConfigData)
+
+            }
+        }
         notificationTarget = intent?.getStringExtra("target_screen")
         action = intent?.getStringExtra(ACTION)
     }
@@ -206,12 +217,12 @@ class FOFStartActivity : AppCompatActivity() {
     }
 
 
-    private fun initializeRemoteConfigAndStartFlow() {
+    /*private fun initializeRemoteConfigAndStartFlow() {
         initializeRemoteConfigAndAdIds { remoteConfigData ->
             Log.d("RemoteConfig", "Remote config completed, $remoteConfigData")
             startFirstOpenFlow(remoteConfigData)
         }
-    }
+    }*/
 
 
     private fun startFirstOpenFlow(remoteConfigData: HashMap<String, Any>) {
@@ -345,6 +356,7 @@ class FOFStartActivity : AppCompatActivity() {
         SOTAdsManager.startFlow(sotAdsConfigurations)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun startHeavyAdsFlow(remoteData: HashMap<String, Any>) {
         if (isHeavyAdsFlowStarted) {
             sotAdsConfigurations.proceedNext(this@FOFStartActivity)
@@ -359,6 +371,7 @@ class FOFStartActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun loadAdmobBannerAd(remoteData: HashMap<String, Any>) {
         val pID = firstOpenFlowAdIds["ADMOB_BANNER_SPLASH"]
             ?: resources.getString(R.string.ADMOB_BANNER_SPLASH)
@@ -636,8 +649,163 @@ class FOFStartActivity : AppCompatActivity() {
             View(context)
         }
     }
+    private suspend fun initializeRemoteConfigAndAdIds(): HashMap<String, Any> = withContext(Dispatchers.IO) {
+        // Initialize Remote Config
+        if (mFirebaseRemoteConfig == null) {
+            mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+            val configSettings = FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(0) // Good for testing, set to 3600 for production
+                .build()
+            mFirebaseRemoteConfig!!.setConfigSettingsAsync(configSettings)
 
-    private fun initializeRemoteConfigAndAdIds(onComplete: (HashMap<String, Any>) -> Unit) {
+        }
+
+        if (NetworkCheck.isNetworkAvailable(this@FOFStartActivity)){
+            if (!BuildConfig.DEBUG) {
+                try {
+                    mFirebaseRemoteConfig!!.fetchAndActivate().await()
+                    Log.i("RemoteConfig", "RemoteConfig ready (new or cached)")
+                    fillAdIdsFromRemote(mFirebaseRemoteConfig!!)
+                    saveAllValues()
+                } catch (e: Exception) {
+                    Log.e("RemoteConfig", "Exception fetching config: ${e.message}")
+                    fillAdIdsFromResources()
+                }
+            }
+            else
+            {
+                try {
+                    Log.i("RemoteConfig", "debug ...fetching (debug mode)")
+                    mFirebaseRemoteConfig!!.fetchAndActivate().await()
+                    Log.d("RemoteConfig", "RemoteConfig ready (debug)")
+
+                    fillAdIdsFromResources()
+                    saveAllValues()
+                } catch (e: Exception) {
+                    Log.e("RemoteConfig", "Exception fetching config (debug): ${e.message}")
+                    fillAdIdsFromResources()
+                }
+            }
+        }
+        else{
+            Log.i("RemoteConfig", "No network, using local resources")
+            fillAdIdsFromResources()
+        }
+
+        return@withContext getSharedPreferencesValues()
+    }
+    private fun saveAllValues() {
+        val config = mFirebaseRemoteConfig
+        if (config == null) {
+            Log.e("RemoteConfig", "mFirebaseRemoteConfig is null")
+            return
+        }
+
+        // 1. Group all Boolean keys into a single list
+        val booleanKeys = listOf(
+            BANNER_SPLASH,
+            RemoteConfigConst.RESUME_OVERALL,
+            RemoteConfigConst.NATIVE_UNINSTALL,
+            RemoteConfigConst.NATIVE_SURVEY,
+            RemoteConfigConst.NATIVE_LANGUAGE_1,
+            RemoteConfigConst.NATIVE_LANGUAGE_2,
+            RemoteConfigConst.NATIVE_SURVEY_1,
+            RemoteConfigConst.NATIVE_SURVEY_2,
+            RemoteConfigConst.NATIVE_WALKTHROUGH_1,
+            RemoteConfigConst.NATIVE_WALKTHROUGH_2,
+            RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR,
+            RemoteConfigConst.NATIVE_WALKTHROUGH_3,
+            RemoteConfigConst.INTERSTITIAL_LETS_START
+        )
+
+        // 2. Group all String keys into a single list
+        val stringKeys = listOf(
+            RemoteConfigConst.RESUME_INTER_SPLASH,
+            KEYPAD_BANNER_SHOW,
+            ADS_NATIVE_WALK_THROUGH,
+            ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT,
+            NATIVE_TEXT_TRANSLATOR,
+            BANNER_THEMES_APPLIED,
+            ADMOB_BANNER_TRANSLATION,
+            BANNER_INSIDE,
+            ADMOB_BANNER_SINDHI_STATUS,
+            BANNER_TEXT_REVERSE,
+            BANNER_TEXT_TRANSLATOR,
+            ADMOB_BANNER_INSIDE,
+            NATIVE_OVER_ALL,
+            BANNER_THEMES_LIST,
+            INTERSTITIAL_SUBSCRIPTION_EXIT,
+            INTERSTITIAL_STICKER_ENTER,
+            ADS_NATIVE_THEMES_APPLY,
+            ADS_NATIVE_CONVERSATION,
+            ADS_NATIVE_HISTORY,
+            BANNER_POETRY,
+            ADS_NATIVE_HOME,
+            ADS_NATIVE_EXIT,
+            ADS_NATIVE_THEMES,
+            NATIVE_TEXT_REVERSE,
+            AD_ID_NATVE_SURVAY,
+            ADS_NATIVE_THEMES_APPLIED_TEST,
+            AD_ID_NATIVE_UNINSTAL,
+            NATIVE_INSIDE,
+            ADMOB_BANNER_THEMES,
+            ADS_NATIVE_POETRY,
+            ADS_NATIVE_POETRY_INSIDE,
+            ADS_NATIVE_SELECT_KEYBOARD,
+            ADS_NATIVE_SETTINGS,
+            ADS_NATIVE_SPEECHTOTEXT,
+            ADS_NATIVE_TRANSLATION_HOME,
+            COLLAPSIBLE_HOME,
+            COLLAPSIBLE_TRANSLATION,
+            COLLAPSIBLE_SELECT_KEYBOARD,
+            COLLAPSIBLE_SETTINGS,
+            ADS_BANNER_THEMES_TEST,
+            ADS_BANNER_HISTORY,
+            COLLAPSIBLE_CONVERSATION,
+            INTERSTITIAL_THEME_ENTER,
+            INTERSTITIAL_THEME_APPLIED,
+            INTERSTITIAL_SINDHI_STATUS_ENTER,
+            INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK,
+            INTERSTITIAL_TRANSLATION_ENTER,
+            INTERSTITIAL_SETTINGS_ENTER,
+            INTERSTITIAL_CONVERSATION_ENTER,
+            INTERSTITIAL_CONVERSATION_SAVE,
+            INTERSTITIAL_SPEECH_TO_TEXT_ENTER,
+            BANNER_STICKER,
+            NATIVE_STICKERS,
+            BANNER_SINDHI_STATUS_SHOW,
+            NATIVE_STICKERS_DETAILS,
+            BANNER_STICKER_DETAILS,
+            INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE,
+            INTERSTITIAL_HISTORY_ENTER,
+            INTERSTITIAL_HISTORY_TO_CONVERSATION,
+            OPEN_AD_ENABLE_KEYBOARD,
+            OPEN_AD_INSIDE_APP
+        )
+
+        // 3. Save everything in a single edit block
+        // Note: Assuming REMOTE_CONFIG holds the "RemoteConfig" string based on your first snippet
+        getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+
+            // Save Booleans
+            booleanKeys.forEach { key ->
+                putBoolean(key, config.getBoolean(key))
+            }
+
+            // Save Strings (ignoring empty/blank values like the original code did)
+            stringKeys.forEach { key ->
+                val value = config.getString(key).trim()
+                if (value.isNotEmpty()) {
+                    putString(key, value)
+                }
+            }
+        }
+
+        Log.e("Ids Firebase", "Fetched SuccessFully: Native :: ${config.getString(KEYPAD_BANNER_SHOW)}")
+        Log.e("resume", "value of ${config.getBoolean(RemoteConfigConst.RESUME_OVERALL)}")
+
+    }
+    /*private fun initializeRemoteConfigAndAdIds(onComplete: (HashMap<String, Any>) -> Unit) {
         if (mFirebaseRemoteConfig == null) {
             mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
             val configSettings = FirebaseRemoteConfigSettings.Builder()
@@ -649,6 +817,7 @@ class FOFStartActivity : AppCompatActivity() {
         if (NetworkCheck.isNetworkAvailable(this@FOFStartActivity)) {
             if (!BuildConfig.DEBUG) {
                 mFirebaseRemoteConfig!!.fetchAndActivate().addOnCompleteListener { task ->
+
                     if (task.isSuccessful) {
                         Log.d("RemoteConfig", "RemoteConfig fetched successfully")
                         mFirebaseRemoteConfig!!.activate()
@@ -704,9 +873,9 @@ class FOFStartActivity : AppCompatActivity() {
             fillAdIdsFromResources()
             onComplete.invoke(getSharedPreferencesValues())
         }
-    }
+    }*/
 
-    private fun saveAllValues(onCompleteSave: (() -> Unit)? = null) {
+    /*private fun saveAllValues(onCompleteSave: (() -> Unit)? = null) {
         val editor = getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE).edit()
         mFirebaseRemoteConfig?.apply {
             getString(RemoteConfigConst.RESUME_INTER_SPLASH).trim().takeIf { it.isNotEmpty() }
@@ -1421,7 +1590,7 @@ class FOFStartActivity : AppCompatActivity() {
         }
 
         onComplete?.invoke()
-    }
+    }*/
 
     private fun getSharedPreferencesValues(): HashMap<String, Any> {
         val remoteConfigHashMap: HashMap<String, Any> = HashMap()
@@ -1502,8 +1671,30 @@ class FOFStartActivity : AppCompatActivity() {
         super.onResume()
         BillingManager.getInstance(this).checkActivePurchases()
     }
+    private fun checkAppUpdate(context: Context, onDone: () -> Unit) {
+        val prefs = context.getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val savedVersion = prefs.getInt("last_version_code", -1)
+        val currentVersion = getCurrentVersionCode(context)
 
-    private fun checkAppUpdate(context: Context) {
+        if (currentVersion > savedVersion) {
+            prefs.edit { putInt("last_version_code", currentVersion) }
+            PrefHelper(this).putBoolean("StartScreens", value = false)
+            onDone.invoke()
+        } else {
+            onDone.invoke()
+        }
+    }
+
+
+    private fun getCurrentVersionCode(context: Context): Int {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode.toInt()
+        } else {
+            packageInfo.versionCode
+        }
+    }
+    /*private fun checkAppUpdate(context: Context) {
         val prefs = context.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         val savedVersion = prefs.getInt("last_version_code", 88)
         val currentVersion = getCurrentVersionCode(context)
@@ -1524,6 +1715,6 @@ class FOFStartActivity : AppCompatActivity() {
         } else {
             packageInfo.versionCode
         }
-    }
+    }*/
 
 }

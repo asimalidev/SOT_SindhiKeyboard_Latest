@@ -161,9 +161,9 @@ class KeyboardTestFragment : Fragment() {
 
         if (isNetworkAvailable(requireContext()) && isNativeEnabled) {
             val adId = if (!BuildConfig.DEBUG) {
-                prefs.getString(NATIVE_THEMES, "ca-app-pub-3747520410546258/6696428641")
+                prefs.getString(NATIVE_THEMES, resources.getString(R.string.admob_native))
             } else {
-                resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                resources.getString(R.string.admob_native)
             }
 
             NewNativeAdClass.checkAdRequestAdmob(
@@ -220,9 +220,9 @@ class KeyboardTestFragment : Fragment() {
     private fun loadNewBannerAd() {
         val prefs = requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            prefs.getString(ADMOB_BANNER_THEMES, "ca-app-pub-3747520410546258/3066582155")
+            prefs.getString(ADMOB_BANNER_THEMES, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
 
         val adView = AdView(requireActivity())

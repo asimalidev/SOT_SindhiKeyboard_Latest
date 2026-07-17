@@ -160,9 +160,9 @@ class HomeFragment : Fragment(), IBillingHandler {
 
             val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
             val adId = if (!BuildConfig.DEBUG) {
-                pref.getString(NATIVE_HOME, "ca-app-pub-3747520410546258/7968970100")
+                pref.getString(NATIVE_HOME, resources.getString(R.string.admob_native_home))
             } else {
-                resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_1)
+                resources.getString(R.string.admob_native_home)
             }
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
@@ -214,9 +214,9 @@ class HomeFragment : Fragment(), IBillingHandler {
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         if (adId != null) {
             adView.adUnitId = adId

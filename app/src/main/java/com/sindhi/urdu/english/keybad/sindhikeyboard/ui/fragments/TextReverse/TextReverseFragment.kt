@@ -47,7 +47,6 @@ import java.util.Locale
 import kotlin.collections.set
 
 class TextReverseFragment : Fragment() {
-    private val defBanner="ca-app-pub-3747520410546258/1697692330"
     lateinit var binding: FragmentTextReverseBinding
     var navController: NavController? = null
 
@@ -90,8 +89,8 @@ class TextReverseFragment : Fragment() {
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
                 .getString(BANNER_TEXT_REVERSE, "ON").equals("ON", true)
         ) {
-            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeFragment")) {
-                val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"]
+            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("TextRevers")) {
+                val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["TextRevers"]
                 binding.shimmerLayoutBanner.stopShimmer()
                 binding.shimmerLayoutBanner.visibility = View.GONE
                 binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
@@ -259,7 +258,7 @@ class TextReverseFragment : Fragment() {
     private fun loadBanner() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, defBanner)
+            pref.getString(BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
         } else {
             resources.getString(R.string.admob_banner_inside)
         }
@@ -280,7 +279,7 @@ class TextReverseFragment : Fragment() {
                 if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                         .getString(OVERALL_BANNER_RELOADING, "SAVE").equals("SAVE")
                 ) {
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"] = adView
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["TextRevers"] = adView
                 }
 
                 binding.shimmerLayoutBanner.stopShimmer()
@@ -326,15 +325,15 @@ class TextReverseFragment : Fragment() {
 
         val pref =requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId  =if (!BuildConfig.DEBUG){
-            pref?.getString(NATIVE_OVER_ALL,"ca-app-pub-3747520410546258/1702944653")
+            pref?.getString(NATIVE_OVER_ALL,resources.getString(R.string.admob_native))
         }
         else{
-            resources.getString(R.string.ADMOB_SPLASH_INTERSTITIAL)
+            resources.getString(R.string.admob_native)
         }
 
         if (NetworkCheck.isNetworkAvailable(requireActivity())
-            && !requireActivity().getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED,false)
-            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(NATIVE_TEXT_REVERSE,"ON").equals("ON",true)) {
+            && !requireActivity().getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED,false)
+            && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(NATIVE_TEXT_REVERSE,"ON").equals("ON",true)) {
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
                 fragmentName = "TextReverseResizeFragment",

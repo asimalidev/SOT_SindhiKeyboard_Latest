@@ -103,10 +103,10 @@ class fromcountry_fragment : Fragment() {
         } else {
             val pref =requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
             val adId  =if (!BuildConfig.DEBUG){
-                pref.getString(NATIVE_CONVERSATION,"ca-app-pub-3747520410546258/5450617979")
+                pref.getString(NATIVE_CONVERSATION, resources.getString(R.string.admob_banner_inside))
             }
             else{
-                resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                resources.getString(R.string.admob_banner_inside)
             }
 
             if (NetworkCheck.isNetworkAvailable(requireContext())

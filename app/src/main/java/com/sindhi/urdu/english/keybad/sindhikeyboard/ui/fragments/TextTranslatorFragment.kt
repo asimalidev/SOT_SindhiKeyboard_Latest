@@ -73,7 +73,6 @@ import java.util.Objects
 
 class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var binding: FragmentTextTranslatorBinding
-    private val defBanner = "ca-app-pub-3747520410546258/8907369335"
     lateinit var navController: NavController
     lateinit var fromlanguacode: String
     lateinit var tolanguacode: String
@@ -138,8 +137,8 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
                 .getString(BANNER_TEXT_TRANSLATOR, "ON").equals("ON", true)
         ) {
-            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeFragment")) {
-                val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"]
+            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("Texttanslation")) {
+                val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["Texttanslation"]
                 binding.shimmerLayoutBanner.stopShimmer()
                 binding.shimmerLayoutBanner.visibility = View.GONE
                 binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
@@ -200,9 +199,9 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
 
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(NATIVE_CONVERSATION, "ca-app-pub-3747520410546258/5450617979")
+            pref.getString(NATIVE_CONVERSATION, resources.getString(R.string.admob_native))
         } else {
-            resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+            resources.getString(R.string.admob_native)
         }
 
         if (NetworkCheck.isNetworkAvailable(requireActivity())
@@ -213,7 +212,7 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
                 adId = adId!!,
-                fragmentName = "TextTranslatorFragment",
+                fragmentName = "Texttanslation",
                 isMedia = false,
                 isMediaOnLeft = false,
                 adContainer = binding.nativeAdContainerAd,
@@ -250,36 +249,7 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
 
         binding.btntranslate.blockingClickListener {
             btnTranslateClicked()
-//            requireActivity().hideKeyboard()
-//            if (binding.etsource.text.toString().isEmpty()) {
-//                Toast.makeText(requireActivity(), "No Text", Toast.LENGTH_SHORT).show()
-//            } else {
-//                if (NetworkCheck.isNetworkAvailable(requireActivity())) {
-//                    if (!requireActivity().getSharedPreferences(
-//                            RemoteConfigConst.REMOTE_CONFIG,
-//                            Context.MODE_PRIVATE
-//                        ).getBoolean(Preferences.IS_PURCHASED, false)
-//                        && requireActivity().getSharedPreferences(
-//                            "RemoteConfig",
-//                            Context.MODE_PRIVATE
-//                        ).getString(
-//                            INTERSTITIAL_TEXT_TRANSLATOR_3_CLICKS, "ON"
-//                        ).equals("ON", true)
-//                    ) {
-//                        if (showAdCounterOnThreeClicks >= 2) {
-//                            showAdCounterOnThreeClicks = 0
-//                            showAdThenTranslate()
-//                        } else {
-//                            btnTranslateClicked()
-//                        }
-//                    } else {
-//                        btnTranslateClicked()
-//                    }
-//                } else {
-//                    Toast.makeText(requireActivity(), "Please turn on internet", Toast.LENGTH_SHORT)
-//                        .show()
-//                }
-//            }
+
         }
 
         binding.etsource.addTextChangedListener(object : TextWatcher {
@@ -358,9 +328,9 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun loadBanner() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_TRANSLATION, defBanner)
+            pref.getString(ADMOB_BANNER_TRANSLATION, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.BANNER_INSIDE)
+            resources.getString(R.string.admob_banner_inside)
         }
 
         val adView = AdView(requireActivity())
@@ -379,7 +349,7 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
                 if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                         .getString(OVERALL_BANNER_RELOADING, "SAVE").equals("SAVE")
                 ) {
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"] = adView
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["Texttanslation"] = adView
                 }
 
                 binding.shimmerLayoutBanner.stopShimmer()

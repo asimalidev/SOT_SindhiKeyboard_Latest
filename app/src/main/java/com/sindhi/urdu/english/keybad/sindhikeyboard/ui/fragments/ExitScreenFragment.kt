@@ -109,14 +109,14 @@ class ExitScreenFragment : Fragment() {
                 binding.g1ExitScreen.setGuidelinePercent(0.55f)
                 val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_OVER_ALL, "ca-app-pub-3747520410546258/1702944653")
+                    pref.getString(NATIVE_OVER_ALL, resources.getString(R.string.admob_native))
                 } else {
-                    resources.getString(R.string.ADMOB_NATIVE_LANGUAGE_2)
+                    resources.getString(R.string.admob_native)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
                     adId = adId!!,//getString(R.string.admob_native),
-                    fragmentName = "OverallAtPoetryExit",
+                    fragmentName = "exitApp",
                     isMedia = true,
                     isMediaOnLeft = true,
                     adContainer = binding.nativeAdContainerAd,

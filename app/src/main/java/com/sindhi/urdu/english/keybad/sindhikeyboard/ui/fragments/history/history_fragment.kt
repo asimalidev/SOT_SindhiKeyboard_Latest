@@ -248,9 +248,9 @@ class history_fragment : Fragment(), HistoryConversationAdapter.HistoryConversat
     private fun loadBanner() {
         val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(ADMOB_BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
         } else {
-            resources.getString(R.string.ADMOB_BANNER_SPLASH)
+            resources.getString(R.string.admob_banner_inside)
         }
         Log.d("jdjasjjsa", "loading: ")
 

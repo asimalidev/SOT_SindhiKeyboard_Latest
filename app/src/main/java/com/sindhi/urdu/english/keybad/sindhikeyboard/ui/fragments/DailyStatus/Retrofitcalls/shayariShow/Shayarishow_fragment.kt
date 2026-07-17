@@ -1,6 +1,7 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.shayariShow
 
 import android.content.*
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentShayarishowFragmentBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
@@ -29,6 +31,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.interfaces.GeneralAdapter
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.QuoteX
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.models.dailystatusResponse
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 
 class Shayarishow_fragment : Fragment(), generalstatusitemclicklistner {
     private var _binding: FragmentShayarishowFragmentBinding? = null
@@ -58,6 +61,13 @@ class Shayarishow_fragment : Fragment(), generalstatusitemclicklistner {
             quotesdata= Util.dataArray
         }
         val id = args.id
+        val pref =requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId  =if (!BuildConfig.DEBUG){
+            pref.getString(NATIVE_OVER_ALL,resources.getString(R.string.admob_native))
+        }
+        else{
+            resources.getString(R.string.admob_native)
+        }
 
         if (isPurchased!!) {
             binding.nativeAdContainerAd.visibility = View.GONE
@@ -65,7 +75,7 @@ class Shayarishow_fragment : Fragment(), generalstatusitemclicklistner {
             if (NetworkCheck.isNetworkAvailable(requireContext())) {
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
-                    adId = getString(R.string.admob_native),
+                    adId =adId!!,
                     fragmentName = "Shayarishow_fragment",
                     isMedia = false,
                     adContainer = binding.nativeAdContainerAd,
