@@ -476,6 +476,10 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             )
             txtSindhiKeyboard.text = resources.getString(R.string.label_conversation)
 
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
+
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {

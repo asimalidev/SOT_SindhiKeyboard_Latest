@@ -153,10 +153,19 @@ class DailystatusFragment : Fragment(), shayaricategoryclicklistner {
             ivClose.visibility = View.INVISIBLE
         }
 
+
         val txtSindhiKeyboard = requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
-        if (txtSindhiKeyboard != null) {
-            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireContext(), R.drawable.back),null,null,null)
-            txtSindhiKeyboard.text = resources.getString(R.string.label_daily_status)
+        txtSindhiKeyboard?.apply {
+            setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(requireContext(), R.drawable.back), null, null, null
+            )
+            text = resources.getString(R.string.label_daily_status)
+
+            // ✅ ADD THIS: Set the gap between the drawable and the text
+            // Convert your desired dp value (e.g., 12dp) to pixels
+            val gapInDp = 12
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            compoundDrawablePadding = gapInPx
 
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->

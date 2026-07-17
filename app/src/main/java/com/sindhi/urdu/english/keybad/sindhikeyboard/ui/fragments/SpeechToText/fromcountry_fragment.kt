@@ -169,6 +169,10 @@ class fromcountry_fragment : Fragment() {
         if (txtSindhiKeyboard != null) {
             txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireContext(), R.drawable.back),null,null,null)
             txtSindhiKeyboard.text = resources.getString(R.string.select_lang)
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
+
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {

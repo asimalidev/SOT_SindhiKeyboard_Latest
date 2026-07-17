@@ -9,23 +9,33 @@
         android:id="@+id/clSubDiv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/_14sdp"
         android:background="?attr/colorPrimary">
+
+        <ImageView
+            android:id="@+id/ivCloseDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:src="@drawable/back"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/txtSindhiKeyboard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/txtSindhiKeyboard"
+            app:tint="@color/White" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtSindhiKeyboard"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
+            android:layout_marginStart="@dimen/_18sdp"
             android:drawableTint="@color/White"
             android:fontFamily="@font/lexend_medium"
             android:gravity="start|center_vertical"
             android:text="@string/label_sindhi_keyboard"
             android:textColor="@color/White"
             android:textSize="@dimen/_17ssp"
-
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/g1Toolbar"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivCloseDetails"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -253,21 +263,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/White" />
 
-        <ImageView
-            android:id="@+id/ivCloseDetails"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/_7sdp"
-            android:src="@drawable/back"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/White" />
-
-
 
         <TextView
             android:id="@+id/ivDetails"
@@ -292,10 +287,10 @@
             android:layout_marginStart="@dimen/_50sdp"
             android:fontFamily="@font/lexend_medium"
             android:gravity="center"
-            android:visibility="gone"
             android:text="@string/label_details"
             android:textColor="@color/White"
             android:textSize="@dimen/_20ssp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

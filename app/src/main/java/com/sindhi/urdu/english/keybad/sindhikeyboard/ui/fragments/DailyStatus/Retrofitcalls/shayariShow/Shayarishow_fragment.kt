@@ -132,15 +132,28 @@ class Shayarishow_fragment : Fragment(), generalstatusitemclicklistner {
 
         val txtSindhiKeyboard = requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
         if (txtSindhiKeyboard != null) {
-            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireContext(), R.drawable.back),null,null,null)
+            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(requireContext(), R.drawable.back), null, null, null
+            )
+
             args.let {
                 txtSindhiKeyboard.text = args.nameForHeader
             }
+
+            // ✅ ADD THIS: Convert 12dp to pixels and set the gap
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
+
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
-                    if (event.x <= (startDrawable?.bounds?.width() ?: 0)) {
-                        requireActivity().onBackPressed()
+                    // ✅ UPDATE THIS: Include the padding in the touch area so it's easier to click
+                    val touchAreaWidth = (startDrawable?.bounds?.width() ?: 0) + txtSindhiKeyboard.compoundDrawablePadding
+
+                    if (event.x <= touchAreaWidth) {
+                        // ✅ UPDATE THIS: Use the modern, non-deprecated back press dispatcher
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                         return@setOnTouchListener true
                     }
                 }

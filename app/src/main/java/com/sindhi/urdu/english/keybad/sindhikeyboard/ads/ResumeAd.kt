@@ -20,11 +20,11 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.manual.mediation.library.sotadlib.utils.AdLoadingDialog
 import com.manual.mediation.library.sotadlib.utils.NetworkCheck
 import com.sindhi.urdu.english.keybad.R
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
 
 
 class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLifecycleCallbacks,
     LifecycleObserver {
-
     companion object {
         var isShowingDialog = false
         var isShowingAd = false
@@ -96,9 +96,10 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
 
         // 5. REMOTE CONFIG & NETWORK
         val prefs = activity.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+        val isPremium = prefs?.getBoolean(IS_PURCHASED, false) ?: false
         val isResumeEnabled = prefs?.getBoolean("RESUME_OVERALL", true) ?: true
 
-        if (isResumeEnabled && com.manual.mediation.library.sotadlib.utils.NetworkCheck.isNetworkAvailable(
+        if (!isPremium && isResumeEnabled && NetworkCheck.isNetworkAvailable(
                 activity
             )
         ) {
@@ -126,7 +127,7 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
             isAdLoadInProgress = false
             dismissWaitDialog()
         }
-        handler.postDelayed(timeoutRunnable!!, 5000) // 5 seconds
+        handler.postDelayed(timeoutRunnable!!, 5000)
 
         val loadCallback = object : AppOpenAd.AppOpenAdLoadCallback() {
             override fun onAdLoaded(ad: AppOpenAd) {
@@ -150,8 +151,6 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
 
         val request: AdRequest = AdRequest.Builder().build()
         val pref = currentActivity?.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-
-        // Ensure you replace "AD_ID_RESUME_OVERALL" with your actual string literal if it's missing here
         val adId = pref?.getString(
             "RESUME_OVER_ALL",
             currentActivity?.resources?.getString(R.string.RESUME_OVER_ALL)

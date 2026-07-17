@@ -31,7 +31,6 @@ import com.manual.mediation.library.sotadlib.data.Language
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentTranslationBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.isNetworkAvailable
@@ -40,7 +39,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_TRANSLATION_HOME
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_TRANSLATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_TRANSLATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
@@ -55,6 +54,7 @@ class TranslationFragment : Fragment() {
     lateinit var mSharedPreferences: SharedPreferences
     var bundle = Bundle()
     var isPurchase = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -137,8 +137,7 @@ class TranslationFragment : Fragment() {
         requireActivity().findViewById<SwitchCompat>(R.id.switchButtonTTS)
             .let { it?.visibility = View.INVISIBLE }
 
-        val txtSindhiKeyboard =
-            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
+        val txtSindhiKeyboard = requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
         if (txtSindhiKeyboard != null) {
             txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
                 ContextCompat.getDrawable(
@@ -147,6 +146,10 @@ class TranslationFragment : Fragment() {
                 ), null, null, null
             )
             txtSindhiKeyboard.text = resources.getString(R.string.label_translation)
+
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
 
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->
@@ -168,19 +171,6 @@ class TranslationFragment : Fragment() {
         bundle.putString("TranslationFragment", "TranslationFragment")
         FirebaseLog.getAnalytics(requireContext()).logEvent("event_translation", bundle)
 
-//        requireActivity().onBackPressedDispatcher
-//            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-//                override fun handleOnBackPressed() {
-//                    if (navController != null) {
-//                        val action =
-//                            TranslationFragmentDirections.actionTranslationFragmentToNavHome()
-//                        navController?.safeNavigate(action)
-//                    } else {
-//                        isNavControllerAdded()
-//                    }
-//                }
-//            })
-
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // FIX: Check if we are actually on the TranslationFragment before navigating
@@ -200,8 +190,6 @@ class TranslationFragment : Fragment() {
             val action = TranslationFragmentDirections.actionTranslationToTextTranslation()
             navController?.navigate(action)
         }
-
-
 
         binding.clTextToAudioFile.blockingClickListener {
             Toast.makeText(
@@ -314,14 +302,6 @@ class TranslationFragment : Fragment() {
             }
         }
 
-        /*binding.clShare.blockingClickListener {
-            val sendIntent = Intent()
-            sendIntent.action = Intent.ACTION_SEND
-            sendIntent.putExtra(Intent.EXTRA_TEXT,"https://play.google.com/store/apps/details?id=com.sindhi.urdu.english.keybad")
-            sendIntent.type = "text/plain"
-            sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Try New App")
-            startActivity(Intent.createChooser(sendIntent, "Share via"))
-        }*/
     }
 
     private fun btnClSpeechToText() {
@@ -370,21 +350,16 @@ class TranslationFragment : Fragment() {
 
     private fun loadBanner() {
         val adView = AdView(requireActivity())
-
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(ADMOB_BANNER_TRANSLATION, "ca-app-pub-3747520410546258/1697692330")
         } else {
             resources.getString(R.string.ADMOB_BANNER_SPLASH)
         }
         adView.adUnitId = adId!!
-        /*val extras = Bundle()
-        extras.putString("collapsible", "bottom")*/
 
-        val adRequest = AdRequest.Builder()
-            // .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
-            .build()
+        val adRequest = AdRequest.Builder().build()
 
         adView.loadAd(adRequest)
         adView.adListener = object : AdListener() {

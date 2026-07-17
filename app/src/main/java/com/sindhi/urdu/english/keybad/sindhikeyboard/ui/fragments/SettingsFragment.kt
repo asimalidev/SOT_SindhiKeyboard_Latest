@@ -124,6 +124,10 @@ class SettingsFragment : Fragment() {
                 txtSindhiKeyboard.text = act.getString(R.string.label_settings) // Use 'act.getString()'
             }
 
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
+
             txtSindhiKeyboard?.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
                     val startDrawable = txtSindhiKeyboard.compoundDrawables[0]

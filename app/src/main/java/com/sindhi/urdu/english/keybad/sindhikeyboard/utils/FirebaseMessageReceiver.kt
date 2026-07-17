@@ -28,8 +28,6 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
         super.onNewToken(token)
         Log.d("hellofcm", "Refreshed token: $token")
 
-        // IMPORTANT: Send this new token to your backend server
-        // so you can continue sending notifications to this device.
     }
 
     private fun showNotification(title: String?, message: String?, type: String?) {

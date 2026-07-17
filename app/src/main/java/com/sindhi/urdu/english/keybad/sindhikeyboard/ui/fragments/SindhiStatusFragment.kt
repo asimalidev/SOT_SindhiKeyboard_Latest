@@ -38,6 +38,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.adapters.LabelsAdapter
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.sindhiPoetryModels.LabelNamesIcons
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_SINDHI_STATUS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_POETRY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
@@ -186,7 +187,7 @@ class SindhiStatusFragment : Fragment() {
         Log.d("jdjasjjsa", "loading: ")
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(ADMOB_BANNER_SINDHI_STATUS, "ca-app-pub-3747520410546258/5122866133")
         } else {
             resources.getString(R.string.ADMOB_BANNER_SPLASH)
         }
@@ -245,7 +246,9 @@ class SindhiStatusFragment : Fragment() {
                 ), null, null, null
             )
             txtSindhiKeyboard.text = resources.getString(R.string.label_sindhi_status)
-
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {

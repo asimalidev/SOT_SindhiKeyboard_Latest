@@ -30,8 +30,11 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.itemDs
 import kotlinx.coroutines.launch
 import android.view.View
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.sindhi.urdu.english.keybad.databinding.ActivitySubscriptionBinding
 import androidx.core.view.isVisible
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideSystemUIUpdated
 
 class SubscriptionActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySubscriptionBinding
@@ -47,6 +50,11 @@ class SubscriptionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySubscriptionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+
+        // This hides the status bar specifically
+        windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+        hideSystemUIUpdated()
         isPurchase = getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED, false)
         fromSubscription = intent.getStringExtra("fromName")
         billingManager = BillingManager.getInstance(this)

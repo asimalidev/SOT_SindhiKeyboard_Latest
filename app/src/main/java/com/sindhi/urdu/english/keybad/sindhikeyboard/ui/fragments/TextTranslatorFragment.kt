@@ -14,6 +14,7 @@ import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
@@ -34,12 +35,18 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import com.manual.mediation.library.sotadlib.data.Language
 import com.sindhi.newvoicetyping.ui.Speechtotext.CountryCountry
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentTextTranslatorBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
@@ -48,8 +55,11 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClas
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.AllCountryListMe
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.TranslatorCall
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_TRANSLATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.SelectCountryDialog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 import kotlinx.coroutines.CoroutineScope
@@ -63,6 +73,7 @@ import java.util.Objects
 
 class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var binding: FragmentTextTranslatorBinding
+    private val defBanner = "ca-app-pub-3747520410546258/8907369335"
     lateinit var navController: NavController
     lateinit var fromlanguacode: String
     lateinit var tolanguacode: String
@@ -118,6 +129,35 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         tts = TextToSpeech(requireActivity(), this, "com.google.android.tts")
 
         binding.animationView.visibility = View.GONE
+
+        if (NetworkCheck.isNetworkAvailable(requireActivity())
+            && !requireActivity().getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                Context.MODE_PRIVATE
+            ).getBoolean(Preferences.IS_PURCHASED, false)
+            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                .getString(BANNER_TEXT_TRANSLATOR, "ON").equals("ON", true)
+        ) {
+            if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeFragment")) {
+                val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"]
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
+                binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
+
+                val parent = collapsibleAdView?.parent as? ViewGroup
+                parent?.removeView(collapsibleAdView)
+
+                binding.adViewContainer.addView(collapsibleAdView)
+            } else {
+                loadBanner()
+            }
+        } else {
+
+            binding.adViewContainer.visibility = View.GONE
+            binding.adViewContainer.visibility = View.GONE
+            binding.shimmerLayoutBanner.stopShimmer()
+            binding.shimmerLayoutBanner.visibility = View.GONE
+        }
 
         fromCountryFlag = PreferenceManager.getDefaultSharedPreferences(requireActivity())
             .getInt("fromflagTT", Language.English.imageId)
@@ -315,6 +355,70 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun loadBanner() {
+        val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId = if (!BuildConfig.DEBUG) {
+            pref.getString(ADMOB_BANNER_TRANSLATION, defBanner)
+        } else {
+            resources.getString(R.string.BANNER_INSIDE)
+        }
+
+        val adView = AdView(requireActivity())
+        adView.setAdSize(adSize)
+        adView.adUnitId = adId!!
+
+        // 💡 FIX: Just build a standard AdRequest without the collapsible extras
+        val adRequest = AdRequest.Builder().build()
+
+        adView.loadAd(adRequest)
+        adView.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                binding.adViewContainer.removeAllViews()
+                binding.adViewContainer.addView(adView)
+
+                if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+                        .getString(OVERALL_BANNER_RELOADING, "SAVE").equals("SAVE")
+                ) {
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["HomeFragment"] = adView
+                }
+
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
+            }
+
+            override fun onAdOpened() {}
+            override fun onAdClicked() {}
+            override fun onAdClosed() {}
+        }
+    }
+
+
+    private val adSize: AdSize
+        get() {
+            val display = requireActivity().windowManager.defaultDisplay
+            val outMetrics = DisplayMetrics()
+            display.getMetrics(outMetrics)
+
+            val density = outMetrics.density
+
+            var adWidthPixels = binding.adViewContainer.width.toFloat()
+            if (adWidthPixels == 0f) {
+                adWidthPixels = outMetrics.widthPixels.toFloat()
+            }
+
+            val adWidth = (adWidthPixels / density).toInt()
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                requireActivity(),
+                adWidth
+            )
+        }
+
+
     private fun shareOnWhatsApp(text: String) {
         val whatsappIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
@@ -410,7 +514,9 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             )
             txtUrduKeyboard.text = resources.getString(R.string.label_text_translator)
             txtUrduKeyboard.setTextColor(resources.getColor(R.color.white, null))
-
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtUrduKeyboard.compoundDrawablePadding = gapInPx
             val startDrawable = txtUrduKeyboard.compoundDrawables[0]
             txtUrduKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {

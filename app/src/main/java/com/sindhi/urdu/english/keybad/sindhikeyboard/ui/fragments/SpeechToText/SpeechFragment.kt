@@ -56,7 +56,6 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideKeyboard
@@ -350,7 +349,9 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         if (isPurchase) {
             binding.nativeAdContainerAd.visibility = View.GONE
         } else {
-            if (NetworkCheck.isNetworkAvailable(requireContext())
+            if (NetworkCheck.isNetworkAvailable(requireContext()) &&
+              requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
+                    ?.getBoolean(IS_PURCHASED, false) == true
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
                     .getString(Preferences.ADS_NATIVE_SPEECHTOTEXT, "ON").equals("ON", true)
                 && !isPurchase
@@ -418,7 +419,9 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
             )
             txtSindhiKeyboard.text = resources.getString(R.string.label_speechTotext)
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
-
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
 
             txtSindhiKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {  // Fixed: ACTION_DOWN instead of ACTION.DOWN

@@ -15,6 +15,10 @@
             app:destination="@id/themesFragment" />
 
         <action
+            android:id="@+id/action_nav_home_to_ReverseFragment"
+            app:destination="@id/reverse_fragment" />
+
+        <action
             android:id="@+id/action_nav_home_to_navSubscriptionFragment"
             app:destination="@id/navSubscriptionFragment"
             app:enterAnim="@anim/slide_in_bottom"
@@ -439,5 +443,16 @@
             android:id="@+id/action_exitScreen_fragment_to_themes_apply_fragment"
             app:destination="@id/themes_apply_fragment" />
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/reverse_fragment"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.TextReverse.TextReverseFragment"
+        android:label="Reverse text"
+        tools:layout="@layout/fragment_text_reverse">
+
+        <action
+            android:id="@+id/action_text_reverse_to_home"
+            app:destination="@id/nav_home" />
     </fragment>
 </navigation>

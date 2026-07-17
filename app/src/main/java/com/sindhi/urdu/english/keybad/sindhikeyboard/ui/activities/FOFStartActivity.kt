@@ -113,18 +113,31 @@ import com.bytedance.sdk.openadsdk.api.PAGConstant
 import com.google.ads.mediation.pangle.PangleMediationAdapter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass.Companion.applicationClass
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ResumeAd
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.BillingManager
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ACTION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_INSIDE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_SINDHI_STATUS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_THEMES
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_TRANSLATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_UNINSTAL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATVE_SURVAY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_SINDHI_STATUS_SHOW
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_REVERSE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_THEMES_APPLIED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_THEMES_LIST
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION1
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION2
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION3
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.FROM_SHORTCUT
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_INSIDE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_REVERSE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.RESUME_OVER_ALL
@@ -144,6 +157,7 @@ class FOFStartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFofstartBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        InterstitialClassAdMob.resetSessionState()
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 FirebaseApp.initializeApp(this@FOFStartActivity)
@@ -199,7 +213,12 @@ class FOFStartActivity : AppCompatActivity() {
         }
     }
 
+
     private fun startFirstOpenFlow(remoteConfigData: HashMap<String, Any>) {
+        // 1. CRITICAL LIFECYCLE CHECK: Abort if the Activity is no longer active
+        // This prevents the NullPointerException when fetching Drawables on a dead context.
+        if (isFinishing || isDestroyed) return
+
         CustomFirebaseEvents.logEvent(this, eventName = "splash_scr")
 
         SOTAdsManager.setOnFlowStateListener(
@@ -224,69 +243,42 @@ class FOFStartActivity : AppCompatActivity() {
                     "F02B044F22C917805C3DF6E99D3B8800"
                 )
             )
-//            .setOnConsentGatheredCallback {
-//                if (NetworkCheck.isNetworkAvailable(this) && !prefs.getBoolean(
-//                        IS_PURCHASED,
-//                        false
-//                    )
-//                ) {
-//                    ResumeAd(applicationClass)
-//                    val sdk: MBridgeSDK = MBridgeSDKFactory.getMBridgeSDK()
-//                    sdk.setDoNotTrackStatus(false)
-//                    sdk.setConsentStatus(this, MBridgeConstans.IS_SWITCH_ON)
-//                }
-//
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    sotAdsConfigurations.setRemoteConfigData(
-//                        activityContext = this@FOFStartActivity,
-//                        myRemoteConfigData = remoteConfigData
-//                    )
-//                }
-//
-//                if (NetworkCheck.isNetworkAvailable(this) && remoteConfigData.getValue(BANNER_SPLASH) == true && !prefs.getBoolean(
-//                        IS_PURCHASED,
-//                        false
-//                    )
-//                ) {
-//                    Log.d("SOT_ADS_TAG", "startFirstOpenFlow: trrr")
-//                    binding.bannerAd.visibility = View.VISIBLE
-//                    loadAdmobBannerAd() // This is now safe to call
-//                } else {
-//                    Log.d("SOT_ADS_TAG", "startFirstOpenFlow: falss")
-//                    binding.bannerAd.visibility = View.GONE
-//                }
-//            }
-
             .setOnConsentGatheredCallback {
-
-
+                if (isFinishing || isDestroyed) return@setOnConsentGatheredCallback
 
                 if (NetworkCheck.isNetworkAvailable(this) && !prefs.getBoolean(
                         IS_PURCHASED,
                         false
                     )
                 ) {
-                    ResumeAd(applicationClass)
-                    val sdk: MBridgeSDK = MBridgeSDKFactory.getMBridgeSDK()
-                    sdk.setConsentStatus(this, MBridgeConstans.IS_SWITCH_ON)
-                    PangleMediationAdapter.setPAConsent(PAGConstant.PAGPAConsentType.PAG_PA_CONSENT_TYPE_CONSENT)
+                    try {
+                        // Make sure you updated 'applicationClass' to 'application' here!
+                        ResumeAd(applicationClass)
+
+                        val sdk: MBridgeSDK = MBridgeSDKFactory.getMBridgeSDK()
+                        sdk.setConsentStatus(this, MBridgeConstans.IS_SWITCH_ON)
+                        PangleMediationAdapter.setPAConsent(PAGConstant.PAGPAConsentType.PAG_PA_CONSENT_TYPE_CONSENT)
+                    } catch (e: Exception) {
+                        Log.e("FOFStartActivity", "Mediation SDK Consent Error", e)
+                    }
                 }
+
                 if (NetworkCheck.isNetworkAvailable(this)) {
-                    if (remoteConfigData.getValue(BANNER_SPLASH) == true && !prefs.getBoolean(
+                    if (remoteConfigData[BANNER_SPLASH] == true && !prefs.getBoolean(
                             IS_PURCHASED,
                             false
-                        )) {
-                        binding?.bannerAd?.visibility = View.VISIBLE
+                        )
+                    ) {
+                        binding.bannerAd.visibility = View.VISIBLE
                         loadAdmobBannerAd(remoteConfigData)
                     } else {
-                        binding?.bannerAd?.visibility = View.INVISIBLE
+                        binding.bannerAd.visibility = View.INVISIBLE
                         startHeavyAdsFlow(remoteConfigData)
                     }
                 } else {
-                    binding?.bannerAd?.visibility = View.INVISIBLE
+                    binding.bannerAd.visibility = View.INVISIBLE
                     startHeavyAdsFlow(remoteConfigData)
                 }
-
             }
             .build()
 
@@ -295,20 +287,25 @@ class FOFStartActivity : AppCompatActivity() {
             .setXMLLayout(setUpWelcomeScreen(this))
             .build()
 
+        // 2. The drawables will now safely load because we proved the Context is alive
         val languageScreensConfiguration = LanguageScreensConfiguration.Builder()
             .setActivityContext(this)
             .setDrawableColors(
                 selectedDrawable = AppCompatResources.getDrawable(
-                    this, R.drawable.ic_lang_selected
+                    this,
+                    R.drawable.ic_lang_selected
                 )!!,
                 unSelectedDrawable = AppCompatResources.getDrawable(
-                    this, R.drawable.ic_lang_unselected
+                    this,
+                    R.drawable.ic_lang_unselected
                 )!!,
                 selectedRadio = AppCompatResources.getDrawable(
-                    this, R.drawable.ic_selected_radio
+                    this,
+                    R.drawable.ic_selected_radio
                 )!!,
                 unSelectedRadio = AppCompatResources.getDrawable(
-                    this, R.drawable.ic_unselected_radio
+                    this,
+                    R.drawable.ic_unselected_radio
                 )!!,
                 tickSelector = AppCompatResources.getDrawable(
                     this,
@@ -338,7 +335,7 @@ class FOFStartActivity : AppCompatActivity() {
             .build()
 
         sotAdsConfigurations = SOTAdsConfigurations.Builder()
-            .setFirstOpenFlowAdIds(firstOpenFlowAdIds) // Now properly populated
+            .setFirstOpenFlowAdIds(firstOpenFlowAdIds)
             .setConsentConfig(consentConfig)
             .setLanguageScreenConfiguration(languageScreensConfiguration)
             .setWelcomeScreenConfiguration(welcomeScreensConfiguration)
@@ -361,26 +358,10 @@ class FOFStartActivity : AppCompatActivity() {
         )
     }
 
-//    private fun loadAdmobBannerAd() {
-//        AdMobBannerAdSplash(
-//            this@FOFStartActivity,
-//            placementID = resources.getString(R.string.ADMOB_BANNER_SPLASH),
-//            bannerContainer = binding.bannerAd,
-//            shimmerContainer = binding.bannerShimmerLayout,
-//            onAdFailed = {
-//                binding.bannerAd.visibility = View.GONE
-//            },
-//            onAdLoaded = {
-//
-//            },
-//            onAdClicked = {
-//
-//            }
-//        )
-//    }
 
     private fun loadAdmobBannerAd(remoteData: HashMap<String, Any>) {
-        val pID  = firstOpenFlowAdIds["ADMOB_BANNER_SPLASH"] ?:resources.getString(R.string.ADMOB_BANNER_SPLASH)
+        val pID = firstOpenFlowAdIds["ADMOB_BANNER_SPLASH"]
+            ?: resources.getString(R.string.ADMOB_BANNER_SPLASH)
         binding?.let { it ->
             AdMobBannerAdSplash(
                 this@FOFStartActivity,
@@ -389,13 +370,15 @@ class FOFStartActivity : AppCompatActivity() {
                 shimmerContainer = it.bannerShimmerLayout,
                 onAdFailed = {
                     startHeavyAdsFlow(remoteData)
-                    binding?.let{
-                        it.bannerAd.visibility = View.GONE}
+                    binding?.let {
+                        it.bannerAd.visibility = View.GONE
+                    }
 
                 },
                 onAdLoaded = {
-                    binding?.let{
-                        it.bannerAd.visibility = View.VISIBLE}
+                    binding?.let {
+                        it.bannerAd.visibility = View.VISIBLE
+                    }
                 },
                 onAdClicked = {
 
@@ -410,114 +393,14 @@ class FOFStartActivity : AppCompatActivity() {
 
     }
 
-//    private fun gotoMainActivity() {
-//        Log.d("action", "intent?.action :${intent?.action} ")
-//        Log.d("action", "action :$action ")
-//        if (intent?.action == "android.intent.action.SHORTCUT_UNINSTALL_APP") {
-//            val uninstallIntent =
-//                Intent(this@FOFStartActivity, ConfirmUninstallActivity::class.java)
-//            uninstallIntent.putExtra(FROM_SHORTCUT, intent?.getStringExtra(FROM_SHORTCUT))
-//            startActivity(uninstallIntent)
-//            finish()
-//        } else {
-//            if (action != null) {
-//                when (action) {
-//                    DESTINATION1 -> {
-//                        startActivity(
-//                            Intent(this, NavigationActivity::class.java).putExtra(
-//                                ACTION,
-//                                action
-//                            )
-//                        )
-//                        action = null
-//
-//                    }
-//
-//                    DESTINATION2 -> {
-//                        startActivity(Intent(this, StickersViewActivity::class.java))
-//                        action = null
-//                        finish()
-//                    }
-//
-//                    DESTINATION3 -> {
-//                        Log.d("action", "action :$action ")
-//                        startActivity(
-//                            Intent(this, NavigationActivity::class.java).putExtra(
-//                                ACTION,
-//                                action
-//                            )
-//                        )
-//                        action = null
-//                    }
-//
-//                }
-//
-//            } else {
-//                val intent: Intent = if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
-//                    Intent(this, KeyboardSelectionActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                } else if (intent.getStringExtra("MoveTo").equals("sindhi_stickers")) {
-//                    Intent(this, StickersViewActivity::class.java).putExtra(
-//                        "MoveTo",
-//                        intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//                else if (intent.getStringExtra("MoveTo").equals("themes")) {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//
-//                else if (intent.getStringExtra("MoveTo").equals("sindhi_status")) {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//                else if (intent.getStringExtra("MoveTo").equals("sindhi_editor")) {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//
-//                else if (intent.getStringExtra("MoveTo").equals("text_translator")) {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//
-//                else if (intent.getStringExtra("MoveTo").equals("speech_to_text")) {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//
-//                else if (intent.getStringExtra("MoveTo").equals("conversation")) {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo", intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//
-//
-//                else {
-//                    Intent(this, NavigationActivity::class.java).putExtra(
-//                        "MoveTo",
-//                        intent.getStringExtra("MoveTo")
-//                    )
-//                }
-//                startActivity(intent)
-//                finish()
-//            }
-//        }
-//
-//    }
 
     private fun gotoMainActivity() {
         Log.d("action", "intent?.action :${intent?.action} ")
         Log.d("action", "action :$action ")
 
         if (intent?.action == "android.intent.action.SHORTCUT_UNINSTALL_APP") {
-            val uninstallIntent = Intent(this@FOFStartActivity, ConfirmUninstallActivity::class.java)
+            val uninstallIntent =
+                Intent(this@FOFStartActivity, ConfirmUninstallActivity::class.java)
             uninstallIntent.putExtra(FROM_SHORTCUT, intent?.getStringExtra(FROM_SHORTCUT))
             startActivity(uninstallIntent)
             finish()
@@ -534,6 +417,7 @@ class FOFStartActivity : AppCompatActivity() {
                         action = null
                         finish() // Don't forget to finish splash
                     }
+
                     DESTINATION2 -> {
                         startActivity(Intent(this, StickersViewActivity::class.java))
                         action = null
@@ -541,21 +425,22 @@ class FOFStartActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                val nextIntent: Intent = if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
-                    Intent(this, KeyboardSelectionActivity::class.java).putExtra(
-                        "MoveTo", intent.getStringExtra("MoveTo")
-                    )
-                } else if (intent.getStringExtra("MoveTo") == "sindhi_stickers") {
-                    Intent(this, StickersViewActivity::class.java).putExtra(
-                        "MoveTo", intent.getStringExtra("MoveTo")
-                    )
-                } else {
-                    // CHANGED: Route all other NavigationActivity cases to SubscriptionActivity
-                    Intent(this, SubscriptionActivity::class.java).apply {
-                        putExtra("fromName", "Splash")
-                        putExtra("MoveTo", intent.getStringExtra("MoveTo"))
+                val nextIntent: Intent =
+                    if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
+                        Intent(this, KeyboardSelectionActivity::class.java).putExtra(
+                            "MoveTo", intent.getStringExtra("MoveTo")
+                        )
+                    } else if (intent.getStringExtra("MoveTo") == "sindhi_stickers") {
+                        Intent(this, StickersViewActivity::class.java).putExtra(
+                            "MoveTo", intent.getStringExtra("MoveTo")
+                        )
+                    } else {
+                        // CHANGED: Route all other NavigationActivity cases to SubscriptionActivity
+                        Intent(this, SubscriptionActivity::class.java).apply {
+                            putExtra("fromName", "Splash")
+                            putExtra("MoveTo", intent.getStringExtra("MoveTo"))
+                        }
                     }
-                }
 
                 startActivity(nextIntent)
                 finish()
@@ -934,16 +819,76 @@ class FOFStartActivity : AppCompatActivity() {
         }
 
 
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    NATIVE_TEXT_TRANSLATOR
-                ).trim()
-            )
-        ) {
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_TRANSLATOR).trim())) {
             getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
                 .putString(
                     NATIVE_TEXT_TRANSLATOR,
                     mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_TRANSLATOR)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_THEMES_APPLIED).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    BANNER_THEMES_APPLIED,
+                    mFirebaseRemoteConfig!!.getString(BANNER_THEMES_APPLIED)
+                ).apply()
+        }
+
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_TRANSLATION).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    ADMOB_BANNER_TRANSLATION,
+                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_TRANSLATION)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_INSIDE).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    BANNER_INSIDE,
+                    mFirebaseRemoteConfig!!.getString(BANNER_INSIDE)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_SINDHI_STATUS).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    ADMOB_BANNER_SINDHI_STATUS,
+                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_SINDHI_STATUS)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_TEXT_REVERSE).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    BANNER_TEXT_REVERSE,
+                    mFirebaseRemoteConfig!!.getString(BANNER_TEXT_REVERSE)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_TEXT_TRANSLATOR).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    BANNER_TEXT_TRANSLATOR,
+                    mFirebaseRemoteConfig!!.getString(BANNER_TEXT_TRANSLATOR)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_INSIDE).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    ADMOB_BANNER_INSIDE,
+                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_INSIDE)
+                ).apply()
+        }
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(NATIVE_OVER_ALL).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
+                .putString(
+                    NATIVE_OVER_ALL,
+                    mFirebaseRemoteConfig!!.getString(NATIVE_OVER_ALL)
                 ).apply()
         }
 
@@ -982,6 +927,21 @@ class FOFStartActivity : AppCompatActivity() {
                 putString(
                     INTERSTITIAL_STICKER_ENTER,
                     mFirebaseRemoteConfig!!.getString(INTERSTITIAL_STICKER_ENTER)
+                )
+            }
+        }
+
+
+ if (!TextUtils.isEmpty(
+                mFirebaseRemoteConfig!!.getString(
+                    ADS_NATIVE_THEMES_APPLY
+                ).trim()
+            )
+        ) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
+                    ADS_NATIVE_THEMES_APPLY,
+                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLY)
                 )
             }
         }
@@ -1028,12 +988,9 @@ class FOFStartActivity : AppCompatActivity() {
             }
         }
 
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLY).trim())) {
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_REVERSE).trim())) {
             getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_THEMES_APPLY,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLY)
-                )
+                putString(NATIVE_TEXT_REVERSE, mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_REVERSE))
             }
         }
 
@@ -1066,6 +1023,34 @@ class FOFStartActivity : AppCompatActivity() {
                 putString(
                     AD_ID_NATIVE_UNINSTAL,
                     mFirebaseRemoteConfig!!.getString(AD_ID_NATIVE_UNINSTAL)
+                )
+            }
+        }
+
+
+        if (!TextUtils.isEmpty(
+                mFirebaseRemoteConfig!!.getString(NATIVE_INSIDE).trim()
+            )
+        ) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
+                    NATIVE_INSIDE,
+                    mFirebaseRemoteConfig!!.getString(NATIVE_INSIDE)
+                )
+            }
+        }
+
+
+
+
+        if (!TextUtils.isEmpty(
+                mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_THEMES).trim()
+            )
+        ) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
+                    ADMOB_BANNER_THEMES,
+                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_THEMES)
                 )
             }
         }
@@ -1342,6 +1327,16 @@ class FOFStartActivity : AppCompatActivity() {
             }
         }
 
+
+        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_SINDHI_STATUS_SHOW).trim())) {
+            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+                putString(
+                    BANNER_SINDHI_STATUS_SHOW,
+                    mFirebaseRemoteConfig!!.getString(BANNER_SINDHI_STATUS_SHOW)
+                )
+            }
+        }
+
         if (!TextUtils.isEmpty(
                 mFirebaseRemoteConfig!!.getString(NATIVE_STICKERS_DETAILS).trim()
             )
@@ -1431,18 +1426,24 @@ class FOFStartActivity : AppCompatActivity() {
     private fun getSharedPreferencesValues(): HashMap<String, Any> {
         val remoteConfigHashMap: HashMap<String, Any> = HashMap()
         remoteConfigHashMap.apply {
-            this["RESUME_INTER_SPLASH"] = "${prefs.getString(RemoteConfigConst.RESUME_INTER_SPLASH, "Empty")}"
+            this["RESUME_INTER_SPLASH"] =
+                "${prefs.getString(RemoteConfigConst.RESUME_INTER_SPLASH, "Empty")}"
             this["BANNER_SPLASH"] = prefs.getBoolean(BANNER_SPLASH, false)
             this["NATIVE_LANGUAGE_1"] = prefs.getBoolean(RemoteConfigConst.NATIVE_LANGUAGE_1, false)
             this["NATIVE_LANGUAGE_2"] = prefs.getBoolean(RemoteConfigConst.NATIVE_LANGUAGE_2, false)
             this["NATIVE_SURVEY_1"] = prefs.getBoolean(RemoteConfigConst.NATIVE_SURVEY_1, false)
             this["NATIVE_SURVEY_2"] = prefs.getBoolean(RemoteConfigConst.NATIVE_SURVEY_2, false)
             this["RESUME_OVERALL"] = prefs.getBoolean(RemoteConfigConst.RESUME_OVERALL, false)
-            this["NATIVE_WALKTHROUGH_1"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_1, false)
-            this["NATIVE_WALKTHROUGH_2"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_2, false)
-            this["NATIVE_WALKTHROUGH_FULLSCR"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR, false)
-            this["NATIVE_WALKTHROUGH_3"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_3, false)
-            this["INTERSTITIAL_LETS_START"] = prefs.getBoolean(RemoteConfigConst.INTERSTITIAL_LETS_START, false)
+            this["NATIVE_WALKTHROUGH_1"] =
+                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_1, false)
+            this["NATIVE_WALKTHROUGH_2"] =
+                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_2, false)
+            this["NATIVE_WALKTHROUGH_FULLSCR"] =
+                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR, false)
+            this["NATIVE_WALKTHROUGH_3"] =
+                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_3, false)
+            this["INTERSTITIAL_LETS_START"] =
+                prefs.getBoolean(RemoteConfigConst.INTERSTITIAL_LETS_START, false)
             this["TIMER_NATIVE_F_SRC"] = "${prefs.getString(TIMER_NATIVE_F_SRC, "Empty")}"
             this["IS_PURCHASED"] = prefs.getBoolean(IS_PURCHASED, false)
         }
@@ -1461,9 +1462,11 @@ class FOFStartActivity : AppCompatActivity() {
             this["ADMOB_NATIVE_SURVEY_2"] = remoteConfig.getString(ADMOB_NATIVE_SURVEY_2)
             this["ADMOB_NATIVE_WALKTHROUGH_1"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_1)
             this["ADMOB_NATIVE_WALKTHROUGH_2"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_2)
-            this["ADMOB_NATIVE_WALKTHROUGH_FULLSCR"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_FULLSCR)
+            this["ADMOB_NATIVE_WALKTHROUGH_FULLSCR"] =
+                remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_FULLSCR)
             this["ADMOB_NATIVE_WALKTHROUGH_3"] = remoteConfig.getString(ADMOB_NATIVE_WALKTHROUGH_3)
-            this["ADMOB_INTERSTITIAL_LETS_START"] = remoteConfig.getString(ADMOB_INTERSTITIAL_LETS_START)
+            this["ADMOB_INTERSTITIAL_LETS_START"] =
+                remoteConfig.getString(ADMOB_INTERSTITIAL_LETS_START)
             this["RESUME_OVER_ALL"] = remoteConfig.getString(RESUME_OVER_ALL)
 
             Log.d("AdConfig", "===== Loaded Ad IDs =====")

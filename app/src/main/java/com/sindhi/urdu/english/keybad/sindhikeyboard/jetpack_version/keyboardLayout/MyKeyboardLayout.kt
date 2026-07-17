@@ -189,22 +189,37 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         layoutKeys?.drop(if (shouldDropNumberRow) 1 else 0)?.toTypedArray()
     }
 
-    // ANR FIX: Faster, safer check for empty text field that won't block the main thread
-    fun isTextFieldEmpty(inputConnection: InputConnection?): Boolean {
-        val beforeCursor = inputConnection?.getTextBeforeCursor(1, 0)
-        val afterCursor = inputConnection?.getTextAfterCursor(1, 0)
-        return beforeCursor.isNullOrEmpty() && afterCursor.isNullOrEmpty()
+    // Add suspend and Dispatchers.IO
+    suspend fun isTextFieldEmpty(inputConnection: InputConnection?): Boolean {
+        if (inputConnection == null) return true
+
+        return withContext(Dispatchers.IO) { // <-- Forces IPC off the main thread
+            try {
+                val beforeCursor = inputConnection.getTextBeforeCursor(1, 0)
+                val afterCursor = inputConnection.getTextAfterCursor(1, 0)
+
+                beforeCursor.isNullOrEmpty() && afterCursor.isNullOrEmpty()
+            } catch (t: Throwable) {
+                Log.e("KeyboardLayout", "Stale InputConnection: Failed to read text", t)
+                false
+            }
+        }
     }
 
-    fun isTextFieldEmptyVariant(inputConnection: InputConnection?): Boolean {
+    // Also update your variant if you are using it elsewhere
+    suspend fun isTextFieldEmptyVariant(inputConnection: InputConnection?): Boolean {
         return isTextFieldEmpty(inputConnection)
     }
 
     fun resetKeyboard() {
         currentLayout = LayoutState.Main
         isCapsLockEnabled = false
-        if (isTextFieldEmpty(inputConnection)) {
-            isCapsEnabled = true
+
+        // Launch in the Compose coroutine scope
+        coroutineScope.launch {
+            if (isTextFieldEmpty(inputConnection)) {
+                isCapsEnabled = true
+            }
         }
     }
 
@@ -386,8 +401,12 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                     },
                     deleteTextAfterDrag = {
                         imeService?.deleteText()
-                        if (isTextFieldEmpty(inputConnection) && !isCapsLockEnabled) {
-                            isCapsEnabled = true
+
+                        // Launch coroutine to check text field state
+                        coroutineScope.launch {
+                            if (isTextFieldEmpty(inputConnection) && !isCapsLockEnabled) {
+                                isCapsEnabled = true
+                            }
                         }
                     },
                     onLongKeyPressed = { isEmoji ->

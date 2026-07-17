@@ -240,6 +240,10 @@ class ExitScreenFragment : Fragment() {
             txtSindhiKeyboard.text = resources.getString(R.string.label_explore_feature)
             txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
         }
+
+        val gapInDp = 12 // Change this to make the gap bigger or smaller
+        val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+        txtSindhiKeyboard.compoundDrawablePadding = gapInPx
     }
 
 }

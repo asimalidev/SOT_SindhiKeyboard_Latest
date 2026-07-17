@@ -45,6 +45,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb.HistoryViewModel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb.viewmodelfactory
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_INSIDE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADS_BANNER_HISTORY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.INTER_OVER_ALL
@@ -247,7 +248,7 @@ class history_fragment : Fragment(), HistoryConversationAdapter.HistoryConversat
     private fun loadBanner() {
         val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            pref.getString(ADMOB_BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
         } else {
             resources.getString(R.string.ADMOB_BANNER_SPLASH)
         }
@@ -461,6 +462,10 @@ class history_fragment : Fragment(), HistoryConversationAdapter.HistoryConversat
                 ), null, null, null
             )
             txtSindhiKeyboard.text = resources.getString(R.string.label_history)
+
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
 
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->

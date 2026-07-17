@@ -33,8 +33,9 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.TinyDB
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_THEMES
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import java.util.Locale
 
 class tocountry_fragment : Fragment() {
@@ -118,7 +119,9 @@ class tocountry_fragment : Fragment() {
         if (isPurchased!!) {
             binding.nativeAdContainerAd.visibility = View.GONE
         } else {
-            if (NetworkCheck.isNetworkAvailable(requireContext())
+            if (NetworkCheck.isNetworkAvailable(requireContext()) &&
+                requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
+                    ?.getBoolean(IS_PURCHASED, false) == true
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(
                     Preferences.ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT,"ON").equals("ON",true)) {
                 val pref =requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
@@ -186,6 +189,9 @@ class tocountry_fragment : Fragment() {
         if (txtSindhiKeyboard != null) {
             txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireContext(), R.drawable.back),null,null,null)
             txtSindhiKeyboard.text = resources.getString(R.string.select_lang)
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             txtSindhiKeyboard.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {

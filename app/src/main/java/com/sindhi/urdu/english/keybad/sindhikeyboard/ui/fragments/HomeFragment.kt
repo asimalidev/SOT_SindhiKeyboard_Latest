@@ -346,11 +346,7 @@ class HomeFragment : Fragment(), IBillingHandler {
 
 
         binding!!.clTextReverse.blockingClickListener {
-            Toast.makeText(
-                requireActivity(),
-                getString(R.string.label_coming_soon),
-                Toast.LENGTH_SHORT
-            ).show()
+            navController?.safeNavigate(HomeFragmentDirections.actionNavHomeToReverseFragment())
         }
         binding!!.clDictionary.blockingClickListener {
             Toast.makeText(

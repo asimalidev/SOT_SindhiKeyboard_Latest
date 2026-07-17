@@ -1,6 +1,5 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
@@ -33,8 +32,8 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADS_BANNER_THEMES_TEST
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
@@ -42,7 +41,6 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REM
 class KeyboardTestFragment : Fragment() {
     private var _binding: FragmentKeyboardTestBinding? = null
     private val binding get() = _binding!!
-
     private var navController: NavController? = null
     private var isPremiumUser = false
 
@@ -59,7 +57,6 @@ class KeyboardTestFragment : Fragment() {
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -105,7 +102,6 @@ class KeyboardTestFragment : Fragment() {
         )
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
         super.onResume()
         updatePurchaseStatus()
@@ -127,7 +123,6 @@ class KeyboardTestFragment : Fragment() {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun setupToolbar() {
         val ivClose = requireActivity().findViewById<ImageView>(R.id.ivClose)
         ivClose?.visibility = View.INVISIBLE
@@ -138,6 +133,12 @@ class KeyboardTestFragment : Fragment() {
                 ContextCompat.getDrawable(requireContext(), R.drawable.back), null, null, null
             )
             text = resources.getString(R.string.label_test_theme)
+
+            // ✅ ADD THIS: Set the gap between the drawable and the text
+            // Convert your desired dp value (e.g., 12dp) to pixels
+            val gapInDp = 12
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            compoundDrawablePadding = gapInPx
 
             val startDrawable = compoundDrawables[0]
             setOnTouchListener { _, event ->
@@ -219,7 +220,7 @@ class KeyboardTestFragment : Fragment() {
     private fun loadNewBannerAd() {
         val prefs = requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            prefs.getString(BANNER_INSIDE, "ca-app-pub-3747520410546258/1697692330")
+            prefs.getString(ADMOB_BANNER_THEMES, "ca-app-pub-3747520410546258/3066582155")
         } else {
             resources.getString(R.string.ADMOB_BANNER_SPLASH)
         }
