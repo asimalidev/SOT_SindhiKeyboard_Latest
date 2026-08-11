@@ -4,17 +4,12 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -23,30 +18,26 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentThemesBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass.Companion.selectedTheme
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.isNetworkAvailable
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.screens.ThemesScreen
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.NavigationActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_THEMES
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_THEMES_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_THEME
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_THEMES_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_THEMES_LIST
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 
 class ThemesFragment : Fragment() {
-
     private lateinit var binding: FragmentThemesBinding
     var navController: NavController? = null
     var isPurchase = false
@@ -65,6 +56,10 @@ class ThemesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         isNavControllerAdded()
+
+        binding.ivBackPress.setOnClickListener {
+            myBackPressed()
+        }
 
         val composeView = view.findViewById<ComposeView>(R.id.composeView)
         composeView.setContent {
@@ -90,7 +85,7 @@ class ThemesFragment : Fragment() {
         if (isNetworkAvailable(requireActivity())
             && !isPurchase
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(BANNER_THEMES_LIST, "ON").equals("ON", true)
+                .getString(SHOW_BANNER_THEMES_LIST, "ON").equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("abcdef")) {
                 val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["abcdef"]
@@ -128,20 +123,17 @@ class ThemesFragment : Fragment() {
 
     private fun loadBanner() {
         val adView = AdView(requireActivity())
-
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_THEMES,   resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_THEME,   resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
+
         adView.adUnitId = adId!!
-        /*val extras = Bundle()
-        extras.putString("collapsible", "bottom")*/
 
         val adRequest = AdRequest.Builder()
-            // .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
             .build()
 
         adView.loadAd(adRequest)
@@ -198,56 +190,31 @@ class ThemesFragment : Fragment() {
             )
         }
 
+    override fun onPause() {
+        super.onPause()
+        (activity as NavigationActivity).showtoolbar()
+    }
+
     override fun onResume() {
         super.onResume()
         isNavControllerAdded()
 
-        val ivClose = requireActivity().findViewById<ImageView>(R.id.ivClose)
-        if (ivClose != null) {
-            ivClose.visibility = View.INVISIBLE
-        }
-        val txtSindhiKeyboard =
-            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
-        if (txtSindhiKeyboard != null) {
-            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.back
-                ), null, null, null
-            )
-            txtSindhiKeyboard.text = resources.getString(R.string.label_themes)
+        (activity as NavigationActivity).hidetoolbar()
 
-            val gapInDp = 12 // Change this to make the gap bigger or smaller
-            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
-            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
-
-            val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
-            txtSindhiKeyboard.setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    if (event.x <= (startDrawable?.bounds?.width() ?: 0)) {
-                        myBackPressed()
-                        return@setOnTouchListener true
-                    }
-                }
-                false
-            }
-        }
-
-        if (isPurchase!!) {
+        if (isPurchase) {
             binding.nativeAdContainerAd.visibility = View.GONE
             binding.separator.visibility = View.GONE
         } else {
             if (isNetworkAvailable(requireContext())
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                    .getString(
-                        Preferences.ADS_NATIVE_THEMES, "ON"
+                    .getString(SHOW_NATIVE_THEMES_LIST, "ON"
                     ).equals("ON", true)
             ) {
                 val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_THEMES,  resources.getString(R.string.admob_banner_inside))
+                    pref.getString(AD_ID_NATIVE_THEMES,  resources.getString(R.string.NATIVE_DEFAULT))
                 } else {
-                    resources.getString(R.string.admob_banner_inside)
+                    resources.getString(R.string.NATIVE_DEFAULT)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),

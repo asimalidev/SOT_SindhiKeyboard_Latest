@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#F4F4F4"
+    tools:context=".sindhikeyboard.sindiEditor.PreviewPosterFragment">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/clTopHeader"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingVertical="@dimen/_7sdp"
+    app:layout_constraintTop_toTopOf="parent">
+
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:src="@drawable/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/black" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preview"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/btnBack"
+        app:layout_constraintStart_toEndOf="@+id/btnBack"
+        app:layout_constraintTop_toTopOf="@+id/btnBack" />
+
+    <ImageView
+        android:id="@+id/btnHome"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="@dimen/_13sdp"
+        android:padding="12dp"
+        android:src="@drawable/ic_home"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#D20024" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<com.google.android.material.imageview.ShapeableImageView
+    android:id="@+id/ivPreviewImage"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_margin="16dp"
+    android:scaleType="fitXY"
+    app:cornerFamily="rounded"
+    app:cornerSize="16dp"
+    app:layout_constraintBottom_toTopOf="@+id/llStandardActions"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/clTopHeader"
+    tools:src="@tools:sample/backgrounds/scenic" />
+
+<LinearLayout
+    android:id="@+id/llStandardActions"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="24dp"
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginBottom="16dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:weightSum="2"
+    app:layout_constraintBottom_toTopOf="@+id/btnSaveNoWatermark"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent">
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSharePost"
+        android:layout_width="160dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="@dimen/_5sdp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_outlined_share"
+        android:drawableStart="@drawable/ic_shareee"
+        android:drawablePadding="8dp"
+        android:drawableTint="@color/white"
+        android:stateListAnimator="@null"
+        android:elevation="0dp"
+        android:fontFamily="@font/lexend_medium"
+        android:paddingHorizontal="20dp"
+        android:text="@string/share_post"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSavePost"
+        android:layout_width="160dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_outlined_green"
+        android:drawableStart="@drawable/ic_download"
+        android:drawableTint="@color/white"
+        android:drawablePadding="8dp"
+        android:fontFamily="@font/lexend_medium"
+        android:paddingHorizontal="20dp"
+        android:stateListAnimator="@null"
+        android:elevation="0dp"
+        android:text="@string/save_post"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</LinearLayout>
+
+<TextView
+    android:id="@+id/btnSaveNoWatermark"
+    android:layout_width="0dp"
+    android:layout_height="56dp"
+    android:layout_marginHorizontal="24dp"
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginBottom="32dp"
+    android:visibility="gone"
+    android:fontFamily="@font/lexend_semibold"
+    android:gravity="center"
+    android:textAllCaps="false"
+    android:textColor="@color/white"
+    app:cornerRadius="28dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+
+
+<ImageView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toBottomOf="@+id/btnSaveNoWatermark"
+    app:layout_constraintEnd_toEndOf="@+id/btnSaveNoWatermark"
+    app:layout_constraintHorizontal_bias="0.159"
+    app:layout_constraintStart_toStartOf="@+id/btnSaveNoWatermark"
+    app:layout_constraintTop_toTopOf="@+id/btnSaveNoWatermark"
+    app:layout_constraintVertical_bias="0.531" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

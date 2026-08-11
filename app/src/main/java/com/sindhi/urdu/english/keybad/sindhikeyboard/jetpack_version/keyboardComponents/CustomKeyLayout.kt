@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +30,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,8 +42,11 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.cons
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_123
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_1by2
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_1by2Sindhi
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_1by3_HG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_2by2
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_2by2Sindhi
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_2by3_HG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_3by3_HG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_ABC
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_CAPS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.LABEL_DELETE
@@ -58,6 +64,8 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.theme.onSel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.onClickSound
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.onClickVibrate
 import kotlinx.coroutines.delay
+
+val UrduFontFamily = FontFamily(Font(R.font.noto_nastaliq, FontWeight.Normal))
 
 
 @Composable
@@ -79,6 +87,9 @@ fun CustomKey(
     onSymbolsLayoutSwitchClick: () -> Unit,
     onSymbolsUrduLayoutSwitchClick: () -> Unit,
     onSymbolsSindhiLayoutSwitchClick: () -> Unit,
+    onHusnEguftarOneLayoutSwitchClick: () -> Unit,
+    onHusnEguftarTwoLayoutSwitchClick: () -> Unit,
+    onHusnEguftarThreeLayoutSwitchClick: () -> Unit,
     onLanguageSwitchClick: (String) -> Unit,
     onCapsClick: () -> Unit,
     onCapsClickToLock: () -> Unit,
@@ -106,24 +117,14 @@ fun CustomKey(
     }
 
     // Determine the text color of the key based on whether it's a selection button
-    val textColor by remember {
-        mutableStateOf(
-            if (isSelectionEnabled && key.labelMain == LABEL_SELECT)
-                onSelectButtonColor
-            else myTextColor
-        )
+    val textColor = if ((isSelectionEnabled || imeService?.isSelectionModeActive == true) && key.labelMain == LABEL_SELECT) {
+        onSelectButtonColor // (Make sure this variable is defined or passed in)
+    } else {
+        myTextColor
     }
 
     // Define the shape of the key based on its label
-    val keyShape by remember {
-        mutableStateOf(
-            if (key.shouldBeRounded) {
-                RoundedCornerShape(100)
-            } else {
-                RoundedCornerShape(6.dp)
-            }
-        )
-    }
+    val keyShape = if (key.shouldBeRounded) RoundedCornerShape(100) else RoundedCornerShape(6.dp)
 
     // Calculate the main label of the key, considering Caps and Caps Lock state
     val labelMain = remember(key.labelMain, isCapsEnabled, isCapsLockEnabled) {
@@ -200,6 +201,9 @@ fun CustomKey(
                             LABEL_SYMBOLS -> onSymbolsLayoutSwitchClick()
                             LABEL_1by2 -> onSymbolsUrduLayoutSwitchClick()
                             LABEL_2by2 -> onLayoutSwitchClick()
+                            LABEL_1by3_HG -> onHusnEguftarTwoLayoutSwitchClick()
+                            LABEL_2by3_HG -> onHusnEguftarThreeLayoutSwitchClick()
+                            LABEL_3by3_HG -> onLayoutSwitchClick()
                             LABEL_1by2Sindhi -> onSymbolsSindhiLayoutSwitchClick()
                             LABEL_2by2Sindhi -> onLayoutSwitchClick()
                             LABEL_NUMBERS -> onNumbersSwitchClick()
@@ -255,24 +259,56 @@ fun CustomKey(
                     key.labelMain == LABEL_123 ||
                     key.labelMain == LABEL_DELETE) specialTint else textColor
             )
-        } else {
-            if (key.shouldShowLanguageName) {
-                AutoResizedText(
-                    text = keyboardName,
-                    color = textColor
-                )
-            } else if (key.shouldBeResized) {
-                AutoResizedText(
-                    text = key.labelMain,
-                    color = textColor
-                )
-            } else {
+        }
+
+        else {
+            // 1. Identify the diacritic FIRST, before any other checks
+            val isDiacritic = labelMain.contains("◌") ||
+                    key.labelMain.trim() in listOf("ۨ", "َ", "ّ", "ٓ", "ٔ", "ٕ", "ۖ", "ؐ", "ؓ", "ؒ")
+
+            // 2. Prioritize rendering the diacritic with the large size
+            if (isDiacritic) {
                 Text(
                     text = labelMain,
                     color = textColor,
-                    fontSize = keyTextSize.sp,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.offset(y = (-2).dp)
+                    fontFamily = UrduFontFamily,
+                    // FIX: Replaced direct fontSize with TextStyle to disable font padding
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontSize = 20.sp, // Reduced from 25.sp to fit the double zair perfectly
+                        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    modifier = Modifier
+                        .wrapContentSize(unbounded = true)
+                        .offset(y = (-6).dp) // Pulled up a bit more to avoid the bottom edge
+                )
+            } else if (key.shouldShowLanguageName) {
+                AutoResizedText(text = keyboardName, color = textColor)
+            } else if (key.shouldBeResized) {
+                AutoResizedText(
+                    text = key.labelMain,
+                    color = textColor,
+                    fontFamily = UrduFontFamily,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontSize = 12.sp,
+                        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    modifier = Modifier
+                        .wrapContentSize(unbounded = true)
+                        .offset(y = (-4).dp)
+                )
+            } else {
+                // Standard text fallback
+                Text(
+                    text = labelMain,
+                    color = textColor,
+                    fontFamily = UrduFontFamily,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontSize = 18.sp,
+                        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    modifier = Modifier
+                        .wrapContentSize(unbounded = true)
+                        .offset(y = (-6).dp)
                 )
             }
         }

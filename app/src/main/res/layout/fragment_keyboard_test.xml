@@ -8,22 +8,54 @@
     android:paddingTop="@dimen/_5sdp"
     tools:context=".sindhikeyboard.ui.fragments.KeyboardTestFragment">
 
-    <FrameLayout
-        android:id="@+id/adViewContainer"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_5sdp"
-        android:background="@drawable/ad_bg_banner"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBaseline_toBottomOf="parent">
+        android:layout_marginTop="@dimen/_5sdp">
 
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmerLayout1"
+        <FrameLayout
+            android:id="@+id/adViewContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <include layout="@layout/size_native_small_shimmer" />
-        </com.facebook.shimmer.ShimmerFrameLayout>
-    </FrameLayout>
+            android:layout_height="wrap_content"
+            android:background="@drawable/ad_bg_banner"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmerLayoutBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/banner_shimmer" />
+            </com.facebook.shimmer.ShimmerFrameLayout>
+
+        </FrameLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/nativeAdContainerAd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_3sdp"
+            android:visibility="visible"
+            app:cardBackgroundColor="@color/nativeAdBackground"
+            app:cardCornerRadius="@dimen/_5sdp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <include layout="@layout/size_native_small_shimmer" />
+            </com.facebook.shimmer.ShimmerFrameLayout>
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <EditText
@@ -41,30 +73,7 @@
         android:padding="@dimen/_5sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nativeAdContainerAd1" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/nativeAdContainerAd1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/_3sdp"
-        android:layout_marginVertical="@dimen/_5sdp"
-        android:visibility="visible"
-        app:cardBackgroundColor="@color/native_ad_background"
-        app:cardCornerRadius="@dimen/_5sdp"
-        app:cardElevation="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/adViewContainer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <include layout="@layout/native_admob_media_left_side_shimmer" />
-        </com.facebook.shimmer.ShimmerFrameLayout>
-
-    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

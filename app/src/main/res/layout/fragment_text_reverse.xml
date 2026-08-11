@@ -77,45 +77,56 @@
             </com.facebook.shimmer.ShimmerFrameLayout>
         </androidx.cardview.widget.CardView>
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tvReverse"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/_100sdp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/_25sdp"
             android:layout_marginVertical="@dimen/_20sdp"
-            android:background="@drawable/bg_btns_in_reverse"
-            android:drawableStart="@drawable/ic_reverse"
+            android:layout_marginEnd="@dimen/_20sdp"
             android:fontFamily="@font/lexend_bold"
-            android:gravity="center"
-            android:padding="@dimen/_10sdp"
+            android:paddingVertical="@dimen/_9sdp"
             android:text="@string/reverse"
             android:textAllCaps="false"
             android:textColor="@color/White"
-            android:textSize="@dimen/_12ssp"
-            app:cornerRadius="@dimen/_10sdp"
+            android:textSize="@dimen/_11ssp"
+            app:backgroundTint="#C1001F"
+            app:cornerRadius="50dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            app:icon="@drawable/ic_reverse_txt"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/_5sdp"
+            app:iconTint="@color/White"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintEnd_toStartOf="@+id/tvFlip"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nativeAdContainerAd" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tvFlip"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/_100sdp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/_25sdp"
+            android:layout_marginStart="@dimen/_10sdp"
             android:layout_marginVertical="@dimen/_20sdp"
-            android:background="@drawable/bg_btns_in_reverse"
-            android:drawableStart="@drawable/ic_flip"
             android:fontFamily="@font/lexend_medium"
-            android:gravity="center"
-            android:padding="@dimen/_10sdp"
+            android:paddingVertical="@dimen/_9sdp"
             android:text="Flip"
+            android:gravity="start"
             android:textAllCaps="false"
             android:textColor="@color/White"
-            android:textSize="@dimen/_12ssp"
-            app:cornerRadius="@dimen/_10sdp"
+            android:textSize="@dimen/_11ssp"
+            app:backgroundTint="#C1001F"
+            app:cornerRadius="50dp"
+            app:icon="@drawable/ic_flip"
+            app:iconGravity="textStart"
+            app:iconPadding="@dimen/_12sdp"
+            app:iconTint="@color/White"
+            app:layout_constraintBottom_toBottomOf="@+id/tvReverse"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvReverse"
-            app:layout_constraintTop_toBottomOf="@+id/nativeAdContainerAd" />
+            app:layout_constraintTop_toTopOf="@+id/tvReverse" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -145,40 +156,40 @@
                 android:id="@+id/ivWhatsApp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_15sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_reverse_whatsapp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ivDelete"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvResult" />
 
             <ImageView
                 android:id="@+id/ivDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_15sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_reverse_delete"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ivShare"
+                app:layout_constraintEnd_toStartOf="@+id/ivCopy"
                 app:layout_constraintTop_toBottomOf="@id/tvResult" />
 
             <ImageView
                 android:id="@+id/ivShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_15sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_reverse_share"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ivCopy"
+                app:layout_constraintEnd_toStartOf="@+id/ivWhatsApp"
                 app:layout_constraintTop_toBottomOf="@id/tvResult" />
 
             <ImageView
                 android:id="@+id/ivCopy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_15sdp"
+                android:padding="@dimen/_5sdp"
                 android:src="@drawable/ic_copy"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+               app:layout_constraintEnd_toStartOf="@+id/ivShare"
                 app:layout_constraintTop_toBottomOf="@id/tvResult" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

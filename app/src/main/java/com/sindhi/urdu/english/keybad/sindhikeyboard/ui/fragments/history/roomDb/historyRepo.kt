@@ -1,15 +1,17 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb
 
 import androidx.lifecycle.LiveData
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.ConversationTo
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.WordDao
 
-class historyRepo(private val wordDao: wordDao) {
+class HistoryRepo(private val wordDao: WordDao) {
 
     val searchedWords: LiveData<List<WordEntity>> = wordDao.getWord()
 
     val getConversationExtReFormulated: LiveData<List<ConversationExtension>> = wordDao.getConversationExtReFormulated()
     val conversationTemporary: LiveData<List<ConversationExtensionTemp>> = wordDao.getConversationTemporary()
 
-    val convoto: LiveData<List<Conversationto>> = wordDao.getto()
+    val convoto: LiveData<List<ConversationTo>> = wordDao.getto()
 
     suspend fun insertWord(p: WordEntity) {
         wordDao.word(p)

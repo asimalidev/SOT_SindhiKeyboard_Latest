@@ -30,9 +30,9 @@ class FontSpinnerAdapter(
         val fontName = fontList[position]
 //        holder.fontNameTextView.text = fontName
         holder.fontNameTextView.text = if (fontName.endsWith("_ur.ttf")) {
-            "اُردو کے لیے بہترین کی بورڈ!"
+            "سندھی کے لیے بہترین کی بورڈ!"
         } else {
-            "Best Urdu Keyboard "
+            "Best Sindhi Keyboard "
         }
 
         FontCache.getTypeface(context = context, fontName = fontName)?.let {

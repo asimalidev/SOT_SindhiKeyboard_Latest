@@ -1,7 +1,9 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model
 
+import androidx.annotation.Keep
 import java.io.File
 
+@Keep
 data class StickerPackData(
     val android_play_store_link: String,
     val sticker_packs: List<StickerPack>,
@@ -9,6 +11,7 @@ data class StickerPackData(
     val sticker_details: List<StickerPackDetail>
 )
 
+@Keep
 data class StickerPack(
     val identifier: String,
     val name: String,
@@ -24,6 +27,7 @@ data class StickerPack(
     val publisher_website: String
 )
 
+@Keep
 data class StickerContent(
     val identifier: String,
     val name: String,
@@ -38,22 +42,26 @@ data class StickerContent(
     val stickers: List<Sticker>
 )
 
+@Keep
 data class Sticker(
     val image_file: String,
     val emojis: List<String>
 )
 
+@Keep
 data class StickerPackDetail(
     val identifier: String,
     val name: String,
     val stickers: List<StickerItem>
 )
 
+@Keep
 data class StickerItem(
     val image_file: String,
     val image_file_url: String
 )
 
+@Keep
 data class StickerPackInfo(
     val folderName: String,
     val stickerFiles: List<File>

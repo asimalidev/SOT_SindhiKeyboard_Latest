@@ -4,19 +4,20 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:background="@color/white"
     app:cardCornerRadius="@dimen/_10sdp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtTitle"
             android:layout_width="@dimen/_300sdp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@color/maroon_500"
-            android:fontFamily="@font/lexend_bold"
+            android:background="#D20024"
             android:gravity="center"
             android:paddingStart="@dimen/_15sdp"
             android:paddingTop="@dimen/_10sdp"
@@ -31,16 +32,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.SearchView
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/searchViewfromcountry"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/_40sdp"
             app:iconifiedByDefault="false"
+            android:paddingHorizontal="@dimen/_10sdp"
+            android:drawablePadding="@dimen/_10sdp"
+            android:drawableStart="@drawable/search_icon"
+            android:background="@color/White"
+            android:drawableTint="#D20024"
+            android:textColor="@color/black"
+            android:textColorHint="#BCBCBC"
             app:layout_constraintEnd_toEndOf="@+id/txtTitle"
             app:layout_constraintStart_toStartOf="@+id/txtTitle"
             app:layout_constraintTop_toBottomOf="@+id/txtTitle"
-            app:layout_constraintBottom_toTopOf="@+id/rvcountry"
-            app:searchHintIcon="@drawable/search" />
+            app:layout_constraintBottom_toTopOf="@+id/rvcountry"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvcountry"

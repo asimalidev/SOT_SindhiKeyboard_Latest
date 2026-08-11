@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
@@ -20,7 +21,8 @@ fun AutoResizedText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.bodyMedium,
-    color: Color = MaterialTheme.colorScheme.onTertiary
+    color: Color = MaterialTheme.colorScheme.onTertiary,
+    fontFamily: FontFamily? = null
 ) {
     var resizedTextStyle by remember {
         mutableStateOf(style)
@@ -35,6 +37,7 @@ fun AutoResizedText(
         text = text,
         color = color,
         fontWeight = FontWeight(475),
+        fontFamily = fontFamily,
         modifier = modifier.drawWithContent {
             if (shouldDraw) {
                 drawContent()

@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
-import com.myproject.todoappwithnodejs.retrofitgenericresponse.Baseresponse
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.models.Baseresponse
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentDictionaryBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass

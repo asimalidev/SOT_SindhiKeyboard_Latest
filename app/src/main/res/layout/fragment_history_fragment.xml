@@ -4,19 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg_color"
-    android:orientation="vertical">
+    android:background="@color/newappcolor"
+    tools:context=".sindhikeyboard.ui.fragments.history.history_fragment">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/nativeAdContainerAd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
         android:layout_marginHorizontal="@dimen/_3sdp"
+        android:layout_marginVertical="@dimen/_3sdp"
+        android:padding="10dp"
         android:visibility="visible"
-        app:cardBackgroundColor="@color/native_ad_background"
-        app:cardCornerRadius="@dimen/_5sdp"
+        app:cardBackgroundColor="@color/nativeAdBackground"
         app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/clViews"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -25,17 +26,17 @@
             android:id="@+id/shimmerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <include layout="@layout/native_admob_media_left_side_shimmer" />
-            <!--<include layout="@layout/size_native_medium_shimmer" />-->
-        </com.facebook.shimmer.ShimmerFrameLayout>
 
+            <include layout="@layout/native_admob_media_left_side_shimmer" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
     </androidx.cardview.widget.CardView>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clViews"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+        app:layout_constraintBottom_toTopOf="@+id/adViewContainer"
         app:layout_constraintTop_toBottomOf="@+id/nativeAdContainerAd">
 
         <ImageView
@@ -64,14 +65,14 @@
             android:id="@+id/rvWordHistory"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"
-            tools:listitem="@layout/historyrvitem" />
+            android:visibility="gone"
+            tools:listitem="@layout/history_item" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvConversation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:listitem="@layout/history_conversation_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -91,7 +92,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:background="@color/maroon_500"
+            android:background="@color/appThemeColor"
             android:drawableTop="@drawable/ic_translation_tab"
             android:drawablePadding="@dimen/_5sdp"
             android:gravity="center"
@@ -115,10 +116,10 @@
             android:drawablePadding="@dimen/_5sdp"
             android:gravity="center"
             android:padding="@dimen/_5sdp"
-            android:text="Conversation"
-            android:textColor="@color/tabTextDull"
+            android:text="@string/label_conversation"
+            android:textColor="@color/blackTxt"
             android:textSize="@dimen/_12ssp"
-            app:drawableTint="@color/tabTextDull"
+            app:drawableTint="@color/blackTxt"
             app:fontFamily="@font/lexend_medium"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -126,13 +127,13 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+
     <FrameLayout
         android:id="@+id/adViewContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/ad_bg_banner"
-        android:padding="@dimen/_2sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -141,7 +142,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <include layout="@layout/size_native_small_shimmer" />
+            <include layout="@layout/banner_shimmer" />
         </com.facebook.shimmer.ShimmerFrameLayout>
 
     </FrameLayout>

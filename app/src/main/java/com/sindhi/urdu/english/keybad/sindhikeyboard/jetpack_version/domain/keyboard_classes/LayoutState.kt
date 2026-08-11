@@ -8,6 +8,8 @@ enum class LayoutState {
     ExtendedSymbols,
     Numbers,
     TextEdit,
-    HusnEguftar,
+    HusnEguftarOne,
+    HusnEguftarTwo,
+    HusnEguftarThree,
     Emojis
 }

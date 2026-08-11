@@ -4,98 +4,381 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F4F7FB"
     tools:context=".sindhikeyboard.ui.activities.KeyboardSelectionActivity">
 
-    <ImageView
-        android:id="@+id/ivMain"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clHeaderStickerDetails"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+        android:layout_height="@dimen/_50sdp"
+        android:visibility="gone"
+        android:background="@drawable/bg_header_blue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/ivActivateKeyboard"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txtUrduKeyboard"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:drawablePadding="@dimen/_10sdp"
+            android:drawableTint="@color/White"
+            android:fontFamily="@font/lexend_bold"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/_5sdp"
+            android:text="Urdu Keyboard"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15ssp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutStep1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="@dimen/_20sdp"
-        app:layout_constraintBottom_toTopOf="@+id/tvLabel"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|center"
-        android:fontFamily="@font/lexend_semibold"
-        android:gravity="center"
-        android:text="@string/set_up_easy_sindhi_keyboard"
-        android:textColor="@color/black"
-        android:textSize="@dimen/_15ssp"
-        app:layout_constraintBottom_toTopOf="@+id/g2KeyboardSelect"
-        app:layout_constraintTop_toBottomOf="@+id/ivActivateKeyboard" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/g2KeyboardSelect"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnActivate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/_20sdp"
-        android:background="@drawable/bg_disabled_keyboard"
-        android:drawableStart="@drawable/ic_one_default"
-        android:drawableEnd="@drawable/ic_next"
-        android:fontFamily="@font/lexend_medium"
-        android:layoutDirection="locale"
-        android:paddingVertical="@dimen/_5sdp"
-        android:paddingStart="@dimen/_10sdp"
-        android:paddingEnd="@dimen/_10sdp"
-        android:text="@string/activate_sindhi_keyboard"
-        android:textAllCaps="false"
-        android:textColor="@color/White"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintBottom_toTopOf="@+id/btnSwitch"
-        app:layout_constraintTop_toBottomOf="@+id/g2KeyboardSelect" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnSwitch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/_20sdp"
-        android:background="@drawable/bg_disabled_keyboard"
-        android:drawableStart="@drawable/ic_two_default"
-        android:drawableEnd="@drawable/ic_next"
-        android:fontFamily="@font/lexend_medium"
-        android:layoutDirection="locale"
-        android:paddingVertical="@dimen/_5sdp"
-        android:paddingStart="@dimen/_10sdp"
-        android:paddingEnd="@dimen/_10sdp"
-        android:text="@string/switch_sindhi_keyboard"
-        android:textAllCaps="false"
-        android:textColor="@color/White"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintBottom_toTopOf="@+id/g4KeyboardSelect"
-        app:layout_constraintTop_toBottomOf="@+id/btnActivate" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/g4KeyboardSelect"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.65" />
-
-    <View
-        android:id="@+id/separator"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_1sdp"
-        android:background="@color/black"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/clAds"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/clAds"
+        app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails">
 
+        <TextView
+            android:id="@+id/tvStep1Tracker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_10sdp"
+            android:fontFamily="@font/lexend_bold"
+            android:text="Step 1 of 2"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_11ssp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvStep1Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:fontFamily="@font/lexend_bold"
+            android:text="Enable Sindhi Keyboard"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep1Tracker" />
+
+        <TextView
+            android:id="@+id/tvStep1Sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:fontFamily="@font/lexend_medium"
+            android:gravity="center"
+            android:text="This make Sindhi keyboard your input\nmethod."
+            android:textColor="#555555"
+            android:textSize="@dimen/_9ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep1Title" />
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/handAnimSwitch44"
+            android:layout_width="@dimen/_55sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:elevation="@dimen/_15sdp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/ivStep1Image"
+            app:layout_constraintEnd_toEndOf="@+id/btnEnableStep1"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep1Sub"
+            app:layout_constraintVertical_bias="0.604"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/click_animation"
+            app:lottie_repeatCount="999999"
+            app:lottie_repeatMode="reverse" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/progress"
+            android:layout_width="@dimen/_60sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginEnd="64dp"
+            android:elevation="@dimen/_10sdp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivStep1Image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep1Sub"
+            app:layout_constraintVertical_bias="0.566"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/toggle_anim"
+            app:lottie_repeatCount="999999"
+            app:lottie_repeatMode="reverse" />
+
+        <ImageView
+            android:id="@+id/ivStep1Image"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:src="@drawable/ic_select_image_1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep1Sub" />
+
+
+        <TextView
+            android:id="@+id/tvFollowSteps1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_15sdp"
+            android:fontFamily="@font/lexend_medium"
+            android:text="Follow the steps to activate the keyboard"
+            android:textColor="#555555"
+            android:textSize="@dimen/_10ssp"
+            app:layout_constraintBottom_toTopOf="@+id/btnEnableStep1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivStep1Image" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/handAnimSwitch"
+            android:layout_width="@dimen/_55sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:elevation="@dimen/_10sdp"
+            app:layout_constraintBottom_toBottomOf="@id/btnEnableStep1"
+            app:layout_constraintEnd_toEndOf="@+id/btnEnableStep1"
+            app:layout_constraintTop_toTopOf="@+id/btnEnableStep1"
+            app:lottie_autoPlay="true"
+            android:visibility="gone"
+            app:lottie_rawRes="@raw/click_animation"
+            app:lottie_repeatCount="999999"
+            app:lottie_repeatMode="reverse" />
+
+        <!-- Custom Button for Step 1 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btnEnableStep1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginBottom="@dimen/_30sdp"
+            android:background="@drawable/round_bg"
+            android:backgroundTint="#AD0301"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvFollowSteps1">
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvNum1"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:layout_marginStart="@dimen/_25sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_11sdp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textView3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/lexend_bold"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="#AD0301"
+                    android:textSize="@dimen/_12ssp" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lexend_bold"
+                android:text="Enable Keyboard"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutStep2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/clAds"
+        app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails">
+
+        <TextView
+            android:id="@+id/tvStep2Tracker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_10sdp"
+            android:fontFamily="@font/lexend_bold"
+            android:text="Step 2 of 2"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_11ssp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvStep2Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:fontFamily="@font/lexend_bold"
+            android:text="Select Sindhi Keyboard"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep2Tracker" />
+
+        <TextView
+            android:id="@+id/tvStep2Sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:fontFamily="@font/lexend_medium"
+            android:gravity="center"
+            android:text="Make Sindhi keyboard default input."
+            android:textColor="#555555"
+            android:textSize="@dimen/_9ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep2Title" />
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/handAnimSwitch3"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginStart="44dp"
+            android:elevation="@dimen/_10sdp"
+            app:layout_constraintBottom_toBottomOf="@id/ivStep2Image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/ivStep2Image"
+            app:layout_constraintVertical_bias="0.574"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/click_animation"
+            app:lottie_repeatCount="999999"
+            app:lottie_repeatMode="reverse" />
+
+        <ImageView
+            android:id="@+id/ivStep2Image"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/_30sdp"
+            android:layout_marginVertical="@dimen/_20sdp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_select_image2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_percent="0.55"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvStep2Sub" />
+
+
+        <TextView
+            android:id="@+id/tvFollowSteps2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_15sdp"
+            android:fontFamily="@font/lexend_medium"
+            android:text="Follow the steps to activate the keyboard"
+            android:textColor="#555555"
+            android:textSize="@dimen/_10ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivStep2Image" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/handAnimSwitch2"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:elevation="@dimen/_10sdp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/btnSelectStep2"
+            app:layout_constraintEnd_toEndOf="@+id/btnSelectStep2"
+            app:layout_constraintTop_toBottomOf="@+id/tvFollowSteps2"
+            app:lottie_autoPlay="true"
+            app:lottie_rawRes="@raw/click_animation"
+            app:lottie_repeatCount="999999"
+            app:lottie_repeatMode="reverse" />
+
+        <!-- Custom Button for Step 2 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btnSelectStep2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginBottom="@dimen/_30sdp"
+            android:background="@drawable/round_bg"
+            android:backgroundTint="#AD0301"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvFollowSteps2">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvNum2"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:layout_marginStart="@dimen/_25sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_11sdp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textView4"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/lexend_bold"
+                    android:gravity="center"
+                    android:text="2"
+                    android:textColor="#AD0301"
+                    android:textSize="@dimen/_12ssp" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:fontFamily="@font/lexend_bold"
+                android:text="Select Keyboard"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clAds"
@@ -103,32 +386,23 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1">
+        app:layout_constraintStart_toStartOf="parent">
 
         <FrameLayout
             android:id="@+id/adViewContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:background="@drawable/ad_bg_banner"
-            android:padding="@dimen/_2sdp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent">
 
             <com.facebook.shimmer.ShimmerFrameLayout
                 android:id="@+id/shimmerLayoutBanner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1">
+                android:layout_height="wrap_content">
 
-                <include layout="@layout/size_native_small_shimmer" />
+                <include layout="@layout/banner_shimmer" />
             </com.facebook.shimmer.ShimmerFrameLayout>
-
         </FrameLayout>
 
         <androidx.cardview.widget.CardView
@@ -136,10 +410,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/_3sdp"
-            app:cardBackgroundColor="@color/native_ad_background"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/nativeAdBackground"
             app:cardCornerRadius="@dimen/_5sdp"
             app:cardElevation="0dp"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -151,9 +425,10 @@
                 android:layout_height="wrap_content">
 
                 <include layout="@layout/native_admob_media_left_side_shimmer" />
-                <!--<include layout="@layout/native_admob_media_left_side" />-->
             </com.facebook.shimmer.ShimmerFrameLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+

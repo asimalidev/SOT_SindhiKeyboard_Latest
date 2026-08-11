@@ -3,6 +3,7 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preference
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
+import android.util.Log
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes.CustomTheme
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.isDirectBootEnabled
@@ -82,11 +83,17 @@ class MyPreferences(context: Context) {
     }
 
     fun getTheme(): String {
-        return sharedPreferences.getString(Preferences.themeKey, "AUTO")!!
+        val currentTheme = sharedPreferences.getString(Preferences.themeKey, "AUTO")!!
+        // ADD THIS LOG:
+        Log.e("ThemeBug", "3. Prefs: Reading from disk -> $currentTheme")
+        return currentTheme
     }
 
     fun setTheme(theme: CustomTheme) {
-        sharedPreferences.edit().putString(Preferences.themeKey, theme.name).apply()
+        // DO NOT use .apply() here. You must use .commit() so the separate
+        // keyboard process can instantly read the updated file from storage!
+        Log.e("ThemeBug", "2. Prefs: Writing to disk -> ${theme.name}")
+        sharedPreferences.edit().putString(Preferences.themeKey, theme.name).commit()
     }
 
     fun getKeyboard(): String {

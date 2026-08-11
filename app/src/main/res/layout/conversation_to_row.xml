@@ -23,6 +23,7 @@
             android:layout_gravity="end"
             android:background="@drawable/top_conversation_item"
             android:fontFamily="@font/lexend_medium"
+            android:gravity="end"
             android:layoutDirection="locale"
             android:padding="@dimen/_10sdp"
             android:text="Hi, There"
@@ -30,67 +31,38 @@
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvChatTo2"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:background="@drawable/bottom_conversation_item_to"
-            android:fontFamily="@font/lexend_medium"
-            android:layoutDirection="locale"
-            android:padding="@dimen/_10sdp"
-            android:text="Hi, There"
-            android:textColor="@color/White"
-            android:textSize="@dimen/_12ssp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <ImageView
+                android:id="@+id/ivCopy"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:padding="@dimen/_2sdp"
+                android:layout_weight="2"
+                android:src="@drawable/ic_copy_convo" />
+
+            <TextView
+                android:id="@+id/tvChatTo2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@drawable/bottom_conversation_item_to"
+                android:fontFamily="@font/lexend_medium"
+                android:layoutDirection="locale"
+                android:padding="@dimen/_10sdp"
+                android:text="Hi, There"
+                android:layout_weight="0"
+                android:textColor="@color/White"
+                android:textSize="@dimen/_12ssp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!--<?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginStart="@dimen/_30sdp"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:layout_marginEnd="@dimen/_5sdp"
-        android:gravity="end"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tvChatTo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/top_conversation_item"
-            android:fontFamily="@font/lexend_medium"
-            android:layoutDirection="locale"
-            android:padding="@dimen/_10sdp"
-            android:text="Hi, There"
-            android:textColor="@color/conversationTopText"
-            android:textSize="@dimen/_12ssp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/tvChatTo2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/v1"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvChatTo2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bottom_conversation_item"
-            android:fontFamily="@font/lexend_medium"
-            android:layoutDirection="locale"
-            android:padding="@dimen/_10sdp"
-            android:text="Hi, There"
-            android:textColor="@color/White"
-            android:textSize="@dimen/_12ssp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/v1"
-            app:layout_constraintTop_toBottomOf="@+id/tvChatTo" />
-
-    </LinearLayout>-->

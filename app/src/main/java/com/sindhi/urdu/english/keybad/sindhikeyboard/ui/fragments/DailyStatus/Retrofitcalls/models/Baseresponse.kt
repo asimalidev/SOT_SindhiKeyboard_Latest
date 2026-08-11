@@ -1,4 +1,4 @@
-package com.myproject.todoappwithnodejs.retrofitgenericresponse
+package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.models
 
 sealed class Baseresponse<T>(val data:T?=null, val errormessage:String?=null)
 {

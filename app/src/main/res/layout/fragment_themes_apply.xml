@@ -7,6 +7,46 @@
     android:background="@color/home_bg_color"
     tools:context=".sindhikeyboard.ui.fragments.Themes.ThemesApplyFragment">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clHeaderStickerDetails"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:background="@drawable/bg_header_blue"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivBackPress"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/_5sdp"
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/txtUrduKeyboard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/black" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txtUrduKeyboard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:drawablePadding="@dimen/_10sdp"
+            android:fontFamily="@font/lexend_medium"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/_5sdp"
+            android:text="@string/label_apply_theme"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15ssp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivBackPress"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/composeView"
         android:layout_width="match_parent"
@@ -14,14 +54,14 @@
         app:layout_constraintBottom_toTopOf="@+id/g1ApplyThemes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+       app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/g1ApplyThemes"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
+        app:layout_constraintGuide_percent="0.5" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvApplyTheme"
@@ -29,7 +69,7 @@
         android:layout_height="@dimen/_40sdp"
         android:layout_marginHorizontal="@dimen/_10sdp"
         android:layout_marginTop="@dimen/_10sdp"
-        android:background="@drawable/ic_applybtn_bg"
+        android:background="@drawable/rounded_bg"
         android:fontFamily="@font/lexend_medium"
         android:gravity="center"
         android:text="@string/label_apply_theme"

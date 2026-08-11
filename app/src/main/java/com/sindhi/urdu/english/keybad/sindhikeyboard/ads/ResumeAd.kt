@@ -152,8 +152,7 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
         val request: AdRequest = AdRequest.Builder().build()
         val pref = currentActivity?.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         val adId = pref?.getString(
-            "RESUME_OVER_ALL",
-            currentActivity?.resources?.getString(R.string.RESUME_OVER_ALL)
+            "RESUME_OVER_ALL",currentActivity?.resources?.getString(R.string.RESUME_OVER_ALL)
         )
 
         myApplicationClass?.applicationContext?.let {

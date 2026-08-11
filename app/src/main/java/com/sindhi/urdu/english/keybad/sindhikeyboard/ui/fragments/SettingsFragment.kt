@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.util.DisplayMetrics
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.airbnb.lottie.LottieAnimationView
@@ -28,19 +28,18 @@ import com.google.android.gms.ads.LoadAdError
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentSettingsBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_SETTINGS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_SETTINGS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.screens.PreferenceScreen
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_STICKERS_SETTINGS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_STICKERS_SETTINGS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SETTINGS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SETTINGS
 
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
@@ -143,7 +142,7 @@ class SettingsFragment : Fragment() {
         if (NetworkCheck.isNetworkAvailable(requireActivity())
             && !isPurchase
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(ADS_NATIVE_SETTINGS, "ON").equals("ON", true)
+                .getString(SHOW_NATIVE_SETTINGS, "ON").equals("ON", true)
         ) {
             binding.nativeAdContainerAd.visibility = View.VISIBLE
             binding.separator.visibility = View.VISIBLE
@@ -151,7 +150,7 @@ class SettingsFragment : Fragment() {
         } else if (NetworkCheck.isNetworkAvailable(requireActivity())
             && !isPurchase
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(COLLAPSIBLE_SETTINGS, "ON").equals("ON", true)
+                .getString(SHOW_BANNER_SETTINGS, "ON").equals("ON", true)
         ) {
             binding.shimmerLayoutBanner.startShimmer()
             binding.shimmerLayoutBanner.visibility = View.VISIBLE
@@ -169,9 +168,9 @@ class SettingsFragment : Fragment() {
     private fun loadAdmobNativeAd() {
         val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(NATIVE_OVER_ALL, resources.getString(R.string.admob_native))
+            pref.getString(AD_ID_NATIVE_STICKERS_SETTINGS, resources.getString(R.string.NATIVE_DEFAULT))
         } else {
-            resources.getString(R.string.admob_native)
+            resources.getString(R.string.NATIVE_DEFAULT)
         }
         NewNativeAdClass.checkAdRequestAdmob(
             mContext = requireActivity(),
@@ -214,9 +213,9 @@ class SettingsFragment : Fragment() {
     private fun loadCollapsibleBanner() {
         val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE,resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_STICKERS_SETTINGS,resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
 
         val adView = AdView(requireActivity())

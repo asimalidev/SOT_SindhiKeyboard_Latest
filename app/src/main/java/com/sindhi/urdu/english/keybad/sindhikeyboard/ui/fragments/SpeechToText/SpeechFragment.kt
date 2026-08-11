@@ -1,5 +1,7 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText
 
+import android.net.Uri
+import android.provider.Settings
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.ClipData
@@ -16,8 +18,8 @@ import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.DisplayMetrics
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -33,35 +35,49 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
+import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.PermissionListener
 import com.manual.mediation.library.sotadlib.data.Language
-import com.sindhi.newvoicetyping.ui.Speechtotext.CountryCountry
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentSpeechBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.CountryModel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_VOICE_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_VOICE_TRANSLATOR_3_CLICKS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_VOICE_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.SelectCountryDialog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideKeyboard
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.SelectCountryDialog
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import java.util.Objects
 
 class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var binding: FragmentSpeechBinding
@@ -72,6 +88,7 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     var autoSpeakSTTSwitch: SwitchCompat? = null
     var autoSpeakSTTIsOn = true
     var bundle = Bundle()
+    private var micPermissionDeniedCount = 0
     private var showAdCounterOnThreeClicks = 0
     lateinit var fromlanguacode: String
     lateinit var tolanguacode: String
@@ -85,7 +102,7 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     private val selectCountryDialog: SelectCountryDialog by lazy {
         SelectCountryDialog().apply {
             setCountrySelectionListener(object : SelectCountryDialog.CountrySelectionListener {
-                override fun onCountrySelected(country: CountryCountry) {
+                override fun onCountrySelected(country: CountryModel) {
                     Toast.makeText(context, country.countryName, Toast.LENGTH_SHORT).show()
                     if (fromTo == "from") {
                         setFromLanguage(country = country.countryName)
@@ -112,11 +129,8 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         bundle.putString("SpeechFragment", "SpeechFragment")
         FirebaseLog.getAnalytics(requireContext()).logEvent("event_speech", bundle)
         isPurchase = requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)?.getBoolean(IS_PURCHASED, false) == true
-        mSharedPreferences =
-            android.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
+        mSharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
         tts = TextToSpeech(requireActivity(), this, "com.google.android.tts")
-
-        binding.animationView.visibility = View.GONE
 
         fromCountryFlag =
             android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity())
@@ -166,6 +180,15 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
                     parentFragmentManager,
                     SelectCountryDialog::class.java.simpleName
                 )
+            }
+        }
+
+        binding.btnSpeaker.blockingClickListener {
+            val text = binding.etsource.text.toString()
+            if (text.isEmpty()) {
+                Toast.makeText(requireContext(), "please write the text", Toast.LENGTH_SHORT).show()
+            } else {
+                speakOut(text)
             }
         }
 
@@ -230,7 +253,7 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
             } else {
                 if (NetworkCheck.isNetworkAvailable(requireContext())
                     && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                        .getString(Preferences.INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE, "ON")
+                        .getString(SHOW_INTER_VOICE_TRANSLATOR_3_CLICKS, "ON")
                         .equals("ON", true)
                 ) {
                     if (isPurchase) {
@@ -282,8 +305,9 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         }
 
         binding.ivWhatsApp.blockingClickListener {
-            if (binding.tvtranslatedtext.text.isNotEmpty()) {
-                shareOnWhatsApp()
+            val textToShare = binding.tvtranslatedtext.text.toString().trim()
+            if (textToShare.isNotEmpty()) {
+                shareOnWhatsApp(textToShare)
             } else {
                 Toast.makeText(requireActivity(), "No Text", Toast.LENGTH_SHORT).show()
             }
@@ -303,22 +327,28 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun shareOnWhatsApp() {
-        val whatsappIntent = Intent(Intent.ACTION_SEND)
-        whatsappIntent.type = "text/plain"
-        whatsappIntent.setPackage("com.whatsapp")
-        whatsappIntent.putExtra(Intent.EXTRA_TEXT, binding.tvtranslatedtext.text)
-        whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    private fun shareOnWhatsApp(text: String) {
+        val whatsappIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            setPackage("com.whatsapp")
+            putExtra(Intent.EXTRA_TEXT, text)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
         try {
             requireActivity().startActivity(whatsappIntent)
         } catch (ex: ActivityNotFoundException) {
-            whatsappIntent.setPackage("com.whatsapp.w4b")
-            whatsappIntent.putExtra(Intent.EXTRA_TEXT, binding.tvtranslatedtext.text)
-            whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Try WhatsApp Business
+            val whatsappBusinessIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                setPackage("com.whatsapp.w4b")
+                putExtra(Intent.EXTRA_TEXT, text)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             try {
-                requireActivity().startActivity(whatsappIntent)
+                requireActivity().startActivity(whatsappBusinessIntent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(requireActivity(), "No Whats app found !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireActivity(), "No WhatsApp found!", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -342,6 +372,96 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun loadAdmobCollapsibleBannerAd() {
+        if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("VoiceTranslatorFragment")) {
+            val collapsibleAdView: AdView? =
+                NativeMaster.collapsibleBannerAdMobHashMap!!["VoiceTranslatorFragment"]
+            binding.shimmerLayoutBanner.stopShimmer()
+            binding.shimmerLayoutBanner.visibility = View.GONE
+            binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
+
+            val parent = collapsibleAdView?.parent as? ViewGroup
+            parent?.removeView(collapsibleAdView)
+
+            binding.adViewContainer.addView(collapsibleAdView)
+        } else {
+            loadCollapsibleBanner()
+        }
+    }
+
+    private val adSize: AdSize
+        get() {
+            val display = requireActivity().windowManager.defaultDisplay
+            val outMetrics = DisplayMetrics()
+            display.getMetrics(outMetrics)
+
+            val density = outMetrics.density
+
+            var adWidthPixels = binding.adViewContainer.width.toFloat()
+            if (adWidthPixels == 0f) {
+                adWidthPixels = outMetrics.widthPixels.toFloat()
+            }
+
+            val adWidth = (adWidthPixels / density).toInt()
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                requireActivity(),
+                adWidth
+            )
+        }
+
+    private fun loadCollapsibleBanner() {
+        val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId = if (!BuildConfig.DEBUG) {
+            pref.getString(AD_ID_BANNER_TRANSLATOR, resources.getString(R.string.BANNER_DEFAULT))
+        } else {
+            resources.getString(R.string.BANNER_DEFAULT)
+        }
+
+        val adView = AdView(requireActivity())
+        adView.setAdSize(adSize)
+        adView.adUnitId = adId!!
+        val extras = Bundle()
+        extras.putString("collapsible", "bottom")
+
+        val adRequest = AdRequest.Builder()
+            .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
+            .build()
+
+        adView.loadAd(adRequest)
+        adView.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                binding.adViewContainer.removeAllViews()
+                binding.adViewContainer.addView(adView)
+                if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(
+                        OVERALL_BANNER_RELOADING, "SAVE"
+                    ).equals("SAVE")
+                ) {
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["VoiceTranslatorFragment"] = adView
+                }
+
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
+            }
+
+            override fun onAdOpened() {
+
+            }
+
+            override fun onAdClicked() {
+
+            }
+
+            override fun onAdClosed() {
+
+            }
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -350,26 +470,24 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
             binding.nativeAdContainerAd.visibility = View.GONE
         } else {
             if (NetworkCheck.isNetworkAvailable(requireContext()) &&
-              requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
-                    ?.getBoolean(IS_PURCHASED, false) == true
-                && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                    .getString(Preferences.ADS_NATIVE_SPEECHTOTEXT, "ON").equals("ON", true)
+                requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                    .getString(SHOW_NATIVE_VOICE_TRANSLATOR, "ON").equals("ON", true)
                 && !isPurchase
             ) {
                 val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_CONVERSATION,  resources.getString(R.string.admob_native))
+                    pref.getString(AD_ID_NATIVE_TRANSLATOR,  resources.getString(R.string.NATIVE_DEFAULT))
                 } else {
-                    resources.getString(R.string.admob_native)
+                    resources.getString(R.string.NATIVE_DEFAULT)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
-                    adId = adId!!,//getString(R.string.admob_native_conversation),
+                    adId = adId!!,
                     fragmentName = "Speech",
-                    isMedia = true,
-                    isMediaOnLeft = true,
+                    isMedia = false,
+                    isMediaOnLeft = false,
                     adContainer = binding.nativeAdContainerAd,
-                    isMediumAd = true,
+                    isMediumAd = false,
                     onFailed = {
                         binding.nativeAdContainerAd.visibility = View.GONE
                     },
@@ -380,6 +498,24 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
             } else {
                 binding.nativeAdContainerAd.visibility = View.GONE
             }
+        }
+
+        if (NetworkCheck.isNetworkAvailable(requireActivity())
+            && !requireActivity().getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                Context.MODE_PRIVATE
+            ).getBoolean(IS_PURCHASED, false)
+            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                .getString(SHOW_BANNER_VOICE_TRANSLATOR, "ON").equals("ON", true)
+        ) {
+            binding.shimmerLayoutBanner.startShimmer()
+            binding.shimmerLayoutBanner.visibility = View.VISIBLE
+            binding.adViewContainer.visibility = View.VISIBLE
+            loadAdmobCollapsibleBannerAd()
+        } else {
+            binding.shimmerLayoutBanner.visibility = View.GONE
+            binding.nativeAdContainerAd.visibility = View.GONE
+            binding.adViewContainer.visibility = View.GONE
         }
 
         requireActivity().findViewById<SwitchCompat>(R.id.switchButtonConversation)
@@ -491,6 +627,7 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.tvfromcountryname.text = fromCountryName
 
         setFlagFromLanguageCode(fromCountryName)
+        binding.clTranslated.visibility = View.GONE
     }
 
     private fun setToLanguage(country: String) {
@@ -501,6 +638,8 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.tvtocountryname.text = toCountryName
 
         setFlagToLanguageCode(toCountryName)
+
+        binding.clTranslated.visibility = View.GONE
     }
 
     private fun getFromLanguageCode(code: String): String {
@@ -557,18 +696,67 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
+//    fun askforpermission() {
+//        Dexter.withContext(requireContext())
+//            .withPermission(Manifest.permission.RECORD_AUDIO)
+//            .withListener(object : PermissionListener {
+//                override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+//                }
+//
+//                override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+//                }
+//
+//                override fun onPermissionRationaleShouldBeShown(
+//                    p0: com.karumi.dexter.listener.PermissionRequest?,
+//                    token: PermissionToken?
+//                ) {
+//                    token?.continuePermissionRequest()
+//                }
+//            }).check()
+//    }
+
     fun askforpermission() {
         Dexter.withContext(requireContext())
             .withPermission(Manifest.permission.RECORD_AUDIO)
             .withListener(object : PermissionListener {
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                    // Reset counter when permission is granted
+                    micPermissionDeniedCount = 0
                 }
 
                 override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                    if (response != null) {
+                        // Check if it's permanently denied or denied twice
+                        if (response.isPermanentlyDenied || micPermissionDeniedCount >= 1) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Please enable Microphone permission from app settings",
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            // Open App Settings
+                            try {
+                                val intent = Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.fromParts("package", requireActivity().packageName, null)
+                                )
+                                startActivity(intent)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        } else {
+                            micPermissionDeniedCount++
+                            Toast.makeText(
+                                requireContext(),
+                                "Microphone permission is required to use speech-to-text",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
-                    p0: com.karumi.dexter.listener.PermissionRequest?,
+                    permission: com.karumi.dexter.listener.PermissionRequest?,
                     token: PermissionToken?
                 ) {
                     token?.continuePermissionRequest()
@@ -629,8 +817,8 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
 
                     binding.tvtranslatedtext.setText(translatedString)
                     binding.clTranslated.visibility = View.VISIBLE
-                    binding.animationView.visibility = View.GONE
-                    binding.animationView.cancelAnimation()
+//                    binding.animationView.visibility = View.GONE
+//                    binding.animationView.cancelAnimation()
                     btnFavoriteClicked = true
                 } else {
                     Toast.makeText(requireContext(), "Translation failed!", Toast.LENGTH_SHORT)

@@ -17,8 +17,8 @@
 <!--                <color name="maroon_200">#7C0707</color>-->
 <!--                <color name="maroon_500">#7C0707</color>-->
 
-                <item android:offset="0" android:color="#7C0707"/>
-                <item android:offset="1" android:color="#7C0707"/>
+                <item android:offset="0" android:color="#FFFFFF"/>
+                <item android:offset="1" android:color="#FFFFFF"/>
             </gradient>
         </aapt:attr>
     </path>

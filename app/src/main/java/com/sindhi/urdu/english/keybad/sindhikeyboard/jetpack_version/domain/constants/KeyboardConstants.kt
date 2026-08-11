@@ -24,6 +24,10 @@ const val LABEL_123 = "?123"
 const val LABEL_1by2 = "۱/۲"
 const val LABEL_2by2 = "۲/۲"
 
+const val LABEL_1by3_HG = "۱/۳ "
+const val LABEL_2by3_HG = "۲/۳ "
+const val LABEL_3by3_HG = "۳/۳ "
+
 const val LABEL_1by2Sindhi = "۱/۲ "
 const val LABEL_2by2Sindhi = "۲/۲ "
 const val LABEL_LANGUAGE = "Languages"

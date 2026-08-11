@@ -16,8 +16,12 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -31,7 +35,6 @@ import java.io.FileOutputStream
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
 import kotlin.math.pow
-import kotlin.math.sqrt
 
 @SuppressLint("ClickableViewAccessibility")
 class TextEditorView @JvmOverloads constructor(
@@ -39,19 +42,20 @@ class TextEditorView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
-
+    var hideAllTexts: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
     private var isRotating = false
     private var isResizing = false
     val textItems = mutableListOf<TextItem>()
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textAlign = Paint.Align.CENTER
-    }
+    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = context.getColor(R.color.navy_blue)
+        color = context.getColor(R.color.bg)
         style = Paint.Style.STROKE
         strokeWidth = 5f
     }
-
     private var rotateOrgX = -1f
     private var rotateOrgY = -1f
     private var resizeOrgX = -1f
@@ -64,12 +68,9 @@ class TextEditorView @JvmOverloads constructor(
     private val buttonSize = 60f
 
     private var drawables = mutableMapOf<String, Drawable?>()
-
     private var lastTouchX = 0f
     private var lastTouchY = 0f
-
     private var backgroundDrawable: Drawable? = null
-
     var onCornerButtonTouchListener: ((Int) -> Unit)? = null
 
     fun setCornerDrawables(drawables: Map<String, Drawable?>) {
@@ -79,21 +80,10 @@ class TextEditorView @JvmOverloads constructor(
 
     fun setBackgroundImage(resourceId: Int? = null, color: Int? = null, bitmap: Bitmap? = null) {
         backgroundDrawable = when {
-            color != null -> {
-                ColorDrawable(color)
-            }
-
-            resourceId != null -> {
-                context.getDrawable(resourceId)
-            }
-
-            bitmap != null -> {
-                BitmapDrawable(context.resources, bitmap)
-            }
-
-            else -> {
-                null
-            }
+            color != null -> ColorDrawable(color)
+            resourceId != null -> context.getDrawable(resourceId)
+            bitmap != null -> BitmapDrawable(context.resources, bitmap)
+            else -> null
         }
         this.background = backgroundDrawable
         invalidate()
@@ -114,6 +104,37 @@ class TextEditorView @JvmOverloads constructor(
         }
     }
 
+    private fun getStaticLayout(item: TextItem, paint: TextPaint): StaticLayout {
+        paint.color = item.textColor
+        paint.textSize = item.textSize
+        paint.typeface = item.typeface
+
+        var maxLineWidth = 0f
+        val lines = item.text.split("\n")
+        for (line in lines) {
+            val w = paint.measureText(line)
+            if (w > maxLineWidth) maxLineWidth = w
+        }
+
+        val canvasWidth = if (width > 0) width - (padding * 4) else 1000f
+        val layoutWidth = minOf(maxLineWidth, canvasWidth.toFloat()).toInt().coerceAtLeast(1)
+
+        val alignment = when (item.alignment) {
+            Paint.Align.LEFT -> Layout.Alignment.ALIGN_NORMAL
+            Paint.Align.CENTER -> Layout.Alignment.ALIGN_CENTER
+            Paint.Align.RIGHT -> Layout.Alignment.ALIGN_OPPOSITE
+        }
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            StaticLayout.Builder.obtain(item.text, 0, item.text.length, paint, layoutWidth)
+                .setAlignment(alignment)
+                .build()
+        } else {
+            @Suppress("DEPRECATION")
+            StaticLayout(item.text, paint, layoutWidth, alignment, 1.0f, 0.0f, false)
+        }
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -125,28 +146,34 @@ class TextEditorView @JvmOverloads constructor(
         selectedTextItem?.let {
             deselectAllOthers()
         }
-        textItems.forEach { item ->
-            canvas.save()
-            canvas.rotate(item.rotation, item.x, item.y)
-            paint.color = item.textColor
-            paint.textSize = item.textSize
-            paint.typeface = item.typeface
-            val textHeight = paint.descent() - paint.ascent()
-            item.updateRect(padding, paint)
-            val availableRect =
-                RectF(item.rect.left, item.rect.top, item.rect.right, item.rect.bottom)
-            val textX = when (item.alignment) {
-                Paint.Align.LEFT -> availableRect.centerX() - padding
-                Paint.Align.CENTER -> availableRect.centerX()
-                Paint.Align.RIGHT -> availableRect.centerX() + padding
+
+        if (!hideAllTexts) {
+            textItems.forEach { item ->
+
+                // Generate the multiline layout
+                val staticLayout = getStaticLayout(item, textPaint)
+
+                // Update the bounding box mathematically
+                item.updateRect(padding, staticLayout)
+
+                canvas.save()
+                // Rotate around the exact center of the bounding box
+                canvas.rotate(item.rotation, item.rect.centerX(), item.rect.centerY())
+
+                // Move canvas to the X,Y position to draw the text block
+                canvas.translate(item.x, item.y)
+                staticLayout.draw(canvas)
+                canvas.restore()
+
+                // Draw the border and buttons if selected
+                if (item == selectedTextItem) {
+                    canvas.save()
+                    canvas.rotate(item.rotation, item.rect.centerX(), item.rect.centerY())
+                    canvas.drawRect(item.rect, borderPaint)
+                    drawCornerButtons(canvas, item.rect)
+                    canvas.restore()
+                }
             }
-            val textY = availableRect.centerY() - (textHeight / 2)
-            canvas.drawText(item.text, textX, textY - paint.ascent(), paint)
-            if (item == selectedTextItem) {
-                canvas.drawRect(item.rect, borderPaint)
-                drawCornerButtons(canvas, item.rect)
-            }
-            canvas.restore()
         }
     }
 
@@ -180,9 +207,11 @@ class TextEditorView @JvmOverloads constructor(
         lastTouchX = event.x
         lastTouchY = event.y
         if (handleCornerButtonTouch(event = event)) return true
+
         selectedTextItem = textItems.find { item ->
             val rotatedPoint = floatArrayOf(event.x, event.y)
-            val matrix = Matrix().apply { postRotate(-item.rotation, item.x, item.y) }
+            // Use rect.centerX() and centerY() for accurate hit detection
+            val matrix = Matrix().apply { postRotate(-item.rotation, item.rect.centerX(), item.rect.centerY()) }
             matrix.mapPoints(rotatedPoint)
             item.rect.contains(rotatedPoint[0], rotatedPoint[1])
         }
@@ -191,7 +220,7 @@ class TextEditorView @JvmOverloads constructor(
     }
 
     private fun distance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-        return sqrt((x2 - x1).absoluteValue.pow(2) + (y2 - y1).absoluteValue.pow(2))
+        return kotlin.math.sqrt((x2 - x1).absoluteValue.pow(2) + (y2 - y1).absoluteValue.pow(2))
     }
 
     private fun handleActionMove(event: MotionEvent) {
@@ -208,24 +237,17 @@ class TextEditorView @JvmOverloads constructor(
                     rotateOrgY = event.rawY
                     invalidate()
                 } else if (isResizing) {
-                    val initialDistance = distance(
-                        x1 = centerX.toFloat(),
-                        y1 = centerY.toFloat(),
-                        x2 = resizeOrgX,
-                        y2 = resizeOrgY)
-                    val currentDistance = distance(
-                        x1 = centerX.toFloat(),
-                        y1 = centerY.toFloat(),
-                        x2 = event.rawX,
-                        y2 = event.rawY)
-                    val scaleFactor = initialDistance / currentDistance
+                    val initialDistance = distance(centerX.toFloat(), centerY.toFloat(), resizeOrgX, resizeOrgY)
+                    val currentDistance = distance(centerX.toFloat(), centerY.toFloat(), event.rawX, event.rawY)
+                    val scaleFactor = (initialDistance / currentDistance).let {
+                        1.0f + (it - 1.0f) * 1.5f
+                    }
 
                     if (scaleFactor > 0) {
                         val newSize = item.textSize * scaleFactor
-                        item.textSize = newSize.coerceIn(12f, 100f) // Enforce min=12f and max=100f
+                        item.textSize = newSize.coerceIn(12f, 500f)
                         resizeOrgX = event.rawX
                         resizeOrgY = event.rawY
-                        item.updateRect(padding, paint)
                         invalidate()
                     }
                 }
@@ -266,7 +288,7 @@ class TextEditorView @JvmOverloads constructor(
         selectedTextItem?.let { item ->
             val rotatedPoint = floatArrayOf(event.x, event.y)
             val matrix = Matrix().apply {
-                postRotate(-item.rotation, item.x, item.y)
+                postRotate(-item.rotation, item.rect.centerX(), item.rect.centerY())
             }
             matrix.mapPoints(rotatedPoint)
             return checkIfTouchingButtons(rotatedPoint[0], rotatedPoint[1], item)
@@ -278,60 +300,29 @@ class TextEditorView @JvmOverloads constructor(
         val halfButtonSize = buttonSize / 2
 
         return when {
-            isTouchingButton(
-                touchX = touchX,
-                touchY = touchY,
-                buttonX = item.rect.left - halfButtonSize,
-                buttonY = item.rect.top - halfButtonSize
-            ) -> {
+            isTouchingButton(touchX, touchY, item.rect.left - halfButtonSize, item.rect.top - halfButtonSize) -> {
                 if (!isRotating && !isResizing) {
                     onCornerButtonTouchListener?.invoke(0)
                     true
-                } else {
-                    false
-                }
+                } else false
             }
-
-            isTouchingButton(
-                touchX = touchX,
-                touchY = touchY,
-                buttonX = item.rect.right + halfButtonSize,
-                buttonY = item.rect.top - halfButtonSize
-            ) -> {
+            isTouchingButton(touchX, touchY, item.rect.right + halfButtonSize, item.rect.top - halfButtonSize) -> {
                 if (!isRotating && !isResizing) {
                     onCornerButtonTouchListener?.invoke(1)
                     true
-                } else {
-                    false
-                }
+                } else false
             }
-
-            isTouchingButton(
-                touchX = touchX,
-                touchY = touchY,
-                buttonX = item.rect.left - halfButtonSize,
-                buttonY = item.rect.bottom + halfButtonSize
-            ) -> {
+            isTouchingButton(touchX, touchY, item.rect.left - halfButtonSize, item.rect.bottom + halfButtonSize) -> {
                 if (!isResizing) {
                     isRotating = true
                     true
-                } else {
-                    false
-                }
+                } else false
             }
-
-            isTouchingButton(
-                touchX = touchX,
-                touchY = touchY,
-                buttonX = item.rect.right + halfButtonSize,
-                buttonY = item.rect.bottom + halfButtonSize
-            ) -> {
+            isTouchingButton(touchX, touchY, item.rect.right + halfButtonSize, item.rect.bottom + halfButtonSize) -> {
                 if (!isRotating) {
                     isResizing = true
                     true
-                } else {
-                    false
-                }
+                } else false
             }
             else -> false
         }
@@ -343,12 +334,7 @@ class TextEditorView @JvmOverloads constructor(
         invalidate()
     }
 
-    private fun isTouchingButton(
-        touchX: Float,
-        touchY: Float,
-        buttonX: Float,
-        buttonY: Float
-    ): Boolean {
+    private fun isTouchingButton(touchX: Float, touchY: Float, buttonX: Float, buttonY: Float): Boolean {
         return touchX >= (buttonX - buttonSize) &&
                 touchX <= (buttonX + buttonSize) &&
                 touchY >= (buttonY - buttonSize) &&
@@ -435,35 +421,19 @@ class TextEditorView @JvmOverloads constructor(
         invalidate()
     }
 
-    private fun TextItem.updateRect(padding: Float, paint: Paint) {
-        val textWidth = paint.measureText(text)
-        rect.set(x - padding, y - padding - paint.textSize, x + textWidth + padding, y + padding)
+    // CHANGED: Update Rect now uses the height/width of the multiline layout
+    private fun TextItem.updateRect(padding: Float, layout: StaticLayout) {
+        rect.set(
+            x - padding,
+            y - padding,
+            x + layout.width + padding,
+            y + layout.height + padding
+        )
     }
 
     private fun TextItem.move(dx: Float, dy: Float) {
         x += dx
         y += dy
-
-        // Comment above lines and uncomment below lines to fix TextView movements inside the canvas.
-        /*val newX = x + dx
-        val newY = y + dy
-        updateRect(padding, paint)
-        val textWidth = rect.width()
-        val textHeight = rect.height()
-
-        x = when {
-            newX < 0 -> return
-            newX + textWidth / 2 > width -> width - textWidth / 2
-            else -> newX
-        }
-
-        y = when {
-            newY - textHeight / 2 < 0 -> textHeight / 2
-            newY + textHeight / 2 > height -> height - textHeight / 2
-            else -> newY
-        }
-
-        updateRect(padding, paint)*/
     }
 
     fun captureAsBitmap(): Bitmap {
@@ -481,9 +451,9 @@ class TextEditorView @JvmOverloads constructor(
 
     fun saveBitmapAsPng(bitmap: Bitmap, context: Context): Uri? {
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "Urdu_Text_Editor_${System.currentTimeMillis()}.png")
+            put(MediaStore.Images.Media.DISPLAY_NAME, "Sindhi_Text_Editor_${System.currentTimeMillis()}.png")
             put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/UrduTextEditor")
+            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/SindhiTextEditor")
         }
 
         val resolver = context.contentResolver

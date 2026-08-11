@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -46,37 +45,15 @@ import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.ActivityFofstartBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.constants.KEYPAD_BANNER_SHOW
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_EXIT
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_HISTORY
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_HOME
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_POETRY
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_POETRY_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_SELECT_KEYBOARD
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_SETTINGS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_SPEECHTOTEXT
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_THEMES
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_THEMES_APPLIED_TEST
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_THEMES_APPLY
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_TRANSLATION_HOME
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_WALK_THROUGH
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_HOME
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_SELECT_KEYBOARD
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_SETTINGS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_TRANSLATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_CONVERSATION_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_CONVERSATION_SAVE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_HISTORY_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_HISTORY_TO_CONVERSATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_SETTINGS_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_SINDHI_STATUS_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_SPEECH_TO_TEXT_ENTER
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_SUBSCRIPTION_EXIT
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_THEME_APPLIED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_THEME_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.INTERSTITIAL_TRANSLATION_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.OPEN_AD_ENABLE_KEYBOARD
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.OPEN_AD_INSIDE_APP
@@ -96,53 +73,96 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADM
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_NATIVE_WALKTHROUGH_FULLSCR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_SPLASH_INTERSTITIAL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_SPLASH_RESUME
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADS_BANNER_HISTORY
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADS_BANNER_THEMES_TEST
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_POETRY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_SPLASH
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_STICKER
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_STICKER_DETAILS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.INTERSTITIAL_STICKER_ENTER
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_STICKERS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_STICKERS_DETAILS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.TIMER_NATIVE_F_SRC
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.bytedance.sdk.openadsdk.api.PAGConstant
 import com.google.ads.mediation.pangle.PangleMediationAdapter
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass.Companion.applicationClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ResumeAd
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_INTER_POST_GALLERY_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.IS_PURCHASED
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_BANNER_TRANSLATOR_HOME_SCR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_NATIVE_SELECT_KEYBOARD
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_NATIVE_SINDHI_POETRY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.BillingManager
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ACTION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_INSIDE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_SINDHI_STATUS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_TRANSLATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_UNINSTAL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATVE_SURVAY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_SINDHI_STATUS_SHOW
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_REVERSE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_TRANSLATOR
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_THEMES_APPLIED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_THEMES_LIST
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION1
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION2
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.DESTINATION3
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.FROM_SHORTCUT
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_INSIDE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_REVERSE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.RESUME_OVER_ALL
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_CONVERSATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_HISTORY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_HOME_SCR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_IMAGE_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SELECT_KEYBOARD
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SETTINGS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_POETRY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_POETRY_CATEGORY_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_STICKERS_CATEGORY_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_STICKERS_DETAILS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_STYLISH_TEXT
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_TEXT_REVERSE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_THEMES_APPLY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_THEMES_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_THEMES_TEST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_VOICE_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_CONVERSATION_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_CROP_TO_IMG_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_EXIT_APP
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_HISTORY_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_HISTORY_TO_CONVERSATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SAVE_SINDHI_POST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_EDITOR_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_POETRY_CATEGORY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_STATUS_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_STICKERS_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_STYLISH_TEXT_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SUBSCRIPTION_EXIT
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_TEXT_REVERSE_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_TEXT_TRANSLATOR_3_CLICKS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_TEXT_TRANSLATOR_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_THEMES_APPLIED
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_THEMES_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_VOICE_TRANSLATOR_3_CLICKS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_VOICE_TRANSLATOR_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_CONVERSATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_EXIT_APP
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_HISTORY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_HOME_SCR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_IMAGE_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SETTINGS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SINDHI_POETRY_CATEGORY_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SINDHI_STICKERS_CATEGORY_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SINDHI_STICKERS_DETAILS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_STYLISH_TEXT
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_TEXT_REVERSE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_THEMES_APPLY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_THEMES_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_THEMES_TEST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_TRANSLATOR_HOME_SCR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_VOICE_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_REWARDED_SINDHI_STICKERS
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -162,21 +182,15 @@ class FOFStartActivity : AppCompatActivity() {
         binding = ActivityFofstartBinding.inflate(layoutInflater)
         setContentView(binding.root)
         InterstitialClassAdMob.resetSessionState()
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                FirebaseApp.initializeApp(this@FOFStartActivity)
-                Log.d("AppInit", "Firebase initialized successfully")
-            } catch (e: Exception) {
-                Log.e("AppInit", "Firebase initialization failed", e)
-            }
-        }
-
-      //  checkAppUpdate(this)
-        prefs = getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+        prefs = getSharedPreferences(REMOTE_CONFIG, Context.MODE_PRIVATE)
         hideSystemUIUpdated()
-        setStatusBarColor(this, resources.getColor(R.color.board_theme__red))
+        setStatusBarColor(this, resources.getColor(R.color.white))
+        val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = true
         supportActionBar?.hide()
-       // initializeRemoteConfigAndStartFlow()
+
+        notificationTarget = intent?.getStringExtra("target_screen")
+        action = intent?.getStringExtra(ACTION)
         checkAppUpdate(this) {
             lifecycleScope.launch {
                 val remoteConfigData = initializeRemoteConfigAndAdIds()
@@ -184,8 +198,6 @@ class FOFStartActivity : AppCompatActivity() {
 
             }
         }
-        notificationTarget = intent?.getStringExtra("target_screen")
-        action = intent?.getStringExtra(ACTION)
     }
 
     fun setStatusBarColor(activity: Activity, color: Int) {
@@ -216,20 +228,8 @@ class FOFStartActivity : AppCompatActivity() {
         }
     }
 
-
-    /*private fun initializeRemoteConfigAndStartFlow() {
-        initializeRemoteConfigAndAdIds { remoteConfigData ->
-            Log.d("RemoteConfig", "Remote config completed, $remoteConfigData")
-            startFirstOpenFlow(remoteConfigData)
-        }
-    }*/
-
-
     private fun startFirstOpenFlow(remoteConfigData: HashMap<String, Any>) {
-        // 1. CRITICAL LIFECYCLE CHECK: Abort if the Activity is no longer active
-        // This prevents the NullPointerException when fetching Drawables on a dead context.
         if (isFinishing || isDestroyed) return
-
         CustomFirebaseEvents.logEvent(this, eventName = "splash_scr")
 
         SOTAdsManager.setOnFlowStateListener(
@@ -257,11 +257,7 @@ class FOFStartActivity : AppCompatActivity() {
             .setOnConsentGatheredCallback {
                 if (isFinishing || isDestroyed) return@setOnConsentGatheredCallback
 
-                if (NetworkCheck.isNetworkAvailable(this) && !prefs.getBoolean(
-                        IS_PURCHASED,
-                        false
-                    )
-                ) {
+                if (NetworkCheck.isNetworkAvailable(this) && !prefs.getBoolean(IS_PURCHASED, false)) {
                     try {
                         // Make sure you updated 'applicationClass' to 'application' here!
                         ResumeAd(applicationClass)
@@ -320,7 +316,7 @@ class FOFStartActivity : AppCompatActivity() {
                 )!!,
                 tickSelector = AppCompatResources.getDrawable(
                     this,
-                    com.manual.mediation.library.sotadlib.R.drawable.ic_done
+                    R.drawable.done_bg
                 )!!,
                 themeColor = ContextCompat.getColor(this, R.color.white),
                 statusBarColor = ContextCompat.getColor(this, R.color.white),
@@ -356,7 +352,6 @@ class FOFStartActivity : AppCompatActivity() {
         SOTAdsManager.startFlow(sotAdsConfigurations)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun startHeavyAdsFlow(remoteData: HashMap<String, Any>) {
         if (isHeavyAdsFlowStarted) {
             sotAdsConfigurations.proceedNext(this@FOFStartActivity)
@@ -370,8 +365,6 @@ class FOFStartActivity : AppCompatActivity() {
         )
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun loadAdmobBannerAd(remoteData: HashMap<String, Any>) {
         val pID = firstOpenFlowAdIds["ADMOB_BANNER_SPLASH"]
             ?: resources.getString(R.string.ADMOB_BANNER_SPLASH)
@@ -406,7 +399,6 @@ class FOFStartActivity : AppCompatActivity() {
 
     }
 
-
     private fun gotoMainActivity() {
         Log.d("action", "intent?.action :${intent?.action} ")
         Log.d("action", "action :$action ")
@@ -420,40 +412,37 @@ class FOFStartActivity : AppCompatActivity() {
         } else {
             if (action != null) {
                 when (action) {
-                    DESTINATION1, DESTINATION3 -> {
-                        // CHANGED: Route to SubscriptionActivity, pass 'action', and set fromName = "Splash"
+                    // COMBINED DESTINATION1, 2, and 3
+                    DESTINATION1, DESTINATION2, DESTINATION3 -> {
                         startActivity(
                             Intent(this, SubscriptionActivity::class.java)
                                 .putExtra("fromName", "Splash")
-                                .putExtra(ACTION, action)
+                                .putExtra(ACTION, action) // 'action' will hold DESTINATION2
                         )
-                        action = null
-                        finish() // Don't forget to finish splash
-                    }
-
-                    DESTINATION2 -> {
-                        startActivity(Intent(this, StickersViewActivity::class.java))
                         action = null
                         finish()
                     }
                 }
             } else {
-                val nextIntent: Intent =
-                    if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
-                        Intent(this, KeyboardSelectionActivity::class.java).putExtra(
-                            "MoveTo", intent.getStringExtra("MoveTo")
-                        )
-                    } else if (intent.getStringExtra("MoveTo") == "sindhi_stickers") {
-                        Intent(this, StickersViewActivity::class.java).putExtra(
-                            "MoveTo", intent.getStringExtra("MoveTo")
-                        )
-                    } else {
-                        // CHANGED: Route all other NavigationActivity cases to SubscriptionActivity
+                val nextIntent: Intent = if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
+                    Intent(this, KeyboardSelectionActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                } else if (intent.getStringExtra("MoveTo") == "sindhi_stickers") {
+                    Intent(this, SubscriptionActivity::class.java).putExtra(
+                        "MoveTo", intent.getStringExtra("MoveTo")
+                    )
+                }
+                else {
+                    if (NetworkCheck.isNetworkAvailable(this)){
                         Intent(this, SubscriptionActivity::class.java).apply {
                             putExtra("fromName", "Splash")
                             putExtra("MoveTo", intent.getStringExtra("MoveTo"))
                         }
+                    } else {
+                        Intent(this, NavigationActivity::class.java)
                     }
+                }
 
                 startActivity(nextIntent)
                 finish()
@@ -472,7 +461,8 @@ class FOFStartActivity : AppCompatActivity() {
                 description = localizedContext.getString(R.string.label_w_1_descrption),
                 headingColor = R.color.black,
                 descriptionColor = R.color.black,
-                nextColor = R.color.colorPrimary,
+                nextColor = R.color.white,
+                nextBackground = R.drawable.done_bg,
                 drawableResId = R.drawable.ic_w_1,  // Changed from Drawable to resource ID
                 drawableBubbleResId = R.drawable.ic_bubble_one,
                 R.color.white,
@@ -483,7 +473,8 @@ class FOFStartActivity : AppCompatActivity() {
                 description = localizedContext.getString(R.string.label_w_2_descrption),
                 headingColor = R.color.black,
                 descriptionColor = R.color.black,
-                nextColor = R.color.colorPrimary,
+                nextColor = R.color.white,
+                nextBackground = R.drawable.done_bg,
                 drawableResId = R.drawable.ic_w_2,
                 drawableBubbleResId = R.drawable.ic_bubble_two,
                 R.color.white,
@@ -494,7 +485,8 @@ class FOFStartActivity : AppCompatActivity() {
                 description = localizedContext.getString(R.string.label_w_3_descrption),
                 headingColor = R.color.black,
                 descriptionColor = R.color.black,
-                nextColor = R.color.colorPrimary,
+                nextColor = R.color.white,
+                nextBackground = R.drawable.done_bg,
                 drawableResId = R.drawable.ic_w_3,
                 drawableBubbleResId = R.drawable.ic_bubble_three,
                 R.color.white,
@@ -504,9 +496,7 @@ class FOFStartActivity : AppCompatActivity() {
     }
 
     private fun setUpWelcomeScreen(context: Context): View {
-        // First, ensure we have an Activity context
         val activity = context as? Activity ?: run {
-            // Fallback if we don't have an Activity context
             return View(context).apply {
                 // You might want to log this error in production
                 Log.e("WelcomeScreen", "Context is not an Activity")
@@ -525,19 +515,20 @@ class FOFStartActivity : AppCompatActivity() {
 
             // View initialization
             val progressAnim = welcomeScreenView.findViewById<LottieAnimationView>(R.id.progress)
-            val txtWallpapers =
-                welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtWallpapers)
-            val txtSindhiEditor =
-                welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtSindhiEditor)
-            val txtLiveThemes =
-                welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtLiveThemes)
-            val txtPhotoOnKeyboard =
-                welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtPhotoOnKeyboard)
-            val txtPhotoTranslator =
-                welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtPhotoTranslator)
-            val txtInstantSticker =
-                welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtInstantSticker)
+            val txtWallpapers = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtWallpapers)
+            val txtSindhiEditor = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtSindhiEditor)
+            val txtLiveThemes = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtLiveThemes)
+            val txtPhotoOnKeyboard = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtPhotoOnKeyboard)
+            val txtPhotoTranslator = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtPhotoTranslator)
+            val txtInstantSticker = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtInstantSticker)
             val nextButton = welcomeScreenView.findViewById<AppCompatTextView>(R.id.txtNext)
+
+            txtWallpapers.isSelected = true
+            txtSindhiEditor.isSelected = true
+            txtLiveThemes.isSelected = true
+            txtPhotoOnKeyboard.isSelected = true
+            txtPhotoTranslator.isSelected = true
+            txtInstantSticker.isSelected = true
 
             // State variables
             var txtWallpapersBool = false
@@ -649,976 +640,205 @@ class FOFStartActivity : AppCompatActivity() {
             View(context)
         }
     }
-    private suspend fun initializeRemoteConfigAndAdIds(): HashMap<String, Any> = withContext(Dispatchers.IO) {
-        // Initialize Remote Config
-        if (mFirebaseRemoteConfig == null) {
-            mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(0) // Good for testing, set to 3600 for production
-                .build()
-            mFirebaseRemoteConfig!!.setConfigSettingsAsync(configSettings)
 
-        }
-
-        if (NetworkCheck.isNetworkAvailable(this@FOFStartActivity)){
-            if (!BuildConfig.DEBUG) {
-                try {
-                    mFirebaseRemoteConfig!!.fetchAndActivate().await()
-                    Log.i("RemoteConfig", "RemoteConfig ready (new or cached)")
-                    fillAdIdsFromRemote(mFirebaseRemoteConfig!!)
-                    saveAllValues()
-                } catch (e: Exception) {
-                    Log.e("RemoteConfig", "Exception fetching config: ${e.message}")
-                    fillAdIdsFromResources()
+    private suspend fun initializeRemoteConfigAndAdIds(): HashMap<String, Any> =
+        withContext(Dispatchers.IO) {
+            if (FirebaseApp.getApps(this@FOFStartActivity).isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    if (FirebaseApp.getApps(this@FOFStartActivity)
+                            .isEmpty()
+                    ) { // Double-check inside lock
+                        FirebaseApp.initializeApp(this@FOFStartActivity)
+                        Log.i("RemoteConfig", "FirebaseApp explicitly initialized on Main Thread")
+                    }
                 }
             }
-            else
-            {
-                try {
-                    Log.i("RemoteConfig", "debug ...fetching (debug mode)")
-                    mFirebaseRemoteConfig!!.fetchAndActivate().await()
-                    Log.d("RemoteConfig", "RemoteConfig ready (debug)")
 
-                    fillAdIdsFromResources()
-                    saveAllValues()
-                } catch (e: Exception) {
-                    Log.e("RemoteConfig", "Exception fetching config (debug): ${e.message}")
-                    fillAdIdsFromResources()
-                }
+            // Initialize Remote Config
+            if (mFirebaseRemoteConfig == null) {
+                mFirebaseRemoteConfig =
+                    FirebaseRemoteConfig.getInstance() // ✅ THIS WILL NO LONGER CRASH
+                val configSettings = FirebaseRemoteConfigSettings.Builder()
+                    .setMinimumFetchIntervalInSeconds(0) // Good for testing, set to 3600 for production
+                    .build()
+                mFirebaseRemoteConfig!!.setConfigSettingsAsync(configSettings)
             }
-        }
-        else{
-            Log.i("RemoteConfig", "No network, using local resources")
-            fillAdIdsFromResources()
+
+            /**The old code was checking fetchSuccessful, which is only satisfied if changes were made in Firebase Remote Config. This approach was incorrect.*/
+            if (NetworkCheck.isNetworkAvailable(this@FOFStartActivity)) {
+                if (!BuildConfig.DEBUG) {
+                    try {
+                        mFirebaseRemoteConfig!!.fetchAndActivate().await()
+                        Log.i("RemoteConfig", "RemoteConfig ready (new or cached)")
+                        fillAdIdsFromRemote(mFirebaseRemoteConfig!!)
+                        saveAllValues()
+                    } catch (e: Exception) {
+                        Log.e("RemoteConfig", "Exception fetching config: ${e.message}")
+                        fillAdIdsFromResources()
+                    }
+                } else {
+                    try {
+                        Log.i("RemoteConfig", "debug ...fetching (debug mode)")
+                        mFirebaseRemoteConfig!!.fetchAndActivate().await()
+                        Log.d("RemoteConfig", "RemoteConfig ready (debug)")
+
+                        fillAdIdsFromResources()
+                        saveAllValues()
+                    } catch (e: Exception) {
+                        Log.e("RemoteConfig", "Exception fetching config (debug): ${e.message}")
+                        fillAdIdsFromResources()
+                    }
+                }
+            } else {
+                Log.i("RemoteConfig", "No network, using local resources")
+                fillAdIdsFromResources()
+            }
+
+            return@withContext getSharedPreferencesValues()
         }
 
-        return@withContext getSharedPreferencesValues()
-    }
     private fun saveAllValues() {
-        val config = mFirebaseRemoteConfig
-        if (config == null) {
-            Log.e("RemoteConfig", "mFirebaseRemoteConfig is null")
-            return
-        }
-
-        // 1. Group all Boolean keys into a single list
-        val booleanKeys = listOf(
-            BANNER_SPLASH,
-            RemoteConfigConst.RESUME_OVERALL,
-            RemoteConfigConst.NATIVE_UNINSTALL,
-            RemoteConfigConst.NATIVE_SURVEY,
-            RemoteConfigConst.NATIVE_LANGUAGE_1,
-            RemoteConfigConst.NATIVE_LANGUAGE_2,
-            RemoteConfigConst.NATIVE_SURVEY_1,
-            RemoteConfigConst.NATIVE_SURVEY_2,
-            RemoteConfigConst.NATIVE_WALKTHROUGH_1,
-            RemoteConfigConst.NATIVE_WALKTHROUGH_2,
-            RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR,
-            RemoteConfigConst.NATIVE_WALKTHROUGH_3,
-            RemoteConfigConst.INTERSTITIAL_LETS_START
-        )
-
-        // 2. Group all String keys into a single list
-        val stringKeys = listOf(
-            RemoteConfigConst.RESUME_INTER_SPLASH,
-            KEYPAD_BANNER_SHOW,
-            ADS_NATIVE_WALK_THROUGH,
-            ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT,
-            NATIVE_TEXT_TRANSLATOR,
-            BANNER_THEMES_APPLIED,
-            ADMOB_BANNER_TRANSLATION,
-            BANNER_INSIDE,
-            ADMOB_BANNER_SINDHI_STATUS,
-            BANNER_TEXT_REVERSE,
-            BANNER_TEXT_TRANSLATOR,
-            ADMOB_BANNER_INSIDE,
-            NATIVE_OVER_ALL,
-            BANNER_THEMES_LIST,
-            INTERSTITIAL_SUBSCRIPTION_EXIT,
-            INTERSTITIAL_STICKER_ENTER,
-            ADS_NATIVE_THEMES_APPLY,
-            ADS_NATIVE_CONVERSATION,
-            ADS_NATIVE_HISTORY,
-            BANNER_POETRY,
-            ADS_NATIVE_HOME,
-            ADS_NATIVE_EXIT,
-            ADS_NATIVE_THEMES,
-            NATIVE_TEXT_REVERSE,
-            AD_ID_NATVE_SURVAY,
-            ADS_NATIVE_THEMES_APPLIED_TEST,
-            AD_ID_NATIVE_UNINSTAL,
-            NATIVE_INSIDE,
-            ADMOB_BANNER_THEMES,
-            ADS_NATIVE_POETRY,
-            ADS_NATIVE_POETRY_INSIDE,
-            ADS_NATIVE_SELECT_KEYBOARD,
-            ADS_NATIVE_SETTINGS,
-            ADS_NATIVE_SPEECHTOTEXT,
-            ADS_NATIVE_TRANSLATION_HOME,
-            COLLAPSIBLE_HOME,
-            COLLAPSIBLE_TRANSLATION,
-            COLLAPSIBLE_SELECT_KEYBOARD,
-            COLLAPSIBLE_SETTINGS,
-            ADS_BANNER_THEMES_TEST,
-            ADS_BANNER_HISTORY,
-            COLLAPSIBLE_CONVERSATION,
-            INTERSTITIAL_THEME_ENTER,
-            INTERSTITIAL_THEME_APPLIED,
-            INTERSTITIAL_SINDHI_STATUS_ENTER,
-            INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK,
-            INTERSTITIAL_TRANSLATION_ENTER,
-            INTERSTITIAL_SETTINGS_ENTER,
-            INTERSTITIAL_CONVERSATION_ENTER,
-            INTERSTITIAL_CONVERSATION_SAVE,
-            INTERSTITIAL_SPEECH_TO_TEXT_ENTER,
-            BANNER_STICKER,
-            NATIVE_STICKERS,
-            BANNER_SINDHI_STATUS_SHOW,
-            NATIVE_STICKERS_DETAILS,
-            BANNER_STICKER_DETAILS,
-            INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE,
-            INTERSTITIAL_HISTORY_ENTER,
-            INTERSTITIAL_HISTORY_TO_CONVERSATION,
-            OPEN_AD_ENABLE_KEYBOARD,
-            OPEN_AD_INSIDE_APP
-        )
-
-        // 3. Save everything in a single edit block
-        // Note: Assuming REMOTE_CONFIG holds the "RemoteConfig" string based on your first snippet
+        val remoteConfig = mFirebaseRemoteConfig ?: return
         getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
+            val booleanKeys = listOf(
+                BANNER_SPLASH,
+                RemoteConfigConst.RESUME_OVERALL,
+                RemoteConfigConst.NATIVE_UNINSTALL,
+                RemoteConfigConst.NATIVE_SURVEY,
+                RemoteConfigConst.NATIVE_LANGUAGE_1,
+                RemoteConfigConst.NATIVE_LANGUAGE_2,
+                RemoteConfigConst.NATIVE_SURVEY_1,
+                RemoteConfigConst.NATIVE_SURVEY_2,
+                RemoteConfigConst.NATIVE_WALKTHROUGH_1,
+                RemoteConfigConst.NATIVE_WALKTHROUGH_2,
+                RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR,
+                RemoteConfigConst.NATIVE_WALKTHROUGH_3,
+                RemoteConfigConst.INTERSTITIAL_LETS_START
+            )
 
-            // Save Booleans
-            booleanKeys.forEach { key ->
-                putBoolean(key, config.getBoolean(key))
+            for (key in booleanKeys) {
+                val value = remoteConfig.getBoolean(key)
+                if (key == RemoteConfigConst.RESUME_OVERALL) {
+                    Log.e("resume", "value of $value")
+                }
+                putBoolean(key, value)
             }
+            val stringKeys = listOf(
+                RemoteConfigConst.RESUME_INTER_SPLASH,
+                KEYPAD_BANNER_SHOW,
+                ADS_NATIVE_WALK_THROUGH,
+                ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT,
+                SHOW_NATIVE_THEMES_LIST,
+                SHOW_BANNER_THEMES_APPLY,
+                NATIVE_CONVERSATION,
+                ADMOB_BANNER_TRANSLATION,
+                BANNER_INSIDE,
+                ADMOB_BANNER_SINDHI_STATUS,
+                SHOW_BANNER_SINDHI_POETRY_CATEGORY_LIST,
+                SHOW_BANNER_TEXT_REVERSE,
+                SHOW_NATIVE_TEXT_REVERSE,
+                SHOW_BANNER_TEXT_TRANSLATOR,
+                SHOW_INTER_TEXT_TRANSLATOR_ENTER,
+                SHOW_NATIVE_HISTORY,
+                SHOW_INTER_CONVERSATION_ENTER,
+                NATIVE_OVER_ALL,
+                SHOW_BANNER_THEMES_LIST,
+                SHOW_INTER_TEXT_TRANSLATOR_3_CLICKS,
+                SHOW_NATIVE_TEXT_TRANSLATOR,
+                SHOW_INTER_SUBSCRIPTION_EXIT,
+                SHOW_INTER_EXIT_APP,
+                SHOW_NATIVE_THEMES_APPLY,
+                SHOW_BANNER_THEMES_TEST,
+                SHOW_BANNER_HISTORY,
+                ADS_NATIVE_CONVERSATION,
+                SHOW_REWARDED_SINDHI_STICKERS,
+                SHOW_NATIVE_CONVERSATION,
+                SHOW_INTER_VOICE_TRANSLATOR_3_CLICKS,
+                SHOW_INTER_SAVE_SINDHI_POST,
+                ADS_NATIVE_HISTORY,
+                BANNER_POETRY,
+                SHOW_NATIVE_EXIT_APP,
+                NATIVE_TEXT_REVERSE,
+                AD_ID_NATVE_SURVAY,
+                SHOW_NATIVE_THEMES_TEST,
+                AD_ID_NATIVE_UNINSTAL,
+                ADMOB_BANNER_THEMES,
+                ADS_NATIVE_POETRY,
+                SHOW_NATIVE_SINDHI_POETRY,
+                SHOW_NATIVE_SELECT_KEYBOARD,
+                SHOW_BANNER_SETTINGS,
+                SHOW_NATIVE_VOICE_TRANSLATOR,
+                SHOW_NATIVE_TRANSLATOR_HOME_SCR,
+                SHOW_BANNER_HOME_SCR,
+                SHOW_NATIVE_HOME_SCR,
+                SHOW_BANNER_TRANSLATOR_HOME_SCR,
+                SHOW_BANNER_SELECT_KEYBOARD,
+                SHOW_INTER_THEMES_ENTER,
+                SHOW_INTER_THEMES_APPLIED,
+                INTERSTITIAL_SINDHI_STATUS_ENTER,
+                INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK,
+                INTERSTITIAL_TRANSLATION_ENTER,
+                INTERSTITIAL_SETTINGS_ENTER,
+                SHOW_INTER_CONVERSATION_ENTER,
+                INTERSTITIAL_CONVERSATION_SAVE,
+                SHOW_INTER_VOICE_TRANSLATOR_ENTER,
+                SHOW_BANNER_SINDHI_STICKERS_CATEGORY_LIST,
+                SHOW_NATIVE_SINDHI_STICKERS_CATEGORY_LIST,
+                SHOW_INTER_SINDHI_EDITOR_ENTER,
+                SHOW_INTER_TEXT_REVERSE_ENTER,
+                SHOW_INTER_SINDHI_STATUS_ENTER,
+                SHOW_INTER_SINDHI_STICKERS_ENTER,
+                SHOW_BANNER_SINDHI_POETRY,
+                SHOW_NATIVE_SINDHI_STICKERS_DETAILS,
+                SHOW_BANNER_SINDHI_STICKERS_DETAILS,
+                SHOW_INTER_HISTORY_ENTER,
+                SHOW_BANNER_CONVERSATION,
+                INTERSTITIAL_HISTORY_TO_CONVERSATION,
+                OPEN_AD_ENABLE_KEYBOARD,
+                OPEN_AD_INSIDE_APP,
+                SHOW_INTER_POST_GALLERY_ENTER,
+                SHOW_BANNER_STYLISH_TEXT,
+                SHOW_NATIVE_STYLISH_TEXT,
+                SHOW_INTER_CROP_TO_IMG_TRANSLATOR,
+                SHOW_BANNER_IMAGE_TRANSLATOR,
+                SHOW_NATIVE_IMAGE_TRANSLATOR,
+                SHOW_INTER_HISTORY_TO_CONVERSATION,
+                SHOW_INTER_STYLISH_TEXT_ENTER,
+                SHOW_NATIVE_SINDHI_POETRY_CATEGORY_LIST,
+                SHOW_BANNER_VOICE_TRANSLATOR,
+                SHOW_NATIVE_SETTINGS,
+                SHOW_INTER_SINDHI_POETRY_CATEGORY
+            )
 
-            // Save Strings (ignoring empty/blank values like the original code did)
-            stringKeys.forEach { key ->
-                val value = config.getString(key).trim()
+            for (key in stringKeys) {
+                val value = remoteConfig.getString(key).trim()
                 if (value.isNotEmpty()) {
                     putString(key, value)
                 }
             }
         }
-
-        Log.e("Ids Firebase", "Fetched SuccessFully: Native :: ${config.getString(KEYPAD_BANNER_SHOW)}")
-        Log.e("resume", "value of ${config.getBoolean(RemoteConfigConst.RESUME_OVERALL)}")
-
     }
-    /*private fun initializeRemoteConfigAndAdIds(onComplete: (HashMap<String, Any>) -> Unit) {
-        if (mFirebaseRemoteConfig == null) {
-            mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(0)
-                .build()
-            mFirebaseRemoteConfig!!.setConfigSettingsAsync(configSettings)
-        }
-
-        if (NetworkCheck.isNetworkAvailable(this@FOFStartActivity)) {
-            if (!BuildConfig.DEBUG) {
-                mFirebaseRemoteConfig!!.fetchAndActivate().addOnCompleteListener { task ->
-
-                    if (task.isSuccessful) {
-                        Log.d("RemoteConfig", "RemoteConfig fetched successfully")
-                        mFirebaseRemoteConfig!!.activate()
-                        // 1. Fill firstOpenFlowAdIds for SOTAds
-                        fillAdIdsFromRemote(mFirebaseRemoteConfig!!)
-                        // 2. Save all values to SharedPreferences
-                        saveAllValues {
-                            onComplete.invoke(getSharedPreferencesValues())
-                        }
-
-                    } else {
-                        Log.d("RemoteConfig", "RemoteConfig fetch failed, using fallback")
-                        // Fallback to local resources
-                        fillAdIdsFromResources()
-                        onComplete.invoke(getSharedPreferencesValues())
-
-                        if (resources.getString(R.string.ShowPopups) == "true") {
-                            Toast.makeText(this, "RemoteConfig Failed", Toast.LENGTH_SHORT).show()
-                        }
-                        onComplete.invoke(getSharedPreferencesValues())
-                    }
-                }
-            } else {
-                // debug mode - use local resources
-                Log.d("RemoteConfig", "Using local resources (debug mode or no network)")
-                mFirebaseRemoteConfig!!.fetchAndActivate().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("RemoteConfig", "RemoteConfig fetched successfully")
-                        mFirebaseRemoteConfig!!.activate()
-
-                        fillAdIdsFromResources()
-                        // 2. Save all values to SharedPreferences
-                        saveAllValues {
-                            onComplete.invoke(getSharedPreferencesValues())
-                        }
-
-                    } else {
-                        Log.d("RemoteConfig", "RemoteConfig fetch failed, using fallback")
-                        // Fallback to local resources
-                        fillAdIdsFromResources()
-                        onComplete.invoke(getSharedPreferencesValues())
-
-                        if (resources.getString(R.string.ShowPopups) == "true") {
-                            Toast.makeText(this, "RemoteConfig Failed", Toast.LENGTH_SHORT).show()
-                        }
-                        onComplete.invoke(getSharedPreferencesValues())
-                    }
-                }
-
-            }
-        } else {
-            // No network
-            fillAdIdsFromResources()
-            onComplete.invoke(getSharedPreferencesValues())
-        }
-    }*/
-
-    /*private fun saveAllValues(onCompleteSave: (() -> Unit)? = null) {
-        val editor = getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE).edit()
-        mFirebaseRemoteConfig?.apply {
-            getString(RemoteConfigConst.RESUME_INTER_SPLASH).trim().takeIf { it.isNotEmpty() }
-                ?.let {
-                    editor.putString(RemoteConfigConst.RESUME_INTER_SPLASH, it)
-                }
-            editor.putBoolean(
-                BANNER_SPLASH, getBoolean(BANNER_SPLASH)
-            )
-
-            editor.putBoolean(
-                RemoteConfigConst.RESUME_OVERALL,
-                getBoolean(RemoteConfigConst.RESUME_OVERALL)
-            )
-
-
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_UNINSTALL,
-                getBoolean(RemoteConfigConst.NATIVE_UNINSTALL)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_SURVEY,
-                getBoolean(RemoteConfigConst.NATIVE_SURVEY)
-            )
-
-
-            Log.e("resume", "value of ${getBoolean(RemoteConfigConst.RESUME_OVERALL)}")
-
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_LANGUAGE_1, getBoolean(RemoteConfigConst.NATIVE_LANGUAGE_1)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_LANGUAGE_2, getBoolean(RemoteConfigConst.NATIVE_LANGUAGE_2)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_SURVEY_1, getBoolean(RemoteConfigConst.NATIVE_SURVEY_1)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_SURVEY_2, getBoolean(RemoteConfigConst.NATIVE_SURVEY_2)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_WALKTHROUGH_1,
-                getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_1)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_WALKTHROUGH_2,
-                getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_2)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR,
-                getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.NATIVE_WALKTHROUGH_3,
-                getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_3)
-            )
-            editor.putBoolean(
-                RemoteConfigConst.INTERSTITIAL_LETS_START,
-                getBoolean(RemoteConfigConst.INTERSTITIAL_LETS_START)
-            )
-
-            editor.putBoolean(
-                RemoteConfigConst.RESUME_OVERALL,
-                getBoolean(RemoteConfigConst.RESUME_OVERALL)
-            )
-
-        }
-        editor.apply()
-        saveAllValuesForInsideAppAds {
-            onCompleteSave?.invoke()
-        }
-    }
-
-    private fun saveAllValuesForInsideAppAds(onComplete: (() -> Unit)? = null) {
-        Log.e(
-            "Ids Firebase",
-            "Fetched SuccessFully : Native :: " + mFirebaseRemoteConfig!!.getString(
-                KEYPAD_BANNER_SHOW
-            )
-        )
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(KEYPAD_BANNER_SHOW).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    KEYPAD_BANNER_SHOW,
-                    mFirebaseRemoteConfig!!.getString(KEYPAD_BANNER_SHOW)
-                ).apply()
-        }
-
-        // ADS REMOTE CONFIG NATIVE
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_WALK_THROUGH).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    ADS_NATIVE_WALK_THROUGH,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_WALK_THROUGH)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SELECT_LANGUAGE_SPEECH_TO_TEXT)
-                ).apply()
-        }
-
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_TRANSLATOR).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    NATIVE_TEXT_TRANSLATOR,
-                    mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_TRANSLATOR)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_THEMES_APPLIED).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    BANNER_THEMES_APPLIED,
-                    mFirebaseRemoteConfig!!.getString(BANNER_THEMES_APPLIED)
-                ).apply()
-        }
-
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_TRANSLATION).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    ADMOB_BANNER_TRANSLATION,
-                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_TRANSLATION)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_INSIDE).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    BANNER_INSIDE,
-                    mFirebaseRemoteConfig!!.getString(BANNER_INSIDE)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_SINDHI_STATUS).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    ADMOB_BANNER_SINDHI_STATUS,
-                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_SINDHI_STATUS)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_TEXT_REVERSE).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    BANNER_TEXT_REVERSE,
-                    mFirebaseRemoteConfig!!.getString(BANNER_TEXT_REVERSE)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_TEXT_TRANSLATOR).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    BANNER_TEXT_TRANSLATOR,
-                    mFirebaseRemoteConfig!!.getString(BANNER_TEXT_TRANSLATOR)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_INSIDE).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    ADMOB_BANNER_INSIDE,
-                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_INSIDE)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(NATIVE_OVER_ALL).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit()
-                .putString(
-                    NATIVE_OVER_ALL,
-                    mFirebaseRemoteConfig!!.getString(NATIVE_OVER_ALL)
-                ).apply()
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    BANNER_THEMES_LIST
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit().putString(
-                BANNER_THEMES_LIST,
-                mFirebaseRemoteConfig!!.getString(BANNER_THEMES_LIST)
-            ).apply()
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SUBSCRIPTION_EXIT).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_SUBSCRIPTION_EXIT,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SUBSCRIPTION_EXIT)
-                )
-            }
-        }
-
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    INTERSTITIAL_STICKER_ENTER
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_STICKER_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_STICKER_ENTER)
-                )
-            }
-        }
-
-
- if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    ADS_NATIVE_THEMES_APPLY
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_THEMES_APPLY,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLY)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_CONVERSATION).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_CONVERSATION,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_CONVERSATION)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_HISTORY).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_HISTORY,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_HISTORY)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_POETRY).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(BANNER_POETRY, mFirebaseRemoteConfig!!.getString(BANNER_POETRY))
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_HOME).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(ADS_NATIVE_HOME, mFirebaseRemoteConfig!!.getString(ADS_NATIVE_HOME))
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_EXIT).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(ADS_NATIVE_EXIT, mFirebaseRemoteConfig!!.getString(ADS_NATIVE_EXIT))
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(ADS_NATIVE_THEMES, mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES))
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_REVERSE).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(NATIVE_TEXT_REVERSE, mFirebaseRemoteConfig!!.getString(NATIVE_TEXT_REVERSE))
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(AD_ID_NATVE_SURVAY).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    AD_ID_NATVE_SURVAY,
-                    mFirebaseRemoteConfig!!.getString(AD_ID_NATVE_SURVAY)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLIED_TEST).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_THEMES_APPLIED_TEST,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_THEMES_APPLIED_TEST)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(AD_ID_NATIVE_UNINSTAL).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    AD_ID_NATIVE_UNINSTAL,
-                    mFirebaseRemoteConfig!!.getString(AD_ID_NATIVE_UNINSTAL)
-                )
-            }
-        }
-
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(NATIVE_INSIDE).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    NATIVE_INSIDE,
-                    mFirebaseRemoteConfig!!.getString(NATIVE_INSIDE)
-                )
-            }
-        }
-
-
-
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_THEMES).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADMOB_BANNER_THEMES,
-                    mFirebaseRemoteConfig!!.getString(ADMOB_BANNER_THEMES)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_POETRY).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(ADS_NATIVE_POETRY, mFirebaseRemoteConfig!!.getString(ADS_NATIVE_POETRY))
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(ADS_NATIVE_POETRY_INSIDE).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_POETRY_INSIDE,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_POETRY_INSIDE)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SELECT_KEYBOARD).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_SELECT_KEYBOARD,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SELECT_KEYBOARD)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SETTINGS).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_SETTINGS,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SETTINGS)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SPEECHTOTEXT).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_SPEECHTOTEXT,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_SPEECHTOTEXT)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(ADS_NATIVE_TRANSLATION_HOME).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_TRANSLATION_HOME,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_TRANSLATION_HOME)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(ADS_NATIVE_TRANSLATION_HOME).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_NATIVE_TRANSLATION_HOME,
-                    mFirebaseRemoteConfig!!.getString(ADS_NATIVE_TRANSLATION_HOME)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_HOME).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(COLLAPSIBLE_HOME, mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_HOME))
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_TRANSLATION).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    COLLAPSIBLE_TRANSLATION,
-                    mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_TRANSLATION)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_SELECT_KEYBOARD).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    COLLAPSIBLE_SELECT_KEYBOARD,
-                    mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_SELECT_KEYBOARD)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_SETTINGS).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    COLLAPSIBLE_SETTINGS,
-                    mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_SETTINGS)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_BANNER_THEMES_TEST).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_BANNER_THEMES_TEST,
-                    mFirebaseRemoteConfig!!.getString(ADS_BANNER_THEMES_TEST)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(ADS_BANNER_HISTORY).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    ADS_BANNER_HISTORY,
-                    mFirebaseRemoteConfig!!.getString(ADS_BANNER_HISTORY)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_CONVERSATION).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    COLLAPSIBLE_CONVERSATION,
-                    mFirebaseRemoteConfig!!.getString(COLLAPSIBLE_CONVERSATION)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_THEME_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_THEME_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_THEME_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_THEME_APPLIED).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_THEME_APPLIED,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_THEME_APPLIED)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SINDHI_STATUS_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_SINDHI_STATUS_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SINDHI_STATUS_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_TRANSLATION_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_TRANSLATION_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_TRANSLATION_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SETTINGS_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_SETTINGS_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SETTINGS_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_CONVERSATION_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_CONVERSATION_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_CONVERSATION_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_CONVERSATION_SAVE).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_CONVERSATION_SAVE,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_CONVERSATION_SAVE)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SPEECH_TO_TEXT_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_SPEECH_TO_TEXT_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SPEECH_TO_TEXT_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(BANNER_STICKER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    BANNER_STICKER,
-                    mFirebaseRemoteConfig!!.getString(BANNER_STICKER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(NATIVE_STICKERS).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    NATIVE_STICKERS,
-                    mFirebaseRemoteConfig!!.getString(NATIVE_STICKERS)
-                )
-            }
-        }
-
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(BANNER_SINDHI_STATUS_SHOW).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    BANNER_SINDHI_STATUS_SHOW,
-                    mFirebaseRemoteConfig!!.getString(BANNER_SINDHI_STATUS_SHOW)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(NATIVE_STICKERS_DETAILS).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    NATIVE_STICKERS_DETAILS,
-                    mFirebaseRemoteConfig!!.getString(NATIVE_STICKERS_DETAILS)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(BANNER_STICKER_DETAILS).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    BANNER_STICKER_DETAILS,
-                    mFirebaseRemoteConfig!!.getString(BANNER_STICKER_DETAILS)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_SPEECH_TO_TEXT_3_CLICK_ENABLE)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(INTERSTITIAL_HISTORY_ENTER).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_HISTORY_ENTER,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_HISTORY_ENTER)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(
-                mFirebaseRemoteConfig!!.getString(
-                    INTERSTITIAL_HISTORY_TO_CONVERSATION
-                ).trim()
-            )
-        ) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    INTERSTITIAL_HISTORY_TO_CONVERSATION,
-                    mFirebaseRemoteConfig!!.getString(INTERSTITIAL_HISTORY_TO_CONVERSATION)
-                )
-            }
-        }
-
-        // ADS REMOTE CONFIG INTERSTITIAL
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(OPEN_AD_ENABLE_KEYBOARD).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    OPEN_AD_ENABLE_KEYBOARD,
-                    mFirebaseRemoteConfig!!.getString(OPEN_AD_ENABLE_KEYBOARD)
-                )
-            }
-        }
-
-        if (!TextUtils.isEmpty(mFirebaseRemoteConfig!!.getString(OPEN_AD_INSIDE_APP).trim())) {
-            getSharedPreferences("RemoteConfig", MODE_PRIVATE).edit {
-                putString(
-                    OPEN_AD_INSIDE_APP,
-                    mFirebaseRemoteConfig!!.getString(OPEN_AD_INSIDE_APP)
-                )
-            }
-        }
-
-        onComplete?.invoke()
-    }*/
 
     private fun getSharedPreferencesValues(): HashMap<String, Any> {
         val remoteConfigHashMap: HashMap<String, Any> = HashMap()
         remoteConfigHashMap.apply {
-            this["RESUME_INTER_SPLASH"] =
-                "${prefs.getString(RemoteConfigConst.RESUME_INTER_SPLASH, "Empty")}"
+            this["RESUME_INTER_SPLASH"] = "${prefs.getString(RemoteConfigConst.RESUME_INTER_SPLASH, "Empty")}"
             this["BANNER_SPLASH"] = prefs.getBoolean(BANNER_SPLASH, false)
             this["NATIVE_LANGUAGE_1"] = prefs.getBoolean(RemoteConfigConst.NATIVE_LANGUAGE_1, false)
             this["NATIVE_LANGUAGE_2"] = prefs.getBoolean(RemoteConfigConst.NATIVE_LANGUAGE_2, false)
             this["NATIVE_SURVEY_1"] = prefs.getBoolean(RemoteConfigConst.NATIVE_SURVEY_1, false)
             this["NATIVE_SURVEY_2"] = prefs.getBoolean(RemoteConfigConst.NATIVE_SURVEY_2, false)
             this["RESUME_OVERALL"] = prefs.getBoolean(RemoteConfigConst.RESUME_OVERALL, false)
-            this["NATIVE_WALKTHROUGH_1"] =
-                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_1, false)
-            this["NATIVE_WALKTHROUGH_2"] =
-                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_2, false)
-            this["NATIVE_WALKTHROUGH_FULLSCR"] =
-                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR, false)
-            this["NATIVE_WALKTHROUGH_3"] =
-                prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_3, false)
-            this["INTERSTITIAL_LETS_START"] =
-                prefs.getBoolean(RemoteConfigConst.INTERSTITIAL_LETS_START, false)
+            this["NATIVE_WALKTHROUGH_1"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_1, false)
+            this["NATIVE_WALKTHROUGH_2"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_2, false)
+            this["NATIVE_WALKTHROUGH_FULLSCR"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_FULLSCR, false)
+            this["NATIVE_WALKTHROUGH_3"] = prefs.getBoolean(RemoteConfigConst.NATIVE_WALKTHROUGH_3, false)
+            this["INTERSTITIAL_LETS_START"] = prefs.getBoolean(RemoteConfigConst.INTERSTITIAL_LETS_START, false)
             this["TIMER_NATIVE_F_SRC"] = "${prefs.getString(TIMER_NATIVE_F_SRC, "Empty")}"
             this["IS_PURCHASED"] = prefs.getBoolean(IS_PURCHASED, false)
         }
         return remoteConfigHashMap
     }
-
 
     private fun fillAdIdsFromRemote(remoteConfig: FirebaseRemoteConfig) {
         firstOpenFlowAdIds.apply {
@@ -1646,7 +866,6 @@ class FOFStartActivity : AppCompatActivity() {
         }
     }
 
-
     private fun fillAdIdsFromResources() {
         firstOpenFlowAdIds.apply {
             this["ADMOB_SPLASH_INTERSTITIAL"] = getString(R.string.ADMOB_SPLASH_INTERSTITIAL)
@@ -1666,11 +885,11 @@ class FOFStartActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onResume() {
         super.onResume()
         BillingManager.getInstance(this).checkActivePurchases()
     }
+
     private fun checkAppUpdate(context: Context, onDone: () -> Unit) {
         val prefs = context.getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val savedVersion = prefs.getInt("last_version_code", -1)
@@ -1685,7 +904,6 @@ class FOFStartActivity : AppCompatActivity() {
         }
     }
 
-
     private fun getCurrentVersionCode(context: Context): Int {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -1694,27 +912,5 @@ class FOFStartActivity : AppCompatActivity() {
             packageInfo.versionCode
         }
     }
-    /*private fun checkAppUpdate(context: Context) {
-        val prefs = context.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-        val savedVersion = prefs.getInt("last_version_code", 88)
-        val currentVersion = getCurrentVersionCode(context)
-        Log.e("version", "saved $savedVersion")
-        Log.e("version", "currentversion$currentVersion")
-        if (currentVersion != savedVersion) {
-            PrefHelper(this).putBoolean("StartScreens", value = false)
-            prefs.edit().putInt("last_version_code", currentVersion)
-                .putBoolean("is_first", true) // reset onboarding
-                .apply()
-        }
-    }
-
-    private fun getCurrentVersionCode(context: Context): Int {
-        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            packageInfo.longVersionCode.toInt()
-        } else {
-            packageInfo.versionCode
-        }
-    }*/
 
 }

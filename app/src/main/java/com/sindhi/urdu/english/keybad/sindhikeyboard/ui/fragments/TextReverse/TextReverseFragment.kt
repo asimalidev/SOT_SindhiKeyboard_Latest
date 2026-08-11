@@ -9,7 +9,6 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -20,6 +19,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdListener
@@ -36,15 +36,14 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_REVERSE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_REVERSE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_REVERSE_FANCYFONTS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_REVERSE_FANCYFONTS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_TEXT_REVERSE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_TEXT_REVERSE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 import java.util.Locale
-import kotlin.collections.set
 
 class TextReverseFragment : Fragment() {
     lateinit var binding: FragmentTextReverseBinding
@@ -56,7 +55,11 @@ class TextReverseFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentTextReverseBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -65,17 +68,21 @@ class TextReverseFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         isNavControllerAdded()
         CustomFirebaseEvents.activitiesFragmentEvent(requireActivity(), "text_reverse_scr")
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (navController != null) {
-                    val action = TextReverseFragmentDirections.actionTextReverseToHome()
-                    navController?.safeNavigate(action)
-                } else {
-                    isNavControllerAdded()
+        binding.tvReverse.isSelected = true
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (navController != null) {
+                        val action = TextReverseFragmentDirections.actionTextReverseToHome()
+                        navController?.safeNavigate(action)
+                    } else {
+                        isNavControllerAdded()
+                    }
                 }
-            }
-        })
+            })
+
+
 
         binding.tvReverse.blockingClickListener {
             reverseText()
@@ -87,10 +94,11 @@ class TextReverseFragment : Fragment() {
                 Context.MODE_PRIVATE
             ).getBoolean(Preferences.IS_PURCHASED, false)
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(BANNER_TEXT_REVERSE, "ON").equals("ON", true)
+                .getString(SHOW_BANNER_TEXT_REVERSE, "ON").equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("TextRevers")) {
-                val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["TextRevers"]
+                val collapsibleAdView: AdView? =
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["TextRevers"]
                 binding.shimmerLayoutBanner.stopShimmer()
                 binding.shimmerLayoutBanner.visibility = View.GONE
                 binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
@@ -117,7 +125,11 @@ class TextReverseFragment : Fragment() {
         }
 
         binding.tvFlip.blockingClickListener {
-            binding.tvResult.text = getFlippedOrEncircled(binding.etTestKeyboard.text.toString(),false, requireActivity())
+            binding.tvResult.text = getFlippedOrEncircled(
+                binding.etTestKeyboard.text.toString(),
+                false,
+                requireActivity()
+            )
         }
 
 
@@ -143,8 +155,11 @@ class TextReverseFragment : Fragment() {
     }
 
 
-
-    private fun getFlippedOrEncircled(toEncode: String, encircled: Boolean, context: Context): String {
+    private fun getFlippedOrEncircled(
+        toEncode: String,
+        encircled: Boolean,
+        context: Context
+    ): String {
         val unEncoded = toEncode.lowercase(Locale.getDefault())
         val length = toEncode.length
         val styledString = StringBuilder(length)
@@ -254,13 +269,12 @@ class TextReverseFragment : Fragment() {
     }
 
 
-
     private fun loadBanner() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_REVERSE_FANCYFONTS, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
 
         val adView = AdView(requireActivity())
@@ -323,17 +337,21 @@ class TextReverseFragment : Fragment() {
         super.onResume()
         isNavControllerAdded()
 
-        val pref =requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
-        val adId  =if (!BuildConfig.DEBUG){
-            pref?.getString(NATIVE_OVER_ALL,resources.getString(R.string.admob_native))
-        }
-        else{
-            resources.getString(R.string.admob_native)
+        val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId = if (!BuildConfig.DEBUG) {
+            pref?.getString(AD_ID_NATIVE_REVERSE_FANCYFONTS, resources.getString(R.string.NATIVE_DEFAULT))
+        } else {
+            resources.getString(R.string.NATIVE_DEFAULT)
         }
 
         if (NetworkCheck.isNetworkAvailable(requireActivity())
-            && !requireActivity().getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED,false)
-            && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(NATIVE_TEXT_REVERSE,"ON").equals("ON",true)) {
+            && !requireActivity().getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                MODE_PRIVATE
+            ).getBoolean(Preferences.IS_PURCHASED, false)
+            && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+                .getString(SHOW_NATIVE_TEXT_REVERSE, "ON").equals("ON", true)
+        ) {
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
                 fragmentName = "TextReverseResizeFragment",
@@ -355,7 +373,8 @@ class TextReverseFragment : Fragment() {
 
         val clSubDiv = requireActivity().findViewById<ConstraintLayout>(R.id.clSubDiv)
         if (clSubDiv != null) {
-            clSubDiv.background = requireActivity().resources.getDrawable(R.drawable.bg_header_blue, null)
+            clSubDiv.background =
+                requireActivity().resources.getDrawable(R.drawable.bg_header_blue, null)
         }
 
         val ivClose = requireActivity().findViewById<ImageView>(R.id.ivClose)
@@ -363,11 +382,17 @@ class TextReverseFragment : Fragment() {
             ivClose.visibility = View.INVISIBLE
         }
 
-        val txtUrduKeyboard = requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
+        val txtUrduKeyboard =
+            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
         if (txtUrduKeyboard != null) {
-            txtUrduKeyboard.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireContext(), R.drawable.back), null, null, null)
+            txtUrduKeyboard.setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.back
+                ), null, null, null
+            )
             txtUrduKeyboard.text = resources.getString(R.string.label_text_reverse)
-            txtUrduKeyboard.setTextColor(resources.getColor(R.color.white, null))
+            txtUrduKeyboard.setTextColor(resources.getColor(R.color.black, null))
 
             val gapInDp = 12 // Change this to make the gap bigger or smaller
             val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
@@ -418,7 +443,8 @@ class TextReverseFragment : Fragment() {
     }
 
     private fun copyText() {
-        val clipboardManager = requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboardManager =
+            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("Copied Text", binding.tvResult.text.toString())
         clipboardManager.setPrimaryClip(clipData)
         Toast.makeText(requireActivity(), "Text copied to clipboard", Toast.LENGTH_SHORT).show()

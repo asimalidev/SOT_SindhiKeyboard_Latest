@@ -8,6 +8,9 @@
 
     <string name="ime_name" translatable="false">Sindhi Keyboard</string>
 
+    <string name="keyboard_main_name" translatable="false">Sindhi Keyboard</string>
+    <string name="picker_keyboard_name" translatable="false">Sindhi/Urdu/Eng Keyboard 🇵🇰</string>
+
     <string name="title_home">Home</string>
     <string name="RateUs">Rate us</string>
     <string name="ShareApp">Share App</string>
@@ -18,7 +21,7 @@
 
     <string name="next">NEXT</string>
     <string name="skip">SKIP</string>
-
+    <string name="press_mic_button_to_speak_amp_translate"><![CDATA[Press mic button to speak & translate ...]]></string>
     <string name="product_id" translatable="false">allremoveads</string>
     <string name="licence_key" translatable="false">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgm66jC2EzS6T9cmLEdWzWSEktXwMuTSBLd+Q1kA03OZa5ZXuHyNiDAHwNr4d6+0qqR31Bz1+/ZO8/mNI6Pc/nBx3nFiVaLjABaxsG3F4XH5B7PONKMyvGYEunzZC5dey1kNIZYbK0K55FFIkTH5XtoqJOUUvio7tsV0two9n+mR6k40LiTmSF+d1XKuOcz/y+fMOQtwqG5uSXFswlpqRRiVyC6yZwLF4A+qluj+0XL+VmI+gL7I5MRKg+j0mAmgNkPwV17EfHARvMx8RFZZBSb9UOzT8ixeSxQq3GyAPj+yEx1oPBLpDHhmh0isIKgdLHk/zfRc0/Bcsz3ZHEWfTrwIDAQAB</string>
 
@@ -82,7 +85,7 @@
     <string name="label_sindhi_editor">Sindhi Editor</string>
     <string name="label_live_themes">Live Themes</string>
     <string name="label_photo_on_keyboard">Photo Keyboard</string>
-    <string name="label_photo_translator">Photo Translator</string>
+    <string name="label_photo_translator">Image Translator</string>
     <string name="label_instant_stickers">Instant Stickers</string>
     <string name="initializing_consent_setup">Initializing Consent Setup...</string>
     <string name="label_w_1_descrption">Customize your Sindhi Keyboard with vibrant and stylish themes.</string>
@@ -172,6 +175,20 @@
     <string name="uninstall">Uninstall</string>
     <string name="change_theme">Change Theme</string>
     <string name="reverse">Reverse</string>
+    <string name="ibadaat">Ibadaat</string>
+    <string name="your_daily_dose_of_iman">Your Daily Dose of Iman</string>
+    <string name="discard">Discard</string>
+    <string name="discard_editing">Discard Editing</string>
+    <string name="share_post">Share Post</string>
+    <string name="save_post">Save Post</string>
+    <string name="post_gallery">Post Gallery</string>
+    <string name="stylish_text">Stylish Text</string>
+    <string name="fancy_font">Fancy Font</string>
+    <string name="label_type_name_here">Type name here…!</string>
+    <string name="label_save_conversation">Save Conversation</string>
+    <string name="label_photo_translator_result">Photo Translate</string>
+    <string name="choose_your_plan">Choose your plan</string>
+    <string name="label_disable_keyboard">Disable Keyboard</string>
 
     <string-array name="encircled" translatable="false">
         <item>ⓐ</item>

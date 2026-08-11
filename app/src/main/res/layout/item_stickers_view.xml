@@ -11,36 +11,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        >
+        android:padding="@dimen/_3sdp">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/txtProgress"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:fontFamily="@font/lexend_bold"
-            android:gravity="center"
-            android:text=""
-            android:background="#CC000000"
-            android:elevation="@dimen/_1sdp"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/_16ssp"
-            android:visibility="invisible"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtPackName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:ellipsize="marquee"
             android:fontFamily="@font/lexend_bold"
             android:gravity="center_vertical"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="1"
+            android:singleLine="true"
             android:text="Pack Name"
             android:textColor="#0F0F0F"
-            android:textSize="@dimen/_16ssp"
+            android:textSize="@dimen/_15ssp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtSize"
@@ -64,45 +54,77 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txtSize" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/txtAddSticker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:id="@+id/btnAddStickerContainer"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginHorizontal="@dimen/_5sdp"
             android:layout_marginVertical="@dimen/_5sdp"
             android:background="@drawable/ic_add_sticker_bg"
-            android:drawableEnd="@drawable/ic_add"
-            android:drawablePadding="@dimen/_5sdp"
-            android:fontFamily="@font/lexend_medium"
             android:gravity="center"
+            android:orientation="horizontal"
             android:paddingHorizontal="@dimen/_10sdp"
-            android:text="@string/label_add"
-            android:textColor="#0F0F0F"
-            android:textSize="@dimen/_16ssp"
+            android:paddingVertical="4dp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivSticker" />
+            app:layout_constraintTop_toBottomOf="@+id/ivSticker">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/txtAddStickerText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lexend_semibold"
+                android:text="@string/label_add"
+                android:maxLines="1"
+                android:textColor="#0F0F0F"
+                android:textSize="@dimen/_13ssp" />
+
+            <ImageView
+                android:id="@+id/ivAddStickerIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:src="@drawable/ic_add_new" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottiePremiumIcon"
+                android:layout_width="45dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:visibility="gone"
+                app:lottie_rawRes="@raw/ic_premium_badge"
+                app:lottie_loop="true"
+                app:lottie_autoPlay="false" />
+
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtStickerAdded"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
             android:layout_marginVertical="@dimen/_5sdp"
             android:background="@drawable/ic_add_sticker_bg"
-            android:drawableEnd="@drawable/ic_subscription_tick"
+            android:drawableEnd="@drawable/ic_done_stickerr"
             android:drawablePadding="@dimen/_5sdp"
-            android:fontFamily="@font/lexend_medium"
+            android:fontFamily="@font/lexend_semibold"
             android:gravity="center"
-            android:paddingHorizontal="@dimen/_10sdp"
+            android:layout_marginHorizontal="@dimen/_5sdp"
+            android:paddingHorizontal="@dimen/_25sdp"
             android:text="Added"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
             android:textColor="#0F0F0F"
-            android:textSize="@dimen/_16ssp"
+            android:textSize="@dimen/_13ssp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ivSticker" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

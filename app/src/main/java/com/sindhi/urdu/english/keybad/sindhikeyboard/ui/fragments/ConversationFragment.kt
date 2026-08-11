@@ -2,7 +2,10 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -21,7 +24,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.RotateAnimation
@@ -32,6 +39,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatTextView
@@ -42,7 +50,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.preference.PreferenceManager
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -54,69 +61,69 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.PermissionListener
-import com.sindhi.newvoicetyping.ui.Speechtotext.CountryCountry
+import com.manual.mediation.library.sotadlib.data.Language
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentConversationBinding
-import com.sindhi.urdu.english.keybad.databinding.FragmentHomeBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.SelectCountryDialog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.AllCountryListMe
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.SpeechFragmentDirections
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.TranslatorCall
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.history_fragment.Companion.conversationExtensionForwardList
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb.ConversationExtension
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb.ConversationExtensionTemp
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb.HistoryViewModel
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.history.roomDb.viewmodelfactory
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.CountryModel
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_CONVERSATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_CONVERSATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.SelectCountryDialog
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.ViewModelFactory
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import java.util.Objects
 
 class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var binding: FragmentConversationBinding
     var fromlanguageflag: Int = 0
-    lateinit var viewModel: HistoryViewModel
     var tolanguageflag: Int = 0
-    var isPurchased: Boolean? = null
-    lateinit var navController: NavController
+    lateinit var viewModel: HistoryViewModel
+    private var navController: NavController? = null
     lateinit var fromCode: String
     lateinit var toCode: String
-    lateinit var sourcetext: String
-    var btnFrom = false
+    lateinit var sourceText: String
+    var fromCountryFlag: Int = 0
+    var toCountryFlag: Int = 0
 
+    var btnFrom = false
     var btnTo = false
-    val job = Job()
+    private val job = Job()
     lateinit var adapter: GroupAdapter<GroupieViewHolder>
     private var tts: TextToSpeech? = null
     private var instance: ConversationFragment? = null
-    val args: ConversationFragmentArgs by navArgs()
-
+    private val args: ConversationFragmentArgs by navArgs()
     var conversationName = "New1"
     var fromCountryName = ""
     var toCountryName = "String"
     var isFavorite = false
     var conversationExtension: ArrayList<ConversationExtension> = ArrayList()
     var convExtTempForUpdatingAdapter: ArrayList<ConversationExtension> = ArrayList()
-
-    val dialog = SelectCountryDialog()
+    private val dialogSelectCountryDialog = SelectCountryDialog()
 
     private var showSave = false
     private var showDelete = false
@@ -126,38 +133,41 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     var fromTo = ""
     var autoSpeakSwitch: SwitchCompat? = null
     var autoSpeakIsOn = true
-    var bundle = Bundle()
 
     private val fromBottomFabAnim: Animation by lazy {
-        AnimationUtils.loadAnimation(context, R.anim.from_bottom_fab)
+        AnimationUtils.loadAnimation(
+            context,
+            R.anim.from_bottom_fab
+        )
     }
     private val toBottomFabAnim: Animation by lazy {
-        AnimationUtils.loadAnimation(context, R.anim.to_bottom_fab)
+        AnimationUtils.loadAnimation(
+            context,
+            R.anim.to_bottom_fab
+        )
     }
     private val rotateClockWiseFabAnim: Animation by lazy {
-        AnimationUtils.loadAnimation(context, R.anim.rotate_clock_wise)
+        AnimationUtils.loadAnimation(
+            context,
+            R.anim.rotate_clock_wise
+        )
     }
     private val rotateAntiClockWiseFabAnim: Animation by lazy {
-        AnimationUtils.loadAnimation(context, R.anim.rotate_anti_clock_wise)
+        AnimationUtils.loadAnimation(
+            context,
+            R.anim.rotate_anti_clock_wise
+        )
     }
 
     private val delayedActionHandler = Handler()
-    private val delayedActionRunnable = Runnable {
+
+    private val delayedActionRunnable = kotlinx.coroutines.Runnable {
         if (isAdded) {
             if (isExpanded) {
                 shrinkFab()
             }
         }
     }
-
-    fun isInternetAvailable(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
 
     private fun startDelayedAction() {
         delayedActionHandler.removeCallbacks(delayedActionRunnable)
@@ -167,6 +177,12 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         instance = this
+    }
+
+    private fun isNavControllerAdded() {
+        if (isAdded) {
+            navController = findNavController()
+        }
     }
 
     override fun onCreateView(
@@ -181,13 +197,23 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        CustomFirebaseEvents.activitiesFragmentEvent(requireActivity(), "conversation_scr")
+        isNavControllerAdded()
 
-        if (isAdded) {
-            navController = findNavController()
+        fromCountryFlag = android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity())
+            .getInt("fromflagTT", Language.English.imageId)
+        toCountryFlag = android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity())
+            .getInt("toflagTT", Language.Urdu.imageId)
+
+        fromCountryFlag.let {
+            binding.ivfromflag.background =
+                AppCompatResources.getDrawable(requireActivity(), fromCountryFlag)
         }
 
-        bundle.putString("ConversationFragment", "ConversationFragment")
-        FirebaseLog.getAnalytics(requireContext()).logEvent("event_conversation", bundle)
+        toCountryFlag.let {
+            binding.tocountryflag.background = AppCompatResources.getDrawable(requireActivity(), toCountryFlag)
+        }
+
 
         mSharedPreferences =
             android.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
@@ -195,14 +221,11 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             handleTouchEvent(event)
         }
 
-        dialog.setCountrySelectionListener(object : SelectCountryDialog.CountrySelectionListener {
-            override fun onCountrySelected(country: CountryCountry) {
-                activity?.let {
-                    Toast.makeText(it, country.countryName, Toast.LENGTH_SHORT).show()
-                }
 
-                if (!isAdded) return  // fragment is not attached anymore
-
+        dialogSelectCountryDialog.setCountrySelectionListener(object :
+            SelectCountryDialog.CountrySelectionListener {
+            override fun onCountrySelected(country: CountryModel) {
+                Toast.makeText(context, country.countryName, Toast.LENGTH_SHORT).show()
                 if (fromTo == "from") {
                     setFromLanguage(country = country)
                 } else if (fromTo == "to") {
@@ -224,41 +247,30 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
 
         viewModel = ViewModelProvider(
             this,
-            viewmodelfactory(requireActivity().application)
+            ViewModelFactory(requireActivity().application)
         )[HistoryViewModel::class.java]
 
         tts = TextToSpeech(requireContext(), this, "com.google.android.tts")
-
-
-        isPurchased = requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
-            ?.getBoolean(IS_PURCHASED, false) == true
-
         adapter = GroupAdapter<GroupieViewHolder>()
         binding.rvConversation.setHasFixedSize(false)
+
         if (fromlanguageflag == 0 && tolanguageflag == 0) {
             viewModel.updateTheList(false)
         } else {
             viewModel.updateTheList(true)
         }
+
         viewModel.conversationExtensionTemp.observe(viewLifecycleOwner) { mainObject ->
             mainObject.forEach {
                 if (it.from == "from") {
                     tts?.let { it1 ->
-                        ConversationFromItem(
-                            it.translation,
-                            it.source,
-                            it1
-                        )
+                        ConversationFromItem(it.translation, it.source, it1, requireActivity())
                     }?.let { it2 -> adapter.add(it2) }
                 }
 
                 if (it.from == "to") {
                     tts?.let { it1 ->
-                        ConversationToItem(
-                            it.translation,
-                            it.source,
-                            it1
-                        )
+                        ConversationToItem(it.translation, it.source, it1, requireActivity())
                     }?.let { it2 -> adapter.add(it2) }
                 }
                 val existingItem = conversationExtension.find { existing ->
@@ -286,7 +298,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                     )
                 }
             }
-            Log.e("TAG", "Checking Size: " + conversationExtension.size)
+
             if (adapter.itemCount > 0) {
                 binding.emptyConversation.visibility = View.GONE
                 binding.fabConstraint.visibility = View.VISIBLE
@@ -294,6 +306,10 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             } else {
                 binding.emptyConversation.visibility = View.VISIBLE
                 binding.fabConstraint.visibility = View.INVISIBLE
+            }
+
+            if (mainObject.isNotEmpty()) {
+                fadeFabViewButton()
             }
         }
 
@@ -304,7 +320,8 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                         ConversationFromItem(
                             it.translation,
                             it.source,
-                            it1
+                            it1,
+                            requireActivity()
                         )
                     }?.let { it2 -> adapter.add(it2) }
                 }
@@ -314,7 +331,8 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                         ConversationToItem(
                             it.translation,
                             it.source,
-                            it1
+                            it1,
+                            requireActivity()
                         )
                     }?.let { it2 -> adapter.add(it2) }
                 }
@@ -326,6 +344,10 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             } else {
                 binding.fabConstraint.visibility = View.INVISIBLE
                 binding.emptyConversation.visibility = View.VISIBLE
+            }
+
+            if (mainObject.isNotEmpty()) {
+                fadeFabViewButton()
             }
         }
 
@@ -337,14 +359,23 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                 }
             })
 
-        binding.btnfrom.blockingClickListener {
+        binding.tvfromcountryname.blockingClickListener {
             fromTo = "from"
-            dialog.show(parentFragmentManager, SelectCountryDialog::class.java.simpleName)
+            dialogSelectCountryDialog.show(
+                parentFragmentManager,
+                SelectCountryDialog::class.java.simpleName
+            )
         }
 
-        binding.btnto.blockingClickListener {
+        binding.tvtocountryname.isSelected = true
+        binding.tvfromcountryname.isSelected = true
+
+        binding.tvtocountryname.blockingClickListener {
             fromTo = "to"
-            dialog.show(parentFragmentManager, SelectCountryDialog::class.java.simpleName)
+            dialogSelectCountryDialog.show(
+                parentFragmentManager,
+                SelectCountryDialog::class.java.simpleName
+            )
         }
 
         binding.ivmic1.blockingClickListener {
@@ -352,15 +383,17 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.RECORD_AUDIO
-                ) ==
-                PackageManager.PERMISSION_GRANTED
+                ) == PackageManager.PERMISSION_GRANTED
             ) {
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 intent.putExtra(
                     RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
                 )
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getfromlanguagecode(toCountryName))
+                intent.putExtra(
+                    RecognizerIntent.EXTRA_LANGUAGE,
+                    getCodeForSpeechRecognizer(toCountryName)
+                )
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to convert into text")
                 try {
                     btnTo = true
@@ -386,7 +419,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                 )
                 intent.putExtra(
                     RecognizerIntent.EXTRA_LANGUAGE,
-                    getfromlanguagecode(fromCountryName)
+                    getCodeForSpeechRecognizer(fromCountryName)
                 )
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to convert into text")
                 try {
@@ -402,11 +435,13 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.rvConversation.adapter = adapter
 
         binding.imgSave.blockingClickListener {
-            showCustomDialog("Save Conversation")
+            CustomFirebaseEvents.activitiesFragmentEvent(requireActivity(), "tap_save_conversation")
+            showSaveDialog()
         }
 
         binding.imgClear.blockingClickListener {
-            showCustomDialog("Clear Conversation")
+            CustomFirebaseEvents.activitiesFragmentEvent(requireActivity(), "tap_delete_conversation")
+            showClearDialog()
         }
 
         binding.mainFabBtn.blockingClickListener {
@@ -436,14 +471,102 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun setFlagFromLanguageCode(code: String) {
+        var flagID: Int
+        for (i in AllCountryListMe.getCountryList().indices) {
+            if (code == AllCountryListMe.getCountryList()[i].countryName) {
+                flagID = AllCountryListMe.getCountryList()[i].arImage
+                android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
+                    .putInt("fromflagTT", flagID).apply()
+                fromCountryFlag = flagID
+                fromCountryFlag.let {
+                    binding.ivfromflag.background =
+                        AppCompatResources.getDrawable(requireActivity(), fromCountryFlag)
+                }
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
         super.onResume()
-        requireActivity().findViewById<SwitchCompat>(R.id.switchButtonTTS)
-            .let { it?.visibility = View.INVISIBLE }
-        val ivClose = requireActivity().findViewById<ImageView>(R.id.ivClose)
-        if (ivClose != null) {
-            ivClose.visibility = View.INVISIBLE
+        isNavControllerAdded()
+
+        val txtSindhiKeyboard =
+            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
+        if (txtSindhiKeyboard != null) {
+            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.back
+                ), null, null, null
+            )
+            txtSindhiKeyboard.text = resources.getString(R.string.label_conversation)
+            val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
+            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
+
+            txtSindhiKeyboard.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {  // Fixed: ACTION_DOWN instead of ACTION.DOWN
+                    if (event.x <= (startDrawable?.bounds?.width() ?: 0)) {
+                        // Ensure navController is properly initialized before navigating
+                        val currentNavController = navController ?: findNavController()
+                        try {
+                            val action =
+                                SpeechFragmentDirections.actionSpeechFragmentToTranslationFragment()
+                            currentNavController.navigate(action)
+                        } catch (e: Exception) {
+                            Log.e("Navigation", "Failed to navigate: ${e.message}")
+                            // Fallback navigation or error handling
+                            try {
+                                findNavController().navigate(R.id.translationFragment) // Use direct ID if available
+                            } catch (e2: Exception) {
+                                Log.e(
+                                    "Navigation",
+                                    "Fallback navigation also failed: ${e2.message}"
+                                )
+                                requireActivity().onBackPressed() // Final fallback
+                            }
+                        }
+                        return@setOnTouchListener true
+                    }
+                }
+                false
+            }}
+
+        if (NetworkCheck.isNetworkAvailable(requireActivity())
+            && !requireActivity().getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                Context.MODE_PRIVATE
+            ).getBoolean(Preferences.IS_PURCHASED, false)
+            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                .getString(SHOW_NATIVE_CONVERSATION, "ON").equals("ON", true)
+        ) {
+            binding.nativeAdContainerAd.visibility = View.VISIBLE
+            loadAdmobNativeAd()
+        } else if (NetworkCheck.isNetworkAvailable(requireActivity())
+            && !requireActivity().getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                Context.MODE_PRIVATE
+            ).getBoolean(Preferences.IS_PURCHASED, false)
+            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                .getString(SHOW_BANNER_CONVERSATION, "ON").equals("ON", true)
+        ) {
+            binding.shimmerLayoutBanner.startShimmer()
+            binding.shimmerLayoutBanner.visibility = View.VISIBLE
+            binding.adViewContainer.visibility = View.VISIBLE
+            loadAdmobCollapsibleBannerAd()
+        } else {
+            binding.shimmerLayoutBanner.visibility = View.GONE
+            binding.nativeAdContainerAd.visibility = View.GONE
+            binding.adViewContainer.visibility = View.GONE
         }
+
+        requireActivity().findViewById<ImageView>(R.id.ivHistory)
+            .let { it?.visibility = View.INVISIBLE }
+        requireActivity().findViewById<ImageView>(R.id.ivClose)
+            .let { it?.visibility = View.INVISIBLE }
 
         autoSpeakSwitch = requireActivity().findViewById(R.id.switchButtonConversation)
         autoSpeakIsOn = mSharedPreferences.getBoolean("AutoSpeakIsOn", true)
@@ -465,69 +588,22 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             }
         }
 
-        val txtSindhiKeyboard =
-            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
-        if (txtSindhiKeyboard != null) {
-            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.back
-                ), null, null, null
-            )
-            txtSindhiKeyboard.text = resources.getString(R.string.label_conversation)
 
-            val gapInDp = 12 // Change this to make the gap bigger or smaller
-            val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
-            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
-
-            val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
-            txtSindhiKeyboard.setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    if (event.x <= (startDrawable?.bounds?.width() ?: 0)) {
-                        myBackPressed()
-                        return@setOnTouchListener true
-                    }
-                }
-                false
-            }
-        }
-
-
-        if (NetworkCheck.isNetworkAvailable(requireActivity())
-            && !isPurchased!!
-            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(ADS_NATIVE_CONVERSATION, "ON").equals("ON", true)
-        ) {
-            binding.nativeAdContainerAd.visibility = View.VISIBLE
-            loadAdmobNativeAd()
-        } else if (NetworkCheck.isNetworkAvailable(requireActivity())
-            && !isPurchased!!
-            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(COLLAPSIBLE_CONVERSATION, "ON").equals("ON", true)
-        ) {
-            binding.shimmerLayoutBanner.startShimmer()
-            binding.shimmerLayoutBanner.visibility = View.VISIBLE
-            binding.adViewContainer.visibility = View.VISIBLE
-            loadAdmobCollapsibleBannerAd()
-        } else {
-            binding.shimmerLayoutBanner.visibility = View.GONE
-            binding.nativeAdContainerAd.visibility = View.GONE
-            binding.adViewContainer.visibility = View.GONE
-        }
     }
 
     private fun loadAdmobNativeAd() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(NATIVE_CONVERSATION,resources.getString(R.string.admob_native))
+            pref.getString(AD_ID_NATIVE_TRANSLATOR, resources.getString(R.string.NATIVE_DEFAULT))
         } else {
-            resources.getString(R.string.admob_native)
+            resources.getString(R.string.NATIVE_DEFAULT)
         }
         NewNativeAdClass.checkAdRequestAdmob(
             mContext = requireActivity(),
-            adId = adId!!,//getString(R.string.admob_native),
             fragmentName = "ConversationFragment",
+            adId = adId!!,
             isMedia = false,
+            isMediaOnLeft = false,
             adContainer = binding.nativeAdContainerAd,
             isMediumAd = false,
             onFailed = {
@@ -537,39 +613,35 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                 binding.shimmerLayout.stopShimmer()
                 binding.shimmerLayout.visibility = View.GONE
             })
-
     }
 
     private fun loadAdmobCollapsibleBannerAd() {
         if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("ConversationFragment")) {
             val collapsibleAdView: AdView? =
                 NativeMaster.collapsibleBannerAdMobHashMap!!["ConversationFragment"]
-            Handler().postDelayed({
-                binding.shimmerLayoutBanner.stopShimmer()
-                binding.shimmerLayoutBanner.visibility = View.GONE
-                binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
+            binding.shimmerLayoutBanner.stopShimmer()
+            binding.shimmerLayoutBanner.visibility = View.GONE
+            binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
 
-                val parent = collapsibleAdView?.parent as? ViewGroup
-                parent?.removeView(collapsibleAdView)
+            val parent = collapsibleAdView?.parent as? ViewGroup
+            parent?.removeView(collapsibleAdView)
 
-                binding.adViewContainer.addView(collapsibleAdView)
-            }, 500)
+            binding.adViewContainer.addView(collapsibleAdView)
         } else {
             loadCollapsibleBanner()
         }
     }
 
     private fun loadCollapsibleBanner() {
-        val adView = AdView(requireActivity())
-        adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_TRANSLATOR, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
-        adView.adUnitId = adId!!//getString(R.string.admob_banner_inside)
-        //adView.adUnitId = getString(R.string.admob_banner_inside)
+        val adView = AdView(requireActivity())
+        adView.setAdSize(adSize)
+        adView.adUnitId = adId!!
         val extras = Bundle()
         extras.putString("collapsible", "bottom")
 
@@ -582,19 +654,20 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             override fun onAdLoaded() {
                 binding.adViewContainer.removeAllViews()
                 binding.adViewContainer.addView(adView)
-                if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
-                        .getString(OVERALL_BANNER_RELOADING, "SAVE").equals("SAVE")
+                if (requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(
+                        OVERALL_BANNER_RELOADING, "SAVE"
+                    ).equals("SAVE")
                 ) {
                     NativeMaster.collapsibleBannerAdMobHashMap!!["ConversationFragment"] = adView
                 }
 
-                binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
-                binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
             }
 
             override fun onAdOpened() {
@@ -631,30 +704,61 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             )
         }
 
+
     private fun setFromLanguage() {
         fromCountryName = mSharedPreferences.getString("fromlangconvo", "English (En)").toString()
-        fromCode = getfromlanguagecode(fromCountryName)
-        binding.tvfromcountryname.text = fromCountryName
+        fromCode = getFromLanguageCode(fromCountryName)
+        // Extract text before '(' and remove trailing spaces
+        binding.tvfromcountryname.text = fromCountryName.substringBefore("(").trim()
+        setFlagFromLanguageCode(fromCountryName)
     }
 
-    private fun setFromLanguage(country: CountryCountry) {
+    private fun setFromLanguage(country: CountryModel) {
         fromCountryName = country.countryName
         mSharedPreferences.edit().putString("fromlangconvo", fromCountryName).apply()
-        fromCode = getfromlanguagecode(fromCountryName)
-        binding.tvfromcountryname.text = fromCountryName
+        fromCode = getFromLanguageCode(fromCountryName)
+        // Extract text before '(' and remove trailing spaces
+        binding.tvfromcountryname.text = fromCountryName.substringBefore("(").trim()
+        setFlagFromLanguageCode(fromCountryName)
     }
 
     private fun setToLanguage() {
         toCountryName = mSharedPreferences.getString("tolangconvo", "Sindhi (سنڌي)").toString()
-        toCode = getfromlanguagecode(toCountryName)
-        binding.tvtocountryname.text = toCountryName
+        toCode = getFromLanguageCode(toCountryName)
+        // Extract text before '(' and remove trailing spaces
+        binding.tvtocountryname.text = toCountryName.substringBefore("(").trim()
+        setFlagToLanguageCode(toCountryName)
     }
 
-    private fun setToLanguage(country: CountryCountry) {
+    private fun setToLanguage(country: CountryModel) {
         toCountryName = country.countryName
         mSharedPreferences.edit().putString("tolangconvo", toCountryName).apply()
-        toCode = getfromlanguagecode(toCountryName)
-        binding.tvtocountryname.text = toCountryName
+        toCode = getFromLanguageCode(toCountryName)
+        // Extract text before '(' and remove trailing spaces
+        binding.tvtocountryname.text = toCountryName.substringBefore("(").trim()
+        setFlagToLanguageCode(toCountryName)
+    }
+
+    private fun setFlagToLanguageCode(code: String) {
+        var flagID: Int
+        for (i in AllCountryListMe.getCountryList().indices) {
+            if (code == AllCountryListMe.getCountryList()[i].countryName) {
+                flagID = AllCountryListMe.getCountryList()[i].arImage
+                android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
+                    .putInt("toflagTT", flagID).apply()
+                toCountryFlag = flagID
+                toCountryFlag.let {
+                    binding.tocountryflag.background =
+                        AppCompatResources.getDrawable(requireActivity(), toCountryFlag)
+                }
+            }
+        }
+    }
+
+    private fun fadeFabViewButton() {
+        Handler().postDelayed({
+            binding.fabConstraint.alpha = 0.3f
+        }, 3000)
     }
 
     private fun handleTouchEvent(event: MotionEvent?): Boolean {
@@ -671,103 +775,215 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     private fun myBackPressed() {
+        Log.d("NavDebug", "myBackPressed() triggered")
+
         autoSpeakSwitch.let {
             it?.visibility = View.INVISIBLE
         }
 
-        if (isExpanded) {
-            shrinkFab()
-        } else {
-            if (fromlanguageflag == 0 && tolanguageflag == 0) {
-                val action =
-                    ConversationFragmentDirections.actionConversationFragmentToHistoryFragment()
-                navController.navigate(action)
-            } else {
-                val action =
-                    ConversationFragmentDirections.actionConversationFragmentToTranslationFragment()
-                navController.navigate(action)
+        if (navController != null) {
+            // 1. Check current destination
+            Log.d("NavDebug", "Current Destination before pop: ${navController?.currentDestination?.label} (${navController?.currentDestination?.id})")
+
+            // 2. Try to find navTranslator in the back stack
+            try {
+                val backStackEntry = navController?.getBackStackEntry(R.id.translationFragment)
+                Log.d("NavDebug", "navTranslator found in back stack! Entry: $backStackEntry")
+            } catch (e: Exception) {
+                Log.e("NavDebug", "CRITICAL: navTranslator is NOT in the back stack! Exception: ${e.message}")
             }
+
+            // 3. Attempt the pop and log the boolean result
+            val popSuccess = navController?.popBackStack(R.id.translationFragment, false)
+            Log.d("NavDebug", "popBackStack(R.id.navTranslator, false) returned: $popSuccess")
+
+            // 4. Fallback if the specific pop fails
+            if (popSuccess == false) {
+                Log.d("NavDebug", "Since specific pop failed, attempting generic popBackStack()")
+                val genericPop = navController?.popBackStack()
+                Log.d("NavDebug", "generic popBackStack() returned: $genericPop")
+            }
+
+        } else {
+            Log.e("NavDebug", "navController is NULL!")
         }
     }
 
-    private fun showCustomDialog(title: String) {
-        val nameDialog = Dialog(requireContext())
-        nameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        nameDialog.setCancelable(true)
-        nameDialog.setContentView(R.layout.custom_dialog)
-        nameDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    private fun showSaveDialog() {
+        val saveDialog = Dialog(requireContext())
+        saveDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        saveDialog.setCancelable(false)
+        saveDialog.setContentView(R.layout.conversation_name_dialog)
+        saveDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        val txtTitle = nameDialog.findViewById<AppCompatTextView>(R.id.txtTitle)
-        val btnCancel = nameDialog.findViewById<AppCompatButton>(R.id.btnCancel)
-        val etConvName = nameDialog.findViewById<AppCompatEditText>(R.id.etConvName)
-        val txtClearDes = nameDialog.findViewById<AppCompatTextView>(R.id.txtClearDes)
-        val btnSave = nameDialog.findViewById<AppCompatButton>(R.id.btnSave)
-        txtTitle.text = title
+        val btnCancel = saveDialog.findViewById<AppCompatButton>(R.id.btnCancel)
+        val btnSave = saveDialog.findViewById<AppCompatButton>(R.id.btnSave)
+        val etConvName = saveDialog.findViewById<AppCompatEditText>(R.id.etConvName)
 
-        if (title.startsWith("Save")) {
-            btnSave.text = "Save"
-            etConvName.visibility = View.VISIBLE
-            txtClearDes.visibility = View.GONE
-            if (conversationName != "New1") {
-                val parts = conversationName.split(getString(R.string.splitPattern))
-                etConvName.setText(parts[0])
-                etConvName.isEnabled = false
-            }
-        } else if (title.startsWith("Clear")) {
-            btnSave.text = "Yes"
-            txtClearDes.visibility = View.VISIBLE
-            etConvName.visibility = View.GONE
+        if (conversationName != "New1") {
+            val parts = conversationName.split(getString(R.string.splitPattern))
+            etConvName.setText(parts[0])
+            etConvName.isEnabled = false
         }
 
         btnSave.blockingClickListener {
-            if (isExpanded) {
-                shrinkFab()
-            }
-            if (NetworkCheck.isNetworkAvailable(requireContext())
-                && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                    .getString(Preferences.INTERSTITIAL_CONVERSATION_SAVE, "ON").equals("ON", true)
-            ) {
-                if (isPurchased!!) {
-                    dialogSaveClear(title = title)
-                } else {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        dialogSaveClear(title = title)
-                    }, 1200)
-                    InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
-                        requireActivity(),
-                        "ConversationFragment",
-                        onAdClosedCallBackAdmob = {},
-                        onAdShowedCallBackAdmob = {})
-                }
+            if (etConvName.text.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "Please must type conversation name", Toast.LENGTH_SHORT).show()
+                // DO NOT dismiss or perform save if text is blank!
             } else {
-                dialogSaveClear(title = title)
+                performSave()
+
+                if (isExpanded) {
+                    shrinkFab()
+                }
+                // Only dismiss the dialog when validation passes and save executes
+                saveDialog.dismiss()
             }
-            nameDialog.dismiss()
         }
 
         btnCancel.blockingClickListener {
             if (isExpanded) {
                 shrinkFab()
             }
-            nameDialog.dismiss()
+            saveDialog.dismiss()
         }
 
         etConvName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
                 conversationName = s.toString()
             }
         })
 
         if (isAdded) {
-            nameDialog.show()
+            saveDialog.show()
         }
     }
 
-    fun dialogSaveClear(title: String) {
+//    private fun showSaveDialog() {
+//        val saveDialog = Dialog(requireContext())
+//        saveDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+//        saveDialog.setCancelable(false)
+//        saveDialog.setContentView(R.layout.conversation_name_dialog)
+//        saveDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//
+//        val btnCancel = saveDialog.findViewById<AppCompatButton>(R.id.btnCancel)
+//        val btnSave = saveDialog.findViewById<AppCompatButton>(R.id.btnSave)
+//        val etConvName = saveDialog.findViewById<AppCompatEditText>(R.id.etConvName)
+//
+//        if (conversationName != "New1") {
+//            val parts = conversationName.split(getString(R.string.splitPattern))
+//            etConvName.setText(parts[0])
+//            etConvName.isEnabled = false
+//        }
+//
+//        btnSave.blockingClickListener {
+//            if (etConvName.text.isNullOrBlank()){
+//                Toast.makeText(requireContext(), "Please must type conversation name", Toast.LENGTH_SHORT).show()
+//            }
+//            else{
+//                performSave()
+//            }
+//            if (isExpanded) {
+//                shrinkFab()
+//            }
+//
+//            saveDialog.dismiss()
+//        }
+//
+//        btnCancel.blockingClickListener {
+//            if (isExpanded) {
+//                shrinkFab()
+//            }
+//            saveDialog.dismiss()
+//        }
+//
+//        etConvName.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+//            override fun afterTextChanged(s: Editable?) {
+//                conversationName = s.toString()
+//            }
+//        })
+//
+//        if (isAdded) {
+//            saveDialog.show()
+//        }
+//    }
+
+    private fun showClearDialog() {
+        val clearDialog = Dialog(requireContext())
+        clearDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        clearDialog.setCancelable(false)
+        // Inflate the dedicated Clear XML
+        clearDialog.setContentView(R.layout.dialog_clear)
+        clearDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val btnCancel = clearDialog.findViewById<AppCompatButton>(R.id.btnCancel)
+        val btnYes = clearDialog.findViewById<AppCompatButton>(R.id.btnYes)
+
+        btnYes.blockingClickListener {
+            if (isExpanded) {
+                shrinkFab()
+            }
+            performClear()
+            clearDialog.dismiss()
+        }
+
+        btnCancel.blockingClickListener {
+            if (isExpanded) {
+                shrinkFab()
+            }
+            clearDialog.dismiss()
+        }
+
+        if (isAdded) {
+            clearDialog.show()
+        }
+    }
+
+    private fun performSave() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            showSave = false
+            val curTime = System.currentTimeMillis()
+            conversationExtension.forEach { conversationExt ->
+                if (!conversationExt.conversationName.contains(getString(R.string.splitPattern))) {
+                    conversationExt.conversationName =
+                        this.conversationName + resources.getString(R.string.splitPattern) + curTime
+                }
+                viewModel.insertConversationReFormulated(conversationExt)
+            }
+
+            if (fromlanguageflag != 0 && tolanguageflag != 0) {
+                viewModel.deleteFromTemporaryDB()
+                conversationName = "New1"
+            }
+
+            conversationExtension.clear()
+            conversationExtension = ArrayList()
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                Toast.makeText(context, "Conversation Saved", Toast.LENGTH_SHORT).show()
+                binding.fabConstraint.visibility = View.GONE
+            }, 500)
+        }, 100)
+    }
+
+    private fun performClear() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (fromlanguageflag != 0 && tolanguageflag != 0) {
+                binding.fabConstraint.visibility = View.GONE
+                binding.emptyConversation.visibility = View.VISIBLE
+                adapter.clear()
+                viewModel.deleteFromTemporaryDB()
+                conversationExtension.clear()
+                conversationExtension = ArrayList()
+            }
+        }, 100)
+    }
+
+    private fun dialogSaveClear(title: String) {
         Handler().postDelayed({
             if (title.startsWith("Save")) {
                 showSave = false
@@ -810,6 +1026,8 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
 
     override fun onDestroy() {
         job.cancel()
+        tts?.stop()
+        tts?.shutdown()
         super.onDestroy()
     }
 
@@ -818,7 +1036,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         super.onDestroyView()
     }
 
-    fun askForPermission() {
+    private fun askForPermission() {
         Dexter.withContext(requireContext())
             .withPermission(Manifest.permission.RECORD_AUDIO)
             .withListener(object : PermissionListener {
@@ -837,7 +1055,18 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             }).check()
     }
 
-    fun getfromlanguagecode(code: String): String {
+    private fun getCodeForSpeechRecognizer(countryName: String): String {
+        val languageCode: String?
+        for (i in AllCountryListMe.getCountryList().indices) {
+            if (countryName == AllCountryListMe.getCountryList()[i].countryName) {
+                languageCode = AllCountryListMe.getCountryList()[i].codeForSpeechRecognizer
+                return languageCode
+            }
+        }
+        return "en"
+    }
+
+    private fun getFromLanguageCode(code: String): String {
         val languageCode: String?
         for (i in AllCountryListMe.getCountryList().indices) {
             if (code == AllCountryListMe.getCountryList()[i].countryName) {
@@ -848,7 +1077,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         return "en"
     }
 
-    private fun getCountryModel(code: String): CountryCountry {
+    private fun getCountryModel(code: String): CountryModel {
         for (i in AllCountryListMe.getCountryList().indices) {
             if (code == AllCountryListMe.getCountryList()[i].countryName) {
                 return AllCountryListMe.getCountryList()[i]
@@ -864,12 +1093,12 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
             if (resultCode == AppCompatActivity.RESULT_OK && data != null) {
                 val result: ArrayList<String> =
                     data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
-                sourcetext = Objects.requireNonNull(result)[0]
+                sourceText = Objects.requireNonNull(result)[0]
                 if (btnFrom) {
-                    translateTextFrom(fromCode, toCode, sourcetext)
+                    translateTextFrom(fromCode, toCode, sourceText)
                     btnFrom = false
                 } else if (btnTo) {
-                    translateTextTo(toCode, fromCode, sourcetext)
+                    translateTextTo(toCode, fromCode, sourceText)
                     btnFrom = false
                 }
                 showSave = true
@@ -878,7 +1107,19 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    fun translateTextFrom(fomlanguagecode: String, tolanguagecode: String, source: String?) {
+    fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun translateTextFrom(
+        fomlanguagecode: String,
+        tolanguagecode: String,
+        source: String?
+    ) {
         if (!isInternetAvailable(requireContext())) {
             Toast.makeText(
                 requireContext(),
@@ -938,7 +1179,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    fun translateTextTo(fomlanguagecode: String, tolanguagecode: String, source: String) {
+    private fun translateTextTo(fomlanguagecode: String, tolanguagecode: String, source: String) {
         if (!isInternetAvailable(requireContext())) {
             Toast.makeText(
                 requireContext(),
@@ -996,7 +1237,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    fun addToAdapter() {
+    private fun addToAdapter() {
         if (fromlanguageflag == 0 && tolanguageflag == 0) {
             convExtTempForUpdatingAdapter.forEach {
                 if (it.from == "from") {
@@ -1004,7 +1245,8 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                         ConversationFromItem(
                             it.translation,
                             it.source,
-                            it1
+                            it1,
+                            requireActivity()
                         )
                     }?.let { it2 -> adapter.add(it2) }
                 }
@@ -1014,13 +1256,14 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
                         ConversationToItem(
                             it.translation,
                             it.source,
-                            it1
+                            it1,
+                            requireActivity()
                         )
                     }?.let { it2 -> adapter.add(it2) }
                 }
             }
             binding.fabConstraint.visibility = View.VISIBLE
-            binding.emptyConversation.visibility = View.VISIBLE
+            binding.emptyConversation.visibility = View.GONE
             binding.rvConversation.smoothScrollToPosition(adapter.itemCount - 1)
         } else {
             adapter.clear()
@@ -1041,32 +1284,41 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun shrinkFab() {
         binding.mainFabBtn.startAnimation(rotateAntiClockWiseFabAnim)
         binding.imgClear.startAnimation(toBottomFabAnim)
-        binding.txtDelete.startAnimation(toBottomFabAnim)
+//        binding.txtDelete.startAnimation(toBottomFabAnim)
         binding.imgSave.startAnimation(toBottomFabAnim)
-        binding.txtSave.startAnimation(toBottomFabAnim)
+//        binding.txtSave.startAnimation(toBottomFabAnim)
         isExpanded = !isExpanded
         delayedActionHandler.removeCallbacks(delayedActionRunnable)
+        fadeFabViewButton()
     }
 
     private fun expandFab() {
+        binding.fabConstraint.alpha = 1f
         binding.mainFabBtn.startAnimation(rotateClockWiseFabAnim)
         binding.imgSave.startAnimation(fromBottomFabAnim)
-        binding.txtSave.startAnimation(fromBottomFabAnim)
+//        binding.txtSave.startAnimation(fromBottomFabAnim)
         binding.imgClear.startAnimation(fromBottomFabAnim)
-        binding.txtDelete.startAnimation(fromBottomFabAnim)
+//        binding.txtDelete.startAnimation(fromBottomFabAnim)
         isExpanded = !isExpanded
     }
-
 }
 
-class ConversationFromItem(val from: String, val fromText: String, val tts: TextToSpeech) :
-    Item<GroupieViewHolder>() {
+class ConversationFromItem(
+    val from: String,
+    private val fromText: String,
+    val tts: TextToSpeech,
+    val activity: Activity
+) : Item<GroupieViewHolder>() {
+
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         val tvChatFrom = viewHolder.itemView.findViewById<TextView>(R.id.tvChatFrom)
         val tvChatFrom2 = viewHolder.itemView.findViewById<TextView>(R.id.tvChatFrom2)
-
         tvChatFrom.text = fromText
         tvChatFrom2.text = from
+
+        viewHolder.itemView.findViewById<ImageView>(R.id.ivCopy).blockingClickListener {
+            copyToClipBoard(activity, from)
+        }
     }
 
     override fun getLayout(): Int {
@@ -1074,17 +1326,33 @@ class ConversationFromItem(val from: String, val fromText: String, val tts: Text
     }
 }
 
-class ConversationToItem(val to: String, val fromText: String, val tts: TextToSpeech) :
-    Item<GroupieViewHolder>() {
+class ConversationToItem(
+    val to: String,
+    val fromText: String,
+    val tts: TextToSpeech,
+    val activity: Activity
+) : Item<GroupieViewHolder>() {
+
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         val tvChatTo = viewHolder.itemView.findViewById<TextView>(R.id.tvChatTo)
         val tvChatTo2 = viewHolder.itemView.findViewById<TextView>(R.id.tvChatTo2)
-
         tvChatTo.text = fromText
         tvChatTo2.text = to
+
+        viewHolder.itemView.findViewById<ImageView>(R.id.ivCopy).blockingClickListener {
+            copyToClipBoard(activity, to)
+        }
     }
 
     override fun getLayout(): Int {
         return R.layout.conversation_to_row
     }
+}
+
+fun copyToClipBoard(activity: Activity, text: String) {
+    val clipboard: ClipboardManager =
+        activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("label", text)
+    clipboard.setPrimaryClip(clip)
+    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show()
 }

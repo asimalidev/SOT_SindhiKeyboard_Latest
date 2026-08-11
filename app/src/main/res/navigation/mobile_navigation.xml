@@ -15,16 +15,22 @@
             app:destination="@id/themesFragment" />
 
         <action
+            android:id="@+id/action_nav_home_to_stylishFragment"
+            app:destination="@id/stylish_text" />
+
+        <action
             android:id="@+id/action_nav_home_to_ReverseFragment"
             app:destination="@id/reverse_fragment" />
 
         <action
-            android:id="@+id/action_nav_home_to_navSubscriptionFragment"
-            app:destination="@id/navSubscriptionFragment"
-            app:enterAnim="@anim/slide_in_bottom"
-            app:exitAnim="@anim/slide_out_top"
-            app:popEnterAnim="@anim/slide_in_top"
-            app:popExitAnim="@anim/slide_out_bottom"/>
+            android:id="@+id/action_nav_home_to_all_poster_fragment"
+            app:destination="@id/nav_all_posters" />
+
+
+
+        <action
+            android:id="@+id/action_nav_home_to_ibadat_fragment"
+            app:destination="@id/navIbadatFragment" />
 
 
         <action
@@ -48,6 +54,38 @@
 
 
     <fragment
+        android:id="@+id/nav_photo_translator_result"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.PhotoTranslatorResultFragment"
+        android:label="Photo Translator Result"
+        tools:layout="@layout/fragment_photo_translator_result">
+
+        <action
+            android:id="@+id/action_nav_photo_translator_result_to_nav_translator"
+            app:destination="@id/translationFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/translationFragment"
+            app:popUpToInclusive="false"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navIbadatFragment"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.ibadat.IbadatFragment"
+        android:label="ibadat"
+        tools:layout="@layout/fragment_ibadat"
+        >
+
+    <action
+        android:id="@+id/action_nav_ibadat_to_home"
+        app:destination="@id/nav_home"
+        app:launchSingleTop="true"
+        app:popUpTo="@+id/nav_home"
+        app:popUpToInclusive="false"/>
+
+    </fragment>
+
+
+    <fragment
         android:id="@+id/nav_editor"
         android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.UrduEditorFragment"
         tools:layout="@layout/fragment_urdu_editor">
@@ -56,7 +94,41 @@
         <action
             android:id="@+id/action_nav_editor_to_nav_home"
             app:destination="@id/nav_home" />
+
+        <action
+            android:id="@+id/action_editor_to_previewPosterFragment"
+            app:destination="@+id/navPreviewPoster"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/nav_home"
+            app:popUpToInclusive="false"/>
+
     </fragment>
+
+    <fragment
+        android:id="@+id/navPreviewPoster"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.PreviewPosterFragment"
+        android:label="preview Poster"
+        tools:layout="@layout/fragment_preview_poster">
+
+        <action
+            android:id="@+id/action_preview_to_home"
+            app:destination="@id/nav_home"
+            app:launchSingleTop="true"/>
+
+        <action
+            android:id="@+id/action_preview_to_show_all"
+            app:destination="@id/nav_all_posters"
+            app:launchSingleTop="true"/>
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_all_posters"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.AllPostersFragment"
+        android:label="all posters"
+        tools:layout="@layout/fragment_all_posters"
+        />
 
 
     <fragment
@@ -77,23 +149,6 @@
 
     </fragment>
 
-    <fragment
-        android:id="@+id/navSubscriptionFragment"
-        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SubscriptionFragment"
-        android:label="Subscription"
-        tools:layout="@layout/fragment_subscription">
-
-    <argument
-        android:name="from_name"
-        app:argType="string" />
-
-    <action
-        android:id="@+id/action_navSubscriptionFragment_to_nav_home"
-        app:destination="@id/nav_home"
-        app:launchSingleTop="true"
-        app:popUpTo="@+id/nav_home"
-        app:popUpToInclusive="false"/>
-    </fragment>
 
     <fragment
         android:id="@+id/navSindhiStatusShow"
@@ -111,6 +166,12 @@
             app:launchSingleTop="true"
             app:popUpTo="@+id/navSindhiStatus"
             app:popUpToInclusive="false"/>
+
+        <action
+            android:id="@+id/action_navSindhiStatusShow_to_sindhiEditor"
+            app:destination="@id/nav_editor" />
+
+
     </fragment>
 
     <fragment
@@ -160,6 +221,10 @@
         <action
             android:id="@+id/action_translationFragment_to_conversationFragment"
             app:destination="@id/conversationFragment" />
+
+        <action
+            android:id="@+id/action_translationFragment_to_photoFragment"
+            app:destination="@id/cameraFragment" />
         <action
             android:id="@+id/action_translationFragment_to_speechFragment"
             app:destination="@id/speechFragment" />
@@ -168,6 +233,29 @@
             app:destination="@id/DictionaryFragment" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.CameraFragment"
+        tools:layout="@layout/fragment_camera" >
+
+        <action
+            android:id="@+id/action_cameraFragment_to_cropFragment"
+            app:destination="@id/cropFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/cropFragment"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.CropFragment"
+        tools:layout="@layout/fragment_crop" >
+
+
+        <action
+            android:id="@+id/action_cropFragment_to_navPhotoTranslatorResult"
+            app:destination="@id/nav_photo_translator_result" />
+    </fragment>
+
 
     <fragment
         android:id="@+id/navTextTranslator"
@@ -455,4 +543,18 @@
             android:id="@+id/action_text_reverse_to_home"
             app:destination="@id/nav_home" />
     </fragment>
+
+
+    <fragment
+        android:id="@+id/stylish_text"
+        android:name="com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.StylishTextFragment"
+        android:label="Stylish Text"
+        tools:layout="@layout/fragment_stylish_text">
+
+        <action
+            android:id="@+id/action_stylishFragment_to_nav_home"
+            app:destination="@id/nav_home" />
+
+    </fragment>
+
 </navigation>

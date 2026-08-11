@@ -30,13 +30,13 @@ import com.sindhi.urdu.english.keybad.databinding.FragmentKeyboardTestBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.isNetworkAvailable
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_THEMES
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADS_BANNER_THEMES_TEST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_THEME
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_THEMES
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_THEMES_TEST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_THEMES_TEST
 
 class KeyboardTestFragment : Fragment() {
     private var _binding: FragmentKeyboardTestBinding? = null
@@ -113,10 +113,10 @@ class KeyboardTestFragment : Fragment() {
 
         // Manage Ads Visibility
         if (isPremiumUser) {
-            binding.nativeAdContainerAd1.visibility = View.GONE
+            binding.nativeAdContainerAd.visibility = View.GONE
             binding.adViewContainer.visibility = View.GONE
             binding.shimmerLayout.visibility = View.GONE
-            binding.shimmerLayout1.visibility = View.GONE
+            binding.shimmerLayout.visibility = View.GONE
         } else {
             setupNativeAd()
             setupBannerAd()
@@ -157,25 +157,25 @@ class KeyboardTestFragment : Fragment() {
 
     private fun setupNativeAd() {
         val prefs = requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-        val isNativeEnabled = prefs.getString(Preferences.ADS_NATIVE_THEMES_APPLIED_TEST, "ON").equals("ON", true)
+        val isNativeEnabled = prefs.getString(SHOW_NATIVE_THEMES_TEST, "ON").equals("ON", true)
 
         if (isNetworkAvailable(requireContext()) && isNativeEnabled) {
             val adId = if (!BuildConfig.DEBUG) {
-                prefs.getString(NATIVE_THEMES, resources.getString(R.string.admob_native))
+                prefs.getString(AD_ID_NATIVE_THEMES, resources.getString(R.string.NATIVE_DEFAULT))
             } else {
-                resources.getString(R.string.admob_native)
+                resources.getString(R.string.NATIVE_DEFAULT)
             }
 
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
                 adId = adId ?: "",
                 fragmentName = "keybordtest",
-                isMedia = true,
-                isMediaOnLeft = true,
-                adContainer = binding.nativeAdContainerAd1,
-                isMediumAd = true,
+                isMedia = false,
+                isMediaOnLeft = false,
+                adContainer = binding.nativeAdContainerAd,
+                isMediumAd = false,
                 onFailed = {
-                    binding.nativeAdContainerAd1.visibility = View.GONE
+                    binding.nativeAdContainerAd.visibility = View.GONE
                 },
                 onAddLoaded = {
                     binding.shimmerLayout.stopShimmer()
@@ -183,13 +183,13 @@ class KeyboardTestFragment : Fragment() {
                 }
             )
         } else {
-            binding.nativeAdContainerAd1.visibility = View.GONE
+            binding.nativeAdContainerAd.visibility = View.GONE
         }
     }
 
     private fun setupBannerAd() {
         val prefs = requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-        val isBannerEnabled = prefs.getString(ADS_BANNER_THEMES_TEST, "ON").equals("ON", true)
+        val isBannerEnabled = prefs.getString(SHOW_BANNER_THEMES_TEST, "ON").equals("ON", true)
 
         if (isNetworkAvailable(requireContext()) && isBannerEnabled) {
 
@@ -199,9 +199,9 @@ class KeyboardTestFragment : Fragment() {
 
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (_binding != null) { // Check binding before accessing views
-                        binding.shimmerLayout1.stopShimmer()
-                        binding.shimmerLayout1.visibility = View.GONE
-                        binding.adViewContainer.removeView(binding.shimmerLayout1)
+                        binding.shimmerLayoutBanner.stopShimmer()
+                        binding.shimmerLayoutBanner.visibility = View.GONE
+                        binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
 
                         (collapsibleAdView?.parent as? ViewGroup)?.removeView(collapsibleAdView)
                         binding.adViewContainer.addView(collapsibleAdView)
@@ -212,17 +212,17 @@ class KeyboardTestFragment : Fragment() {
             }
         } else {
             binding.adViewContainer.visibility = View.GONE
-            binding.shimmerLayout1.stopShimmer()
-            binding.shimmerLayout1.visibility = View.GONE
+            binding.shimmerLayoutBanner.stopShimmer()
+            binding.shimmerLayoutBanner.visibility = View.GONE
         }
     }
 
     private fun loadNewBannerAd() {
         val prefs = requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            prefs.getString(ADMOB_BANNER_THEMES, resources.getString(R.string.admob_banner_inside))
+            prefs.getString(AD_ID_BANNER_THEME, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
 
         val adView = AdView(requireActivity())

@@ -1,6 +1,8 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes
 
 import androidx.annotation.Keep
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.sindhi.urdu.english.keybad.R
 
 @Keep
@@ -11,6 +13,7 @@ data class Key(
     var labelSecondary: String? = null,
     val codeSecondary: Int? = null,
     val valueMain: String = labelMain,
+    val verticalOffset: Dp = 0.dp, // Add this for vertical adjustment
     val valueSecondary: String? = labelSecondary,
     val isSpecialCharacter: Boolean = false,
     val isLanguageKey: Boolean = false,

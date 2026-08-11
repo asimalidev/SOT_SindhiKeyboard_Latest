@@ -74,11 +74,15 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.data.layout
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.DataBaseCopyOperationsKt
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.SuggestionItems
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes.Key
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 
 @Composable
 fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null, context: Context?, inputConnection: InputConnection? = null) {
 
     val coroutineScope = rememberCoroutineScope()
+
+    var suggestionJob by remember { mutableStateOf<Job?>(null) }
 
     val myPreferences = remember(context) { context?.let { MyPreferences(it) } }
 
@@ -90,10 +94,8 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         myPreferences?.setKeyboard(defaultLanguage)
     }
 
-    // MEMORY LEAK FIX: Remember the ViewModel so it isn't recreated on every keystroke
     val stickerViewModel = remember { StickerViewModel() }
 
-    // MEMORY LEAK FIX: Remember the sticker list and safely use context instead of imeService!!
     val downloadedStickersPackList = remember {
         context?.applicationContext?.let {
             stickerViewModel.fetchDownloadStickers(it)
@@ -170,7 +172,7 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
 
     val keyboardHeight = if (showNumbersRow) 298.dp else 268.dp
 
-    // MEMORY LEAK FIX: Cache the layout array so it only recalculates when the layout or language ACTUALLY changes
+    // FIX: Added the 3 HusnEguftar layouts here
     val keys = remember(currentLayout, defaultLanguage, showNumbersRow) {
         val layoutKeys = when (currentLayout) {
             LayoutState.Main -> currentLanguage
@@ -178,6 +180,9 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
             LayoutState.SymbolsUrdu -> symbolsUrduLayout
             LayoutState.SymbolsSindhi -> symbolsSindhiLayout
             LayoutState.ExtendedSymbols -> extendedSymbolsLayout
+            LayoutState.HusnEguftarOne -> husneguftarOneLayout
+            LayoutState.HusnEguftarTwo -> husneguftarTwoLayout
+            LayoutState.HusnEguftarThree -> husneguftarThreeLayout
             LayoutState.Numbers -> numbersLayout
             else -> null
         }
@@ -189,11 +194,10 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         layoutKeys?.drop(if (shouldDropNumberRow) 1 else 0)?.toTypedArray()
     }
 
-    // Add suspend and Dispatchers.IO
     suspend fun isTextFieldEmpty(inputConnection: InputConnection?): Boolean {
         if (inputConnection == null) return true
 
-        return withContext(Dispatchers.IO) { // <-- Forces IPC off the main thread
+        return withContext(Dispatchers.IO) {
             try {
                 val beforeCursor = inputConnection.getTextBeforeCursor(1, 0)
                 val afterCursor = inputConnection.getTextAfterCursor(1, 0)
@@ -206,7 +210,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         }
     }
 
-    // Also update your variant if you are using it elsewhere
     suspend fun isTextFieldEmptyVariant(inputConnection: InputConnection?): Boolean {
         return isTextFieldEmpty(inputConnection)
     }
@@ -214,8 +217,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
     fun resetKeyboard() {
         currentLayout = LayoutState.Main
         isCapsLockEnabled = false
-
-        // Launch in the Compose coroutine scope
         coroutineScope.launch {
             if (isTextFieldEmpty(inputConnection)) {
                 isCapsEnabled = true
@@ -227,10 +228,17 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
     KeyboardVisibilityProvider { isVisible ->
         isKeyboardVisible = isVisible
         if (!isKeyboardVisible) {
-            showNumbersRow = context?.getSharedPreferences("SR_keyboard", Context.MODE_PRIVATE)
-                ?.getBoolean(Preferences.showNumbersRow, false) == true
-            themeMode = context?.getSharedPreferences("SR_keyboard", Context.MODE_PRIVATE)
-                ?.getString(Preferences.themeKey, "AUTO") ?: "AUTO"
+            coroutineScope.launch(Dispatchers.IO) {
+                val showNumRow = context?.getSharedPreferences("SR_keyboard", Context.MODE_PRIVATE)
+                    ?.getBoolean(Preferences.showNumbersRow, false) == true
+                val tMode = context?.getSharedPreferences("SR_keyboard", Context.MODE_PRIVATE)
+                    ?.getString(Preferences.themeKey, "AUTO") ?: "AUTO"
+
+                withContext(Dispatchers.Main) {
+                    showNumbersRow = showNumRow
+                    themeMode = tMode
+                }
+            }
         }
     }
 
@@ -260,7 +268,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
     }
 
     val specialKeys = if (currentLayout == LayoutState.TextEdit) textEditLayout else null
-    val specialKeysHusneGuftar = if (currentLayout == LayoutState.HusnEguftar) husneguftar else null
 
     val onLayoutSwitchClick = { currentLayout = LayoutState.Main }
     val onNumbersSwitchClick = { currentLayout = LayoutState.Numbers }
@@ -272,17 +279,20 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
     val onLanguageSwitchClick: (String) -> Unit = { languageChangedFromTop ->
         if (languageChangedFromTop.isNotEmpty()) {
             defaultLanguage = languageChangedFromTop
-            Log.e("Language", "Language changed from top: $languageChangedFromTop")
         } else if (enabledLanguages.isNotEmpty()) {
             currentLanguageIndex = (currentLanguageIndex + 1) % enabledLanguages.size
             defaultLanguage = enabledLanguages[currentLanguageIndex]
-            Log.e("Language", "Cycling languages - Current: $defaultLanguage, Index: $currentLanguageIndex")
         }
         resetKeyboard()
     }
 
     val onEditTextSwitchClick = { currentLayout = LayoutState.TextEdit; showBackIcon = true }
-    val onHusnEguftarClick = { currentLayout = LayoutState.HusnEguftar; showBackIcon = true }
+
+    // FIX: Added the 3 HusnEguftar click actions
+    val onHusnEguftarOneClick = { currentLayout = LayoutState.HusnEguftarOne; showBackIcon = true }
+    val onHusnEguftarTwoClick = { currentLayout = LayoutState.HusnEguftarTwo; showBackIcon = true }
+    val onHusnEguftarThreeClick = { currentLayout = LayoutState.HusnEguftarThree; showBackIcon = true }
+
     val onEmojiSwitchClick = { currentLayout = LayoutState.Emojis; showBackIcon = true }
 
     val onBackClick = {
@@ -301,9 +311,8 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         isCapsEnabled = false
     }
 
-    val layoutLabel =
-        if (currentLayout == LayoutState.TextEdit) stringResource(id = R.string.edit_layout)
-        else if (currentLayout == LayoutState.HusnEguftar) stringResource(id = R.string.HusnEguftar_layout)
+    val layoutLabel = if (currentLayout == LayoutState.TextEdit) stringResource(id = R.string.edit_layout)
+        else if (currentLayout in listOf(LayoutState.HusnEguftarOne, LayoutState.HusnEguftarTwo, LayoutState.HusnEguftarThree)) stringResource(id = R.string.HusnEguftar_layout)
         else stringResource(id = R.string.emoji_layout)
 
     KeyboardTheme(
@@ -352,9 +361,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         }
     ) {
 
-        Log.e("DataBaseCopyOperationsMyKeyboardLayout", "TheSize: 1: " + suggestionList.size)
-
-        // SAFE NULL CHECK FIX
         if (imeService?.mainSuggestionList?.isNotEmpty() == true && suggestionList.isNotEmpty()) {
             imeService.mainSuggestionList = suggestionList
         }
@@ -385,7 +391,7 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                     context = context,
                     imeService = imeService,
                     onEditTextSwitchClick = onEditTextSwitchClick,
-                    onHusnEguftarSwitchClick = onHusnEguftarClick,
+                    onHusnEguftarSwitchClick = onHusnEguftarOneClick, // Initially defaults to Layout One
                     onEmojiSwitchClick = onEmojiSwitchClick,
                     onEmojiButtonClick = {
                         isEmojiButtonClicked = true
@@ -401,8 +407,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                     },
                     deleteTextAfterDrag = {
                         imeService?.deleteText()
-
-                        // Launch coroutine to check text field state
                         coroutineScope.launch {
                             if (isTextFieldEmpty(inputConnection) && !isCapsLockEnabled) {
                                 isCapsEnabled = true
@@ -439,19 +443,13 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                     isVoiceInputClicked = isVoiceInputClicked,
                     currentLanguage = defaultLanguage
                 )
+
                 when (currentLayout) {
                     LayoutState.TextEdit -> {
                         EditTextLayout(keyboardHeight, specialKeys, imeService, context, vibrator)
                     }
 
-                    LayoutState.HusnEguftar -> {
-                        HusnEguftarLayout(
-                            keyboardHeight, specialKeysHusneGuftar, imeService, context, vibrator, background,
-                            onGuftarClick = {
-                                imeService?.commitHusnEguftar(" $it")
-                            }
-                        )
-                    }
+
 
                     LayoutState.Emojis -> {
                         EmojiLayout(
@@ -497,82 +495,68 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                                             isCapsEnabled = isCapsEnabled,
                                             isCapsLockEnabled = isCapsLockEnabled,
                                             onKeyPressed = {
-                                                // COROUTINE LEAK FIX: Using local coroutine scope
-                                                coroutineScope.launch {
+                                                val actualChar = if (!key.valueMain.isNullOrEmpty()) key.valueMain!! else key.labelMain
+
+                                                if (key.isCharacter) {
+                                                    val keyToCommit = if (!key.valueMain.isNullOrEmpty()) key.copy(labelMain = actualChar) else key
+
+                                                    imeService?.commitText(
+                                                        text = keyToCommit,
+                                                        isCapsEnabled = isCapsEnabled,
+                                                        isCapsLockEnabled = isCapsLockEnabled,
+                                                        endsWithSpace = false
+                                                    )
+                                                } else {
+                                                    val willBeEmpty = (imeService?.currentInputConnection?.getTextBeforeCursor(2, 0)?.length ?: 0) <= 1
+                                                    if (key.labelMain == LABEL_DELETE && willBeEmpty && !isCapsLockEnabled) {
+                                                        isCapsEnabled = true
+                                                    }
+
+                                                    imeService?.doSomethingWith(key, false, isEmoji = false)
+                                                }
+
+                                                suggestionJob?.cancel()
+                                                suggestionJob = coroutineScope.launch {
                                                     val getCompleteTextForSuggestion = withContext(Dispatchers.IO) {
                                                         imeService?.getCompleteTextForSuggestionAsync() ?: ""
                                                     }
 
                                                     if (key.isCharacter) {
-                                                        val endsWithSpace = false
-                                                        val fullText = getCompleteTextForSuggestion + key.labelMain
-
+                                                        val fullText = getCompleteTextForSuggestion + actualChar
                                                         imeService?.currentWordMain = returnTypedWordForSuggestion(fullText, "character")
 
                                                         if (imeService?.currentWordMain?.isNotEmpty() == true) {
-                                                            try {
-                                                                val suggestions = withContext(Dispatchers.IO) {
-                                                                    searchForSuggestion(imeService, context, imeService.currentWordMain)
-                                                                }
-                                                                imeService.filterList.value = suggestions
-                                                                isSuggestionsEnabled = suggestions.isNotEmpty()
-                                                            } catch (e: Exception) {
-                                                                e.printStackTrace()
+                                                            val suggestions = withContext(Dispatchers.IO) {
+                                                                searchForSuggestion(imeService, context, imeService?.currentWordMain ?: "")
                                                             }
-                                                        } else {
-                                                            isSuggestionsEnabled = imeService?.filterList?.value?.isNotEmpty() == true
+                                                            if (isActive) {
+                                                                imeService?.filterList?.value = suggestions
+                                                                isSuggestionsEnabled = suggestions.isNotEmpty()
+                                                            }
                                                         }
-
-                                                        imeService?.commitText(
-                                                            text = key,
-                                                            isCapsEnabled = isCapsEnabled,
-                                                            isCapsLockEnabled = isCapsLockEnabled,
-                                                            endsWithSpace = endsWithSpace
-                                                        )
 
                                                         if (fullText.endsWith(".")) {
                                                             isCapsEnabled = true
                                                         } else if (!isCapsLockEnabled && isCapsEnabled) {
                                                             isCapsEnabled = false
                                                         }
-
                                                     } else {
-                                                        var isEmoji = false
                                                         if (key.labelMain == LABEL_DELETE) {
-                                                            val fullText = getCompleteTextForSuggestion
-                                                            imeService?.currentWordMain = returnTypedWordForSuggestion(fullText, "delete")
-
-                                                            isEmoji = if (fullText.isNotEmpty() && fullText.last() == ' ') {
-                                                                false
-                                                            } else {
-                                                                checkEmoji(ctx = context!!, fullText)
-                                                            }
+                                                            imeService?.currentWordMain = returnTypedWordForSuggestion(getCompleteTextForSuggestion, "delete")
 
                                                             if (imeService?.currentWordMain?.isNotEmpty() == true) {
-                                                                try {
-                                                                    imeService.filterList.value = withContext(Dispatchers.IO) {
-                                                                        searchForSuggestion(imeService, context, imeService.currentWordMain)
-                                                                    }
-                                                                } catch (e: Exception) {
-                                                                    e.printStackTrace()
+                                                                val suggestions = withContext(Dispatchers.IO) {
+                                                                    searchForSuggestion(imeService, context, imeService?.currentWordMain ?: "")
+                                                                }
+                                                                if (isActive) {
+                                                                    imeService?.filterList?.value = suggestions
                                                                 }
                                                             }
-
-                                                            val willBeEmpty = fullText.length <= 1
-                                                            if (willBeEmpty && !isCapsLockEnabled) {
-                                                                isCapsEnabled = true
-                                                            }
                                                         }
 
-                                                        if (getCompleteTextForSuggestion.length == 1) {
+                                                        if (getCompleteTextForSuggestion.length <= 1) {
                                                             isSuggestionsEnabled = false
                                                             imeService?.filterList?.value = emptyList()
-                                                        }
-
-                                                        imeService?.doSomethingWith(key, false, isEmoji = isEmoji)
-
-                                                        if (key.labelMain == LABEL_DELETE && isTextFieldEmpty(imeService?.currentInputConnection) && !isCapsLockEnabled) {
-                                                            isCapsEnabled = true
                                                         }
                                                     }
                                                 }
@@ -586,8 +570,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                                                 if (key.labelMain == LABEL_DELETE) {
                                                     imeService?.filterList?.value = emptyList()
                                                     imeService?.deleteText()
-
-                                                    // COROUTINE FIX: Using local coroutine scope
                                                     coroutineScope.launch {
                                                         delay(100)
                                                         if (imeService?.isTextFieldCompletelyEmpty() == true && !isCapsLockEnabled) {
@@ -608,8 +590,6 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                                             },
                                             onLongKeyPressedEnd = {
                                                 imeService?.longPressedStops(key = key)
-
-                                                // COROUTINE FIX: Using local coroutine scope
                                                 coroutineScope.launch {
                                                     delay(100)
                                                     if (key.labelMain == LABEL_DELETE &&
@@ -628,6 +608,12 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
                                             onSymbolsLayoutSwitchClick = { onSymbolsLayoutSwitchClick() },
                                             onSymbolsUrduLayoutSwitchClick = { onSymbolsUrduLayoutSwitchClick() },
                                             onSymbolsSindhiLayoutSwitchClick = { onSymbolsSindhiLayoutSwitchClick() },
+
+                                            // FIX: Pass the three layout click listeners if your CustomKey supports them
+                                            onHusnEguftarOneLayoutSwitchClick = { onHusnEguftarOneClick() },
+                                            onHusnEguftarTwoLayoutSwitchClick = { onHusnEguftarTwoClick() },
+                                            onHusnEguftarThreeLayoutSwitchClick = { onHusnEguftarThreeClick() },
+
                                             onCapsClick = { onCapsClick() },
                                             onCapsClickToLock = { onCapsClickToLock() },
                                             context = context,
@@ -644,6 +630,7 @@ fun MyKeyboard(imeService: CustomImeService? = null, vibrator: Vibrator? = null,
         }
     }
 }
+
 
 // Ensure these functions remain unchanged at the bottom of your file:
 fun checkEmoji(ctx: Context, character: String): Boolean {

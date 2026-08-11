@@ -1,4 +1,4 @@
-package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.dictionary.models
+package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.DailyStatus.Retrofitcalls.models
 
 import androidx.annotation.Keep
 

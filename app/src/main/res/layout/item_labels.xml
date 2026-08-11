@@ -1,47 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/clMain"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/_50sdp"
-    android:layout_margin="@dimen/_10sdp"
-    android:padding="@dimen/_10sdp"
-    app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="@dimen/_6sdp"
-    app:cardElevation="10dp">
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/_8sdp"
+    android:layout_marginVertical="@dimen/_6sdp"
+    android:background="@drawable/poetry_bg"
+    android:padding="@dimen/_4sdp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/ic_label_bg">
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvImageWrapper"
+        android:layout_width="@dimen/_45sdp"
+        android:layout_height="@dimen/_45sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        app:cardCornerRadius="@dimen/_22sdp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/ivIcon"
-            android:layout_width="@dimen/_50sdp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#8D0000"
-            android:elevation="@dimen/_3sdp"
-            android:paddingHorizontal="@dimen/_3sdp"
-            android:src="@drawable/ic_1"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvItem"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_1" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvItem"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:fontFamily="@font/arabic_font"
-            android:gravity="center"
-            android:text="@string/label_message"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14ssp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ivIcon"
-            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.cardview.widget.CardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/arabic_font"
+        android:gravity="center"
+        android:text="@string/label_message"
+        app:fontFamily="@font/noto_nastaliq"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_14ssp"
+        android:layout_marginEnd="@dimen/_16sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cvImageWrapper"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

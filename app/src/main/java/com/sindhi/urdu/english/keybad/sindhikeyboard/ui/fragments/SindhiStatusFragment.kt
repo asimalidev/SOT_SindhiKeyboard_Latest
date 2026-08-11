@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -17,6 +16,7 @@ import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
@@ -31,23 +31,21 @@ import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentSindhiStatusBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.isNetworkAvailable
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.adapters.LabelsAdapter
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.sindhiPoetryModels.LabelNamesIcons
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_SINDHI_STATUS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_POETRY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_SINDHI_POETRY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_SINDHI_POETRY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_POETRY_CATEGORY_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_POETRY_CATEGORY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SINDHI_POETRY_CATEGORY_LIST
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 
 class SindhiStatusFragment : Fragment() {
-
     lateinit var binding: FragmentSindhiStatusBinding
     private lateinit var adapter: LabelsAdapter
     var navController: NavController? = null
@@ -80,7 +78,7 @@ class SindhiStatusFragment : Fragment() {
                         requireActivity()
                     ).getBoolean(PURCHASE, false))
                     && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
-                        .getString(Preferences.INTERSTITIAL_SINDHI_STATUS_POETRY_CLICK, "ON")
+                        .getString(SHOW_INTER_SINDHI_POETRY_CATEGORY, "ON")
                         .equals("ON", true)
                 ) {
                     InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
@@ -135,7 +133,7 @@ class SindhiStatusFragment : Fragment() {
                 "RemoteConfig",
                 MODE_PRIVATE
             ).getString(
-                BANNER_POETRY, "ON"
+                SHOW_BANNER_SINDHI_POETRY_CATEGORY_LIST, "ON"
             ).equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("sindiStatus")) {
@@ -187,13 +185,13 @@ class SindhiStatusFragment : Fragment() {
         Log.d("jdjasjjsa", "loading: ")
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_SINDHI_STATUS, resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_SINDHI_POETRY, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
-        adView.adUnitId = adId!!//getString(R.string.BANNER_BIDDING)
+        adView.adUnitId = adId!!
         val adRequest = AdRequest.Builder().build()
 
         adView.loadAd(adRequest)
@@ -262,38 +260,38 @@ class SindhiStatusFragment : Fragment() {
         }
 
         if (isPurchase) {
-            binding.nativeAdContainerAd1.visibility = View.GONE
+            binding.nativeAdContainerAd.visibility = View.GONE
         } else {
             if (isNetworkAvailable(requireContext())
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
                     .getString(
-                        Preferences.ADS_NATIVE_POETRY, "ON"
+                        SHOW_NATIVE_SINDHI_POETRY_CATEGORY_LIST, "ON"
                     ).equals("ON", true)
             ) {
 
                 val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_OVER_ALL, resources.getString(R.string.admob_native))
+                    pref.getString(AD_ID_NATIVE_SINDHI_POETRY, resources.getString(R.string.NATIVE_DEFAULT))
                 } else {
-                    resources.getString(R.string.admob_native)
+                    resources.getString(R.string.NATIVE_DEFAULT)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
-                    adId = adId!!,//,getString(R.string.NATIVE_INSIDE_BIDDING),
+                    adId = adId!!,
                     fragmentName = "sindiStatus",
-                    isMedia = true,
-                    isMediaOnLeft = true,
-                    adContainer = binding.nativeAdContainerAd1,
-                    isMediumAd = true,
+                    isMedia = false,
+                    isMediaOnLeft = false,
+                    adContainer = binding.nativeAdContainerAd,
+                    isMediumAd = false,
                     onFailed = {
-                        binding.nativeAdContainerAd1.visibility = View.GONE
+                        binding.nativeAdContainerAd.visibility = View.GONE
                     },
                     onAddLoaded = {
                         binding.shimmerLayout.stopShimmer()
                         binding.shimmerLayout.visibility = View.GONE
                     })
             } else {
-                binding.nativeAdContainerAd1.visibility = View.GONE
+                binding.nativeAdContainerAd.visibility = View.GONE
             }
         }
     }
@@ -321,14 +319,16 @@ class SindhiStatusFragment : Fragment() {
                 ), "رومينٽڪ شاعري"
             )
         )
+
         labelNamesArrayList.add(
             LabelNamesIcons(
                 ContextCompat.getDrawable(
                     requireContext(),
-                    R.drawable.ic_3
+                    R.drawable.ic_13
                 ), "شاھ لطيف جي شاعري ۽ سمجھاني"
             )
         )
+
         labelNamesArrayList.add(
             LabelNamesIcons(
                 ContextCompat.getDrawable(
@@ -337,20 +337,58 @@ class SindhiStatusFragment : Fragment() {
                 ), "شيخ اياز"
             )
         )
+
         labelNamesArrayList.add(
             LabelNamesIcons(
                 ContextCompat.getDrawable(
                     requireContext(),
-                    R.drawable.ic_5
-                ), "کل ۽پوگ"
+                    R.drawable.ic_12
+                ), "بن لائنن جي شاعري"
             )
         )
+
         labelNamesArrayList.add(
             LabelNamesIcons(
                 ContextCompat.getDrawable(
                     requireContext(),
-                    R.drawable.ic_6
-                ), "لطيفيات"
+                    R.drawable.ic_10
+                ), "اداس شاعري"
+            )
+        )
+
+        labelNamesArrayList.add(
+            LabelNamesIcons(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_9
+                ), "عڀدالطيف جي شاعري"
+            )
+        )
+
+        labelNamesArrayList.add(
+            LabelNamesIcons(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_8
+                ), "غزل"
+            )
+        )
+
+        labelNamesArrayList.add(
+            LabelNamesIcons(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_11
+                ), "لوڪل شاعري"
+            )
+        )
+
+        labelNamesArrayList.add(
+            LabelNamesIcons(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_7
+                ), "کل ۽پوگ"
             )
         )
     }

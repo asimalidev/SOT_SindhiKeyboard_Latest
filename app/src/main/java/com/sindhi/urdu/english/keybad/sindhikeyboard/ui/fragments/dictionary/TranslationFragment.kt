@@ -1,12 +1,17 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.dictionary
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -15,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.SwitchCompat
@@ -33,18 +39,23 @@ import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentTranslationBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.isNetworkAvailable
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_TRANSLATION_HOME
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_TRANSLATION
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_BANNER_TRANSLATOR_HOME_SCR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_TRANSLATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_CONVERSATION_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_HISTORY_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_TEXT_TRANSLATOR_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_VOICE_TRANSLATOR_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_TRANSLATOR_HOME_SCR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 
@@ -56,6 +67,23 @@ class TranslationFragment : Fragment() {
     var isPurchase = false
 
 
+    private val requestCameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                // Permission granted, proceed to navigation
+                navigateToPhotoFragment()
+            } else {
+                // Permission denied
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                    // Permanently denied (user denied 2 times / Don't ask again). Send to Settings.
+                    openAppSettings()
+                } else {
+                    // Denied once. Optional: Show a message explaining why it's needed.
+                    Toast.makeText(requireContext(), "Camera permission is required for image translation.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,6 +92,8 @@ class TranslationFragment : Fragment() {
         binding = FragmentTranslationBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
@@ -75,7 +105,7 @@ class TranslationFragment : Fragment() {
         if (isNetworkAvailable(requireActivity())
             && !isPurchase
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(COLLAPSIBLE_TRANSLATION, "ON").equals("ON", true)
+                .getString(SHOW_BANNER_TRANSLATOR_HOME_SCR, "ON").equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("TranslatorFragment")) {
                 val collapsibleAdView: AdView? =
@@ -100,13 +130,13 @@ class TranslationFragment : Fragment() {
         if (isNetworkAvailable(requireActivity())
             && !isPurchase
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(ADS_NATIVE_TRANSLATION_HOME, "ON").equals("ON", true)
+                .getString(SHOW_NATIVE_TRANSLATOR_HOME_SCR, "ON").equals("ON", true)
         ) {
             val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
             val adId = if (!BuildConfig.DEBUG) {
-                pref.getString(NATIVE_CONVERSATION,  resources.getString(R.string.admob_native))
+                pref.getString(AD_ID_NATIVE_TRANSLATOR, resources.getString(R.string.NATIVE_DEFAULT))
             } else {
-                resources.getString(R.string.admob_native)
+                resources.getString(R.string.NATIVE_DEFAULT)
             }
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
@@ -171,41 +201,38 @@ class TranslationFragment : Fragment() {
         bundle.putString("TranslationFragment", "TranslationFragment")
         FirebaseLog.getAnalytics(requireContext()).logEvent("event_translation", bundle)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                // FIX: Check if we are actually on the TranslationFragment before navigating
-                if (navController?.currentDestination?.id == R.id.translationFragment) {
-                    val action = TranslationFragmentDirections.actionTranslationFragmentToNavHome()
-                    navController?.safeNavigate(action)
-                } else {
-                    // If we are on a different tab/fragment, let the system handle the back press naturally
-                    isEnabled = false
-                    requireActivity().onBackPressed()
-                    isEnabled = true
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // FIX: Check if we are actually on the TranslationFragment before navigating
+                    if (navController?.currentDestination?.id == R.id.translationFragment) {
+                        val action =
+                            TranslationFragmentDirections.actionTranslationFragmentToNavHome()
+                        navController?.safeNavigate(action)
+                    } else {
+                        // If we are on a different tab/fragment, let the system handle the back press naturally
+                        isEnabled = false
+                        requireActivity().onBackPressed()
+                        isEnabled = true
+                    }
                 }
-            }
-        })
+            })
 
         binding.clTextTranslator.blockingClickListener {
-            val action = TranslationFragmentDirections.actionTranslationToTextTranslation()
-            navController?.navigate(action)
+            onCvTextTranslatorClickWithInterstitial()
         }
 
-        binding.clTextToAudioFile.blockingClickListener {
-            Toast.makeText(
-                requireActivity(),
-                getString(R.string.label_coming_soon),
-                Toast.LENGTH_SHORT
-            ).show()
+        binding.clImageTranslation.blockingClickListener {
+            if (navController != null) {
+                val action = TranslationFragmentDirections.actionTranslationFragmentToPhotoFragment()
+                navController?.navigate(action)
+            } else {
+                isNavControllerAdded()
+            }
         }
 
-        binding.clFavourite.blockingClickListener {
-            Toast.makeText(
-                requireActivity(),
-                getString(R.string.label_coming_soon),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+
 
         binding.clConversation.blockingClickListener {
             if (navController != null) {
@@ -216,7 +243,7 @@ class TranslationFragment : Fragment() {
                         && requireActivity().getSharedPreferences(
                             "RemoteConfig",
                             Context.MODE_PRIVATE
-                        ).getString(Preferences.INTERSTITIAL_CONVERSATION_ENTER, "ON")
+                        ).getString(SHOW_INTER_CONVERSATION_ENTER, "ON")
                             .equals("ON", true)
                     ) {
                         InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
@@ -246,7 +273,7 @@ class TranslationFragment : Fragment() {
                         && requireActivity().getSharedPreferences(
                             "RemoteConfig",
                             Context.MODE_PRIVATE
-                        ).getString(Preferences.INTERSTITIAL_SPEECH_TO_TEXT_ENTER, "ON")
+                        ).getString(SHOW_INTER_VOICE_TRANSLATOR_ENTER, "ON")
                             .equals("ON", true)
                     ) {
                         InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
@@ -267,7 +294,21 @@ class TranslationFragment : Fragment() {
             }
         }
 
-        binding.clHistory.blockingClickListener {
+        binding.clImageTranslation.blockingClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                // Permission is already granted
+                navigateToPhotoFragment()
+            } else {
+                // Request the permission
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+
+        binding.clHistroy.blockingClickListener {
             if (navController != null) {
                 if (isPurchase!!) {
                     val action =
@@ -278,7 +319,7 @@ class TranslationFragment : Fragment() {
                         && requireActivity().getSharedPreferences(
                             "RemoteConfig",
                             Context.MODE_PRIVATE
-                        ).getString(Preferences.INTERSTITIAL_HISTORY_ENTER, "ON").equals("ON", true)
+                        ).getString(SHOW_INTER_HISTORY_ENTER, "ON").equals("ON", true)
                     ) {
                         InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
                             context = context,
@@ -303,6 +344,33 @@ class TranslationFragment : Fragment() {
         }
 
     }
+
+    private fun onCvTextTranslatorClickWithInterstitial() {
+        if (NetworkCheck.isNetworkAvailable(requireActivity())
+            && !requireActivity().getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED, false)
+            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(SHOW_INTER_TEXT_TRANSLATOR_ENTER, "ON").equals("ON", true)) {
+            InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                context = requireActivity(),
+                nameFragment = "TranslatorFragment",
+                onAdClosedCallBackAdmob = {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        onCvTextTranslatorClick()
+                    },300)
+                },
+                onAdShowedCallBackAdmob = {
+                }
+            )
+        } else {
+            onCvTextTranslatorClick()
+        }
+    }
+
+    private fun onCvTextTranslatorClick() {
+        val action = TranslationFragmentDirections.actionTranslationToTextTranslation()
+        navController?.navigate(action)
+    }
+
+
 
     private fun btnClSpeechToText() {
         if (navController != null) {
@@ -353,9 +421,12 @@ class TranslationFragment : Fragment() {
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_TRANSLATION,  resources.getString(R.string.admob_banner_inside))
+            pref.getString(
+                AD_ID_BANNER_TRANSLATOR,
+                resources.getString(R.string.BANNER_DEFAULT)
+            )
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
         adView.adUnitId = adId!!
 
@@ -372,13 +443,13 @@ class TranslationFragment : Fragment() {
                     NativeMaster.collapsibleBannerAdMobHashMap!!["TranslatorFragment"] = adView
                 }
 
-                binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
-                binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.GONE
             }
 
             override fun onAdOpened() {
@@ -414,5 +485,19 @@ class TranslationFragment : Fragment() {
                 adWidth
             )
         }
+
+
+    private fun navigateToPhotoFragment() {
+        val action = TranslationFragmentDirections.actionTranslationFragmentToPhotoFragment()
+        navController?.navigate(action)
+    }
+
+    private fun openAppSettings() {
+        Toast.makeText(requireContext(), "Please grant camera permission in settings", Toast.LENGTH_LONG).show()
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", requireActivity().packageName, null)
+        }
+        startActivity(intent)
+    }
 
 }

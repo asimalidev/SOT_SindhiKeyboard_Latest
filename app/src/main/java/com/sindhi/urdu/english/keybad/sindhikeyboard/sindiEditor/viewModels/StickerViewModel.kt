@@ -168,8 +168,12 @@ class StickerViewModel : ViewModel() {
                 if (stickerPackDirectory.exists()) {
                     stickerPackDirectory.listFiles()?.forEach { packFolder ->
                         if (packFolder.isDirectory) {
+                            // 1. Mark as complete
                             progressMap[packFolder.name] = "Download Complete"
-                            downloadInProgressMap[packFolder.name] = true
+
+                            // 2. FORCE downloading state to false
+                            downloadInProgressMap[packFolder.name] = false
+
                             packFolder.listFiles()?.forEach { insidePackFolder ->
                                 if (insidePackFolder.isDirectory) {
                                     val stickerFiles = insidePackFolder.listFiles { file -> file.extension == "webp" }?.toList() ?: emptyList()
@@ -182,6 +186,7 @@ class StickerViewModel : ViewModel() {
                     }
                 }
             }
+            // 3. Signal that the disk check is finished!
             _stickerPackList.postValue(stickerPacks)
         }
     }

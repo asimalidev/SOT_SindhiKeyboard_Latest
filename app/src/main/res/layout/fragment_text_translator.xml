@@ -1,339 +1,335 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/newappcolor"
+tools:context=".sindhikeyboard.ui.fragments.TextTranslatorFragment">
+
+<ScrollView
+    android:id="@+id/scrollView3"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".sindhikeyboard.ui.fragments.TextTranslatorFragment">
+    android:layout_height="0dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
 
-    <ScrollView
-        android:id="@+id/scrollView3"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/flLanguages"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/flLanguages"
-                android:layout_width="match_parent"
+                android:id="@+id/btnfrom"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="#770606"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginHorizontal="@dimen/_5sdp"
+                android:background="@drawable/round_bg"
+                android:padding="@dimen/_5sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ivSwipeLanguage"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btnfrom"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_5sdp"
-                    android:layout_marginVertical="@dimen/_15sdp"
-                    android:background="@drawable/round_button"
-                    android:padding="@dimen/_5sdp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/ivSwipeLanguage"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/ivfromflag"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tvfromcountryname"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvfromcountryname"
-                        android:layout_width="@dimen/_80sdp"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:maxLines="1"
-                        android:text="English"
-                        android:textAlignment="center"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_13ssp"
-                        app:drawableEndCompat="@drawable/ic_down_arrow"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/ivfromflag"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
                 <ImageView
-                    android:id="@+id/ivSwipeLanguage"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp"
-                    android:src="@drawable/ic_swipe_lang"
+                    android:id="@+id/ivfromflag"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btnto"
-                    app:layout_constraintStart_toEndOf="@+id/btnfrom"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btnto"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_5sdp"
-                    android:layout_marginVertical="@dimen/_15sdp"
-                    android:background="@drawable/round_button"
-                    android:padding="@dimen/_5sdp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/ivSwipeLanguage"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/tocountryflag"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tvtocountryname"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvtocountryname"
-                        android:layout_width="@dimen/_80sdp"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="Spanish"
-                        android:textAlignment="center"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_13ssp"
-                        app:drawableEndCompat="@drawable/ic_down_arrow"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tocountryflag"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clAD"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
-                app:layout_constraintTop_toBottomOf="@+id/flLanguages">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/nativeAdContainerAd"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_3sdp"
-                    android:layout_marginVertical="@dimen/_3sdp"
-                    android:padding="10dp"
-                    app:cardBackgroundColor="@color/nativeAdBackground"
-                    app:cardElevation="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmerLayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <include layout="@layout/native_admob_banner_normal" />
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <FrameLayout
-                    android:id="@+id/adViewContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:background="@drawable/ad_bg_banner"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmerLayoutBanner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <include layout="@layout/banner_shimmer" />
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                </FrameLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clSource"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
-                android:background="@drawable/round_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clAD">
-
-                <ImageView
-                    android:id="@+id/imgClearText"
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    android:elevation="@dimen/_10sdp"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toTopOf="@+id/etsource"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_close"
-                    app:tint="@color/colorPrimary" />
-
-                <EditText
-                    android:id="@+id/etsource"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/_120sdp"
-                    android:background="@color/transp"
-                    android:fontFamily="@font/lexend_medium"
-                    android:gravity="start"
-                    android:hint="@string/label_write_to_translate"
-                    android:layoutDirection="locale"
-                    android:paddingHorizontal="@dimen/_10sdp"
-                    android:paddingBottom="@dimen/_10sdp"
-                    android:textColor="@color/black"
-                    android:textColorHint="#BCBCBC"
-                    android:textSize="@dimen/_14ssp"
-                    app:layout_constraintBottom_toTopOf="@+id/btntranslate"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imgClearText" />
-
-                <ImageView
-                    android:id="@+id/btntranslate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_10sdp"
-                    android:layout_marginVertical="@dimen/_5sdp"
-                    android:src="@drawable/ic_translate_btn"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/etsource" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/animationView"
-                android:layout_width="@dimen/_200sdp"
-                android:layout_height="@dimen/_100sdp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/flLanguages"
-                app:lottie_autoPlay="true"
-                app:lottie_rawRes="@raw/loading_anim" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/clTranslated"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_5sdp"
-                android:background="@drawable/round_button"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clSource">
-
-                <EditText
-                    android:id="@+id/tvtranslatedtext"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/_120sdp"
-                    android:background="@color/transp"
-                    android:editable="false"
-                    android:fontFamily="@font/lexend_medium"
-                    android:gravity="start"
-                    android:hint="Translation"
-                    android:layoutDirection="locale"
-                    android:padding="@dimen/_10sdp"
-                    android:textColor="@color/black"
-                    android:textColorHint="#BCBCBC"
-                    android:textSize="@dimen/_14ssp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@+id/glTranslated1"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/glTranslated1"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.75" />
-
-                <ImageView
-                    android:id="@+id/btnspeaker1"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
+                <TextView
+                    android:id="@+id/tvfromcountryname"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/lexend_medium"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="English"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_15ssp"
+                    app:drawableEndCompat="@drawable/ic_down_arrow"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btncopytext1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/ivfromflag"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- MIDDLE SWIPE ICON -->
+            <ImageView
+                android:id="@+id/ivSwipeLanguage"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:src="@drawable/ic_swipe_lang"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnto"
+                app:layout_constraintStart_toEndOf="@+id/btnfrom"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- RIGHT BUTTON (Urdu) - MIRRORED -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_5sdp"
+                android:layout_marginVertical="@dimen/_8sdp"
+                android:background="@drawable/round_bg"
+                android:padding="@dimen/_5sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ivSwipeLanguage"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tvtocountryname"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/lexend_medium"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="Urdu"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_15ssp"
+                    app:drawableStartCompat="@drawable/ic_down_arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/tocountryflag"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
-                    app:srcCompat="@drawable/ic_speak_text" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/btncopytext1"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
+                    android:id="@+id/tocountryflag"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btnshare"
-                    app:layout_constraintStart_toEndOf="@+id/btnspeaker1"
-                    app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
-                    app:srcCompat="@drawable/ic_copy_text" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
-                    android:id="@+id/btnshare"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/ivWhatsApp"
-                    app:layout_constraintStart_toEndOf="@+id/btncopytext1"
-                    app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
-                    app:srcCompat="@drawable/ic_reverse_share" />
-
-                <ImageView
-                    android:id="@+id/ivWhatsApp"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    android:src="@drawable/ic_reverse_whatsapp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/glTranslated2"
-                    app:layout_constraintStart_toEndOf="@+id/btnshare"
-                    app:layout_constraintTop_toBottomOf="@id/glTranslated1" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/glTranslated2"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.6" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ScrollView>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAdView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/flLanguages">
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/nativeAdContainerAd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_3sdp"
+                android:layout_marginVertical="@dimen/_3sdp"
+                android:padding="10dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/nativeAdBackground"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                >
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <include layout="@layout/size_native_small_keypad_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <FrameLayout
+                android:id="@+id/adViewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:background="@drawable/ad_bg_banner"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/banner_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+            </FrameLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_5sdp"
+            android:background="@drawable/round_button_new"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clAdView">
+
+            <ImageView
+                android:id="@+id/imgClearText"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_margin="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:elevation="@dimen/_10sdp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@+id/etsource"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_remove_txt" />
+
+            <EditText
+                android:id="@+id/etsource"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_120sdp"
+                android:background="@color/transp"
+                android:fontFamily="@font/lexend_medium"
+                android:gravity="start"
+                android:hint="@string/label_write_to_translate"
+                android:layoutDirection="locale"
+                android:paddingHorizontal="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:textColorHint="#BCBCBC"
+                android:textSize="@dimen/_14ssp"
+                app:layout_constraintBottom_toTopOf="@+id/btntranslate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imgClearText" />
+
+            <ImageView
+                android:id="@+id/btntranslate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginVertical="@dimen/_5sdp"
+                android:src="@drawable/ic_translate_btn"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/etsource" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationView"
+            android:layout_width="@dimen/_200sdp"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_marginTop="@dimen/_60sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:lottie_autoPlay="true"
+            android:visibility="gone"
+            app:lottie_rawRes="@raw/loading_anim" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clTranslated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_5sdp"
+            android:background="@drawable/round_button"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clSource">
+
+            <EditText
+                android:id="@+id/tvtranslatedtext"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_140sdp"
+                android:background="@color/transp"
+                android:editable="false"
+                android:fontFamily="@font/lexend_medium"
+                android:gravity="start"
+                android:hint="Translation"
+                android:layoutDirection="locale"
+                android:padding="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:textColorHint="#BCBCBC"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/glTranslated1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/glTranslated1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.75" />
+
+            <ImageView
+                android:id="@+id/btnspeaker1"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_margin="@dimen/_5sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btncopytext1"
+                app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
+                app:srcCompat="@drawable/ic_loud_voice" />
+
+            <ImageView
+                android:id="@+id/btncopytext1"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_margin="@dimen/_5sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnshare"
+                app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
+                app:srcCompat="@drawable/ic_copy" />
+
+            <ImageView
+                android:id="@+id/btnshare"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_margin="@dimen/_5sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ivWhatsApp"
+                app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
+                app:srcCompat="@drawable/ic_reverse_share" />
+
+            <ImageView
+                android:id="@+id/ivWhatsApp"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_margin="@dimen/_5sdp"
+                android:src="@drawable/ic_reverse_whatsapp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/glTranslated1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/glTranslated2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.6" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout></ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -44,6 +44,7 @@
                 android:id="@+id/ivNoStickersAdded"
                 android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_40sdp"
+                android:visibility="gone"
                 android:background="@drawable/ic_no_recent_sticker_bg"
                 android:src="@drawable/ic_no_recent_sticker"
                 app:layout_constraintEnd_toEndOf="parent"

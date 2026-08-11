@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg_color">
+    android:background="@color/newappcolor"
+    tools:context=".sindhikeyboard.ui.fragments.SpeechToText.SpeechFragment">
 
     <ScrollView
         android:id="@+id/scrollView3"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/clAds"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,18 +24,17 @@
                 android:id="@+id/flLanguages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/maroon_500"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
+
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/btnfrom"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_5sdp"
-                    android:layout_marginVertical="@dimen/_15sdp"
-                    android:background="@drawable/round_button"
+                    android:background="@drawable/round_bg"
                     android:padding="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ivSwipeLanguage"
@@ -42,10 +43,9 @@
 
                     <ImageView
                         android:id="@+id/ivfromflag"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tvfromcountryname"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -53,14 +53,14 @@
                         android:id="@+id/tvfromcountryname"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/lexend_medium"
                         android:gravity="center"
                         android:maxLines="1"
-                        android:ellipsize="end"
                         android:text="English"
                         android:textAlignment="center"
                         android:textColor="@color/black"
-                        android:textSize="@dimen/_13ssp"
-                        app:drawableEndCompat="@drawable/ic_move_forward"
+                        android:textSize="@dimen/_15ssp"
+                        app:drawableEndCompat="@drawable/ic_down_arrow"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/ivfromflag"
@@ -78,42 +78,43 @@
                     app:layout_constraintStart_toEndOf="@+id/btnfrom"
                     app:layout_constraintTop_toTopOf="parent" />
 
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/btnto"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_5sdp"
-                    android:layout_marginVertical="@dimen/_15sdp"
-                    android:background="@drawable/round_button"
+                    android:layout_marginVertical="@dimen/_8sdp"
+                    android:background="@drawable/round_bg"
                     android:padding="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/ivSwipeLanguage"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <ImageView
-                        android:id="@+id/tocountryflag"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tvtocountryname"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
                     <TextView
                         android:id="@+id/tvtocountryname"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/lexend_medium"
+                        android:gravity="center"
                         android:maxLines="1"
-                        android:text="Spanish"
-                        android:ellipsize="end"
+                        android:text="Urdu"
                         android:textAlignment="center"
                         android:textColor="@color/black"
-                        android:textSize="@dimen/_13ssp"
-                        app:drawableEndCompat="@drawable/ic_move_forward"
+                        android:textSize="@dimen/_15ssp"
+                        app:drawableStartCompat="@drawable/ic_down_arrow"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tocountryflag"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/tocountryflag"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/tocountryflag"
                         app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -124,33 +125,30 @@
                 android:id="@+id/nativeAdContainerAd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
-                android:layout_marginHorizontal="@dimen/_3sdp"
-                android:visibility="visible"
-                app:cardBackgroundColor="@color/native_ad_background"
+                android:layout_margin="@dimen/_3sdp"
+                app:cardBackgroundColor="@color/nativeAdBackground"
                 app:cardCornerRadius="@dimen/_5sdp"
                 app:cardElevation="0dp"
-                app:layout_constraintBottom_toTopOf="@+id/clSource"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/flLanguages">
+               app:layout_constraintTop_toBottomOf="@+id/flLanguages">
 
                 <com.facebook.shimmer.ShimmerFrameLayout
                     android:id="@+id/shimmerLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <include layout="@layout/native_admob_media_left_side_shimmer" />
-                    <!--<include layout="@layout/size_native_medium_shimmer" />-->
-                </com.facebook.shimmer.ShimmerFrameLayout>
 
+                    <include layout="@layout/size_native_small_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clSource"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_10sdp"
-                android:background="@drawable/ic_speech_to_text_source"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginHorizontal="@dimen/_5sdp"
+                android:background="@drawable/round_button_new"
                 app:layout_constraintBottom_toTopOf="@+id/clTranslated"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -160,124 +158,74 @@
                     android:id="@+id/imgClearText"
                     android:layout_width="@dimen/_20sdp"
                     android:layout_height="@dimen/_20sdp"
-                    app:srcCompat="@drawable/ic_close_black"
-                    app:tint="@color/colorPrimary"
-                    android:visibility="gone"
-                    android:elevation="@dimen/_10sdp"
                     android:layout_margin="@dimen/_5sdp"
+                    android:elevation="@dimen/_10sdp"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toTopOf="@+id/etsource"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_remove_txt"
+                    />
 
                 <EditText
                     android:id="@+id/etsource"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_120sdp"
                     android:background="@color/transp"
-                    android:gravity="start"
-                    android:layoutDirection="locale"
+                    android:editable="false"
+                    android:enabled="false"
                     android:fontFamily="@font/lexend_medium"
-                    android:hint="Type here to translate..."
+                    android:gravity="start"
+                    android:hint="@string/press_mic_button_to_speak_amp_translate"
+                    android:layoutDirection="locale"
                     android:paddingHorizontal="@dimen/_10sdp"
                     android:paddingBottom="@dimen/_10sdp"
-                    android:textSize="@dimen/_14ssp"
-                    app:layout_constraintBottom_toTopOf="@+id/glSource1"
+                    android:textColor="@color/black"
+                    android:textColorHint="#BCBCBC"
+                    android:textSize="@dimen/_12ssp"
+                    app:layout_constraintBottom_toTopOf="@+id/btntranslate"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/imgClearText" />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/glSource1"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.75" />
-
-                <!--<ImageView
-                    android:id="@+id/btnspeaker"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    app:srcCompat="@drawable/ic_speek_stt"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btnmic"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/glSource1" />
-
                 <ImageView
                     android:id="@+id/btnmic"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    app:srcCompat="@drawable/ic_mic_stt"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:padding="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/btncopytext"
-                    app:layout_constraintStart_toEndOf="@+id/btnspeaker"
-                    app:layout_constraintTop_toBottomOf="@+id/glSource1" />
+                    app:layout_constraintStart_toEndOf="@+id/btnSpeaker"
+                    app:layout_constraintTop_toBottomOf="@+id/etsource"
+                    app:srcCompat="@drawable/ic_mic_translator" />
 
                 <ImageView
-                    android:id="@+id/btncopytext"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    app:srcCompat="@drawable/ic_copy_stt"
+                    android:id="@+id/btnSpeaker"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginHorizontal="@dimen/_5sdp"
+                    android:padding="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/glSource2"
-                    app:layout_constraintStart_toEndOf="@+id/btnmic"
-                    app:layout_constraintTop_toBottomOf="@+id/glSource1" />-->
-
-                <ImageView
-                    android:id="@+id/btnmic"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:layout_margin="@dimen/_5sdp"
-                    app:srcCompat="@drawable/ic_mic_stt"
-                    app:layout_constraintHorizontal_bias="0.10"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/glSource2"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/glSource1" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/glSource2"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
+                    app:layout_constraintTop_toBottomOf="@+id/etsource"
+                    app:srcCompat="@drawable/ic_loud_voice" />
 
                 <ImageView
                     android:id="@+id/btntranslate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_20sdp"
-                    android:layout_marginVertical="@dimen/_5sdp"
+                    android:layout_marginHorizontal="@dimen/_10sdp"
+                    android:padding="@dimen/_5sdp"
                     android:src="@drawable/ic_translate_btn"
-                    app:layout_constraintHorizontal_bias="1"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/glSource2"
-                    app:layout_constraintTop_toBottomOf="@+id/glSource1" />
+                    app:layout_constraintTop_toBottomOf="@+id/etsource" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/animationView"
-                android:layout_width="@dimen/_200sdp"
-                android:layout_height="@dimen/_100sdp"
-                android:layout_marginTop="@dimen/_60sdp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:lottie_autoPlay="true"
-                app:lottie_colorFilter="@color/maroon_500"
-                app:lottie_rawRes="@raw/wait_animate" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clTranslated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_20sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_5sdp"
+                android:layout_margin="@dimen/_5sdp"
                 android:background="@drawable/round_button"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -288,12 +236,14 @@
                 <EditText
                     android:id="@+id/tvtranslatedtext"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_120sdp"
+                    android:layout_height="@dimen/_140sdp"
                     android:background="@color/transp"
                     android:editable="false"
                     android:fontFamily="@font/lexend_medium"
                     android:gravity="start"
                     android:hint="Translation"
+                    android:textColor="@color/black"
+                    android:textColorHint="#BCBCBC"
                     android:layoutDirection="locale"
                     android:padding="@dimen/_10sdp"
                     android:textSize="@dimen/_14ssp"
@@ -317,9 +267,8 @@
                     android:layout_margin="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/btncopytext1"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
-                    app:srcCompat="@drawable/ic_speaker_new" />
+                    app:srcCompat="@drawable/ic_loud_voice" />
 
                 <ImageView
                     android:id="@+id/btncopytext1"
@@ -328,9 +277,8 @@
                     android:layout_margin="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/btnshare"
-                    app:layout_constraintStart_toEndOf="@+id/btnspeaker1"
                     app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
-                    app:srcCompat="@drawable/ic_copy_new" />
+                    app:srcCompat="@drawable/ic_copy" />
 
                 <ImageView
                     android:id="@+id/btnshare"
@@ -339,19 +287,17 @@
                     android:layout_margin="@dimen/_5sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ivWhatsApp"
-                    app:layout_constraintStart_toEndOf="@+id/btncopytext1"
                     app:layout_constraintTop_toBottomOf="@+id/glTranslated1"
-                    app:srcCompat="@drawable/ic_share_new" />
+                    app:srcCompat="@drawable/ic_reverse_share" />
 
                 <ImageView
                     android:id="@+id/ivWhatsApp"
                     android:layout_width="@dimen/_25sdp"
                     android:layout_height="@dimen/_25sdp"
                     android:layout_margin="@dimen/_5sdp"
-                    android:src="@drawable/ic_whatsappp_new"
+                    android:src="@drawable/ic_reverse_whatsapp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/glTranslated2"
-                    app:layout_constraintStart_toEndOf="@+id/btnshare"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/glTranslated1" />
 
                 <androidx.constraintlayout.widget.Guideline
@@ -361,6 +307,45 @@
                     android:orientation="vertical"
                     app:layout_constraintGuide_percent="0.6" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clAds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1">
+
+        <FrameLayout
+            android:id="@+id/adViewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ad_bg_banner"
+            android:padding="@dimen/_2sdp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmerLayoutBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1">
+
+                <include layout="@layout/size_native_small_shimmer" />
+            </com.facebook.shimmer.ShimmerFrameLayout>
+
+        </FrameLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,7 +5,7 @@
     <subtype
         android:imeSubtypeLocale="ur_PAK"
         android:imeSubtypeMode="keyboard"
-        android:label="@string/ime_name" />
+        android:label="@string/picker_keyboard_name" />
 </input-method>
 
 <!--android:settingsActivity="com.accentype.android.softkeyboard.ImePreferences"-->

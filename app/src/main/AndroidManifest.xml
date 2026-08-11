@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <queries>
         <intent>
             <action android:name="android.speech.RecognitionService" />
@@ -19,6 +23,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <supports-screens
@@ -56,6 +61,11 @@
         <activity
             android:name=".sindhikeyboard.ui.activities.StickersDetailsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".sindhikeyboard.ui.activities.PermissionDialogActivity"
+            android:exported="false" />
+
         <activity
             android:name=".sindhikeyboard.ui.activities.StickersViewActivity"
             android:exported="false" />

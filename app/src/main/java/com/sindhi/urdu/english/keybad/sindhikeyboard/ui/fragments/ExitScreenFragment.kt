@@ -5,8 +5,6 @@ import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.preference.PreferenceManager
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.sindhi.urdu.english.keybad.BuildConfig
@@ -24,18 +23,16 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass.Compan
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.InterstitialClassAdMob
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.exitScreenThemes.ExitScreenThemes
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_EXIT
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_EXIT_APP
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import kotlin.system.exitProcess
 
 class ExitScreenFragment : Fragment() {
@@ -103,15 +100,15 @@ class ExitScreenFragment : Fragment() {
             if (NetworkCheck.isNetworkAvailable(requireContext())
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
                     .getString(
-                        Preferences.ADS_NATIVE_EXIT, "ON"
+                        SHOW_NATIVE_EXIT_APP, "ON"
                     ).equals("ON", true)
             ) {
                 binding.g1ExitScreen.setGuidelinePercent(0.55f)
                 val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_OVER_ALL, resources.getString(R.string.admob_native))
+                    pref.getString(AD_ID_NATIVE_EXIT, resources.getString(R.string.NATIVE_DEFAULT))
                 } else {
-                    resources.getString(R.string.admob_native)
+                    resources.getString(R.string.NATIVE_DEFAULT)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),

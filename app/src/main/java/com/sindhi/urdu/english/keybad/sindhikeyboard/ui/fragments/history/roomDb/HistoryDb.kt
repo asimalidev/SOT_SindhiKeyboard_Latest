@@ -6,6 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.WordDao
 
 @Keep
 @Database(entities = [WordEntity::class, Conversation::class,
@@ -13,7 +14,7 @@ import androidx.room.TypeConverters
 @TypeConverters(DateConverter::class)
 abstract class HistoryDb : RoomDatabase() {
 
-    abstract fun getwordDao(): wordDao
+    abstract fun getwordDao(): WordDao
 
     companion object {
         @Volatile

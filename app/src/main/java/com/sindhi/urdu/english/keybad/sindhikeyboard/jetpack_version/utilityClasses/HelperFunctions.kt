@@ -26,6 +26,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -285,6 +286,14 @@ fun termsOfService(activity: Activity) {
         customIntent.build(),
         Uri.parse(url)
     )
+}
+
+fun disableKeyboard(context: Context){
+    try {
+        val mgr = context.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        mgr.showInputMethodPicker()
+    } catch (ignored: ActivityNotFoundException) {
+    }
 }
 
 fun openAppInPlayStore(context: Context?) {

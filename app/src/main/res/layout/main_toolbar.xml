@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/clMain"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/_60sdp">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSubDiv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorPrimary">
+        android:background="@color/white">
 
         <ImageView
             android:id="@+id/ivCloseDetails"
@@ -21,18 +21,18 @@
             app:layout_constraintBottom_toBottomOf="@+id/txtSindhiKeyboard"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/txtSindhiKeyboard"
-            app:tint="@color/White" />
+            app:tint="@color/black" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtSindhiKeyboard"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/_18sdp"
-            android:drawableTint="@color/White"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:drawableTint="@color/black"
             android:fontFamily="@font/lexend_medium"
             android:gravity="start|center_vertical"
             android:text="@string/label_sindhi_keyboard"
-            android:textColor="@color/White"
+            android:textColor="@color/black"
             android:textSize="@dimen/_17ssp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivCloseDetails"
@@ -64,7 +64,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/ivSaveEditing"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/White" />
+                app:tint="@color/black" />
 
             <ImageView
                 android:id="@+id/ivSaveEditing"
@@ -85,9 +85,10 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:fontFamily="@font/lexend_medium"
+            android:layout_marginEnd="@dimen/_10sdp"
             android:text="Auto Speak "
             android:textAlignment="center"
-            android:textColor="@color/White"
+            android:textColor="@color/black"
             android:textSize="@dimen/_8ssp"
             android:thumb="@drawable/switch_thumb"
             android:visibility="invisible"
@@ -106,7 +107,7 @@
             android:fontFamily="@font/lexend_medium"
             android:text="Auto Speak "
             android:textAlignment="center"
-            android:textColor="@color/White"
+            android:textColor="@color/black"
             android:textSize="@dimen/_8ssp"
             android:thumb="@drawable/switch_thumb"
             android:visibility="invisible"
@@ -123,6 +124,7 @@
             android:layout_height="@dimen/_40sdp"
             android:padding="@dimen/_5sdp"
             android:src="@drawable/ic_close_black"
+            android:tint="@color/black"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -167,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="3000"
-                android:textColor="@color/White"
+                android:textColor="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imvDollar"
@@ -199,7 +201,7 @@
             app:layout_constraintHorizontal_bias="0.05"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/White" />
+            app:tint="@color/black" />
 
         <ImageView
             android:id="@+id/ivDoneEditing"
@@ -212,7 +214,7 @@
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/White" />
+            app:tint="@color/black" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -224,6 +226,7 @@
         android:layout_marginEnd="@dimen/_10sdp"
         android:padding="@dimen/_8sdp"
         android:src="@drawable/ic_settings_new"
+        android:tint="@color/black"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -237,10 +240,9 @@
         android:padding="@dimen/_5sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/ivSettings"
-
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/ic_premium_anim" />
+        app:lottie_rawRes="@raw/ic_premium_anim_new" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clSubscription"
@@ -261,7 +263,7 @@
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/White" />
+            app:tint="@color/black" />
 
 
         <TextView
@@ -271,7 +273,7 @@
             android:fontFamily="@font/lexend_medium"
             android:gravity="center"
             android:text="@string/label_details"
-            android:textColor="@color/White"
+            android:textColor="@color/black"
             android:textSize="@dimen/_14ssp"
             app:drawableEndCompat="@drawable/ic_next_purchase"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -288,7 +290,7 @@
             android:fontFamily="@font/lexend_medium"
             android:gravity="center"
             android:text="@string/label_details"
-            android:textColor="@color/White"
+            android:textColor="@color/black"
             android:textSize="@dimen/_20ssp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -1,6 +1,9 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.keyboardLayout
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
@@ -53,6 +56,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.SuggestionItems
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes.LayoutState
@@ -61,8 +65,9 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.service.Cus
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.getSelectedLanguage
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.openSettings
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.openThemes
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.PermissionDialogActivity
 import java.util.Locale
-//
+
 @Composable
 fun MyCandidateView(
     context: Context? = null,
@@ -92,7 +97,9 @@ fun MyCandidateView(
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    if (currentLayout == LayoutState.TextEdit || currentLayout == LayoutState.Emojis || currentLayout == LayoutState.HusnEguftar) {
+
+
+    if (currentLayout == LayoutState.TextEdit || currentLayout == LayoutState.Emojis ) {
         Row(
             modifier = Modifier
                 .padding(start = 4.dp)
@@ -356,6 +363,7 @@ fun MyCandidateView(
                 )
             }
 
+
             IconButton(
                 onClick = {
                     openSettings(
@@ -419,16 +427,31 @@ fun MyCandidateView(
             if ((myPreferences != null) && myPreferences.getVoiceTyping()) {
                 IconButton(
                     onClick = {
-                        imeService!!.startVoiceInput()
-                        onVoiceInputClicked.invoke(true)
+                        val hasPermission = ContextCompat.checkSelfPermission(
+                            context!!,
+                            Manifest.permission.RECORD_AUDIO
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (hasPermission) {
+                            imeService!!.startVoiceInput()
+                            onVoiceInputClicked.invoke(true)
+                        } else {
+                            // Launch the transparent Dialog Activity!
+                            val intent = Intent(context, PermissionDialogActivity::class.java).apply {
+                                // Required when starting an activity from a Service
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            context.startActivity(intent)
+                        }
                     },
                     modifier = Modifier
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_mike_key),
+                        painter = painterResource(id = R.drawable.ic_mike_new),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(24.dp))
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
 

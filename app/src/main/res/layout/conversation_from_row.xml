@@ -15,6 +15,7 @@
         android:layout_gravity="start"
         android:background="@drawable/top_conversation_item"
         android:fontFamily="@font/lexend_medium"
+        android:gravity="start"
         android:layoutDirection="locale"
         android:padding="@dimen/_10sdp"
         android:text="Hi, There"
@@ -22,18 +23,36 @@
         android:textSize="@dimen/_12ssp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvChatFrom2"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
+        android:layout_gravity="end"
         android:background="@drawable/bottom_conversation_item_from"
-        android:fontFamily="@font/lexend_medium"
-        android:layoutDirection="locale"
-        android:padding="@dimen/_10sdp"
-        android:text="Hi, There"
-        android:textColor="@color/White"
-        android:textSize="@dimen/_12ssp"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:weightSum="2">
 
+        <TextView
+            android:id="@+id/tvChatFrom2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="2"
+            android:background="@drawable/bottom_conversation_item_from"
+            android:fontFamily="@font/lexend_medium"
+            android:layoutDirection="locale"
+            android:padding="@dimen/_10sdp"
+            android:text="Hi, There"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivCopy"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_weight="0"
+            android:padding="@dimen/_2sdp"
+            android:src="@drawable/ic_copy_convo" />
+    </LinearLayout>
 </LinearLayout>

@@ -28,6 +28,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.TinyDB
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.CountryModel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
@@ -203,7 +204,7 @@ class fromcountry_fragment : Fragment() {
         _binding = null
     }
     private fun filter(text: String) {
-        val filteredlist: java.util.ArrayList<CountryCountry> = ArrayList<CountryCountry>()
+        val filteredlist: java.util.ArrayList<CountryModel> = ArrayList<CountryModel>()
         for (item in  AllCountryListMe.getCountryList().indices) {
             if (AllCountryListMe.getCountryList()[item].countryName.lowercase(Locale.getDefault()).contains(
                     text.lowercase(Locale.getDefault())
@@ -211,7 +212,7 @@ class fromcountry_fragment : Fragment() {
                 filteredlist.add(AllCountryListMe.getCountryList()[item])
             }
         }
-        adapter.getcountryinfo(filteredlist)
+        adapter.getCountryInfo(filteredlist)
 
         if (filteredlist.isEmpty()) {
             Toast.makeText(requireContext(), "No Language Found...", Toast.LENGTH_SHORT).show()
@@ -219,7 +220,7 @@ class fromcountry_fragment : Fragment() {
 
     }
     fun addcountries() {
-        adapter.getcountryinfo(AllCountryListMe.getCountryList())
+        adapter.getCountryInfo(AllCountryListMe.getCountryList())
         binding.rvcountry.layoutManager= LinearLayoutManager(requireContext())
         binding.rvcountry.adapter=adapter
     }

@@ -55,6 +55,7 @@
     <color name="BlueSmok">#81DAF5</color>
     <color name="WhiteLight">#8e8e8e</color>
     <color name="White">#FFFFFF</color>
+    <color name="lottiecolor">#AD0301</color>
     <color name="Ivory">#FFFFF0</color>
     <color name="LightYellow">#FFFFE0</color>
     <color name="Yellow">#FFFF00</color>
@@ -200,16 +201,17 @@
     <color name="Navy">#000080</color>
     <color name="Black">#000000</color>
 
-    <color name="colorPrimaryDark">#950005</color>
-    <color name="colorPrimary">#A60C11</color>
+    <color name="colorPrimaryDark">#D20024</color>
+    <color name="colorPrimary">#D20024</color>
     <color name="colorAccent">#2B702E</color>
+    <color name="red">#FF1100</color>
     <color name="key_preview_color">#FF474747</color>
     <color name="keyboard_background">#A0A0A0A0</color>
 
     <color name="keyboard_bg_white">#E0DDDD</color>
     <color name="keyboard_bg_black"> #161616</color>
     <color name="keyboard_bg_aqua"> #006B79</color>
-    <color name="board_theme__red"> #7A0007</color>
+    <color name="board_theme__red"> #D20024</color>
     <color name="board_theme_green"> #00583E</color>
     <color name="board_theme_meroon"> #5E1701</color>
     <color name="board_theme_pink"> #60022F</color>
@@ -232,6 +234,8 @@
     <color name="btnEnabledKeyboard">#007E33</color>
     <color name="btnEnabledKeyboardNumber">#015A25</color>
     <color name="candidate_background">#042704</color>
-    <color name="home_bg_color">#DEE1EB</color>
+    <color name="home_bg_color">#F4F4F4</color>
+    <color name="newappcolor">#F4F4F4</color>
+    <color name="bg">#D20024</color>
 
 </resources>

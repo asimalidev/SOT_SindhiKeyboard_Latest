@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg_color"
+    android:background="@color/white"
     tools:context=".sindhikeyboard.ui.fragments.ExitScreenFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,6 +49,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvCuteThemes"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.compose.ui.platform.ComposeView
@@ -60,31 +61,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clThemesHeading" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnExploreMore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_5sdp"
+        android:paddingVertical="@dimen/_5sdp"
         android:background="@drawable/btn_explore_bg"
-        android:backgroundTint="#0076DF"
+        android:backgroundTint="#D20024"
         android:fontFamily="@font/lexend_medium"
         android:paddingHorizontal="@dimen/_30sdp"
-        android:paddingVertical="@dimen/_5sdp"
         android:text="@string/explore_more"
         android:textAllCaps="false"
         android:textColor="@color/White"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/g1ExitScreen"
+        app:layout_constraintBottom_toTopOf="@+id/nativeAdContainerAd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/composeView" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/g1ExitScreen"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/nativeAdContainerAd"
@@ -93,22 +87,29 @@
         android:layout_marginTop="@dimen/_5sdp"
         android:layout_marginHorizontal="@dimen/_3sdp"
         android:visibility="visible"
-        app:cardBackgroundColor="@color/native_ad_background"
+        app:cardBackgroundColor="@color/nativeAdBackground"
         app:cardCornerRadius="@dimen/_5sdp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@+id/g2ExitScreen"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/g1ExitScreen"
+        app:layout_constraintTop_toBottomOf="@+id/btnExploreMore"
         app:layout_constraintVertical_bias="1">
 
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <include layout="@layout/size_native_medium_shimmer" />
+            <include layout="@layout/native_admob_media_left_side_shimmer" />
         </com.facebook.shimmer.ShimmerFrameLayout>
     </androidx.cardview.widget.CardView>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/g1ExitScreen"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/g2ExitScreen"
@@ -121,15 +122,12 @@
         android:id="@+id/txtTapHereToExit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_tap_exit"
         android:elevation="10dp"
-        android:minHeight="@dimen/_35sdp"
-        android:paddingTop="@dimen/_2sdp"
+        android:paddingVertical="@dimen/_2sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/g2ExitScreen"
-        app:layout_constraintVertical_bias="1">
+        app:layout_constraintTop_toBottomOf="@+id/g2ExitScreen">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"

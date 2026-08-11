@@ -143,7 +143,7 @@
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginBottom="@dimen/_10sdp"
                 android:src="@drawable/ic_delete_items"
-                app:tint="@color/maroon_500"
+                app:tint="#D20024"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnFavorite"

@@ -1,18 +1,23 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Build
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
@@ -35,104 +40,171 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.stickers.StickerPackData
 import com.sindhi.urdu.english.keybad.sindhikeyboard.stickers.StickerViewModel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.adapters.StickersPackAdapter
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_STICKER
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_STICKERS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_STICKERS_SETTINGS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_STICKERS_SETTINGS
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
-
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_STICKERS_CATEGORY_LIST
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_SINDHI_STICKERS_CATEGORY_LIST
 
 class StickersViewActivity : AppCompatBaseActivity() {
     private lateinit var binding: ActivityStickersViewBinding
     val stickerViewModel: StickerViewModel by lazy { StickerViewModel() }
     lateinit var stickersPackAdapter: StickersPackAdapter
 
+    private lateinit var connectivityManager: ConnectivityManager
+    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private var isDataFetching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStickersViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
-        setStatusBarColor(this@StickersViewActivity,resources.getColor(R.color.maroon_500))
+        window.statusBarColor = android.graphics.Color.WHITE
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
+            v.setPadding(0, insets.top, 0, 0)
 
-        binding.shimmerLayoutStickers.startShimmer()
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+                topMargin = 0
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+        hideSystemUI()
+
         setupRecyclerView()
-        fetchData()
+
+        // 1. Setup Observers ONCE here instead of every time we fetch data
+        setupObservers()
+
+        setupNetworkObserver()
+
         CustomFirebaseEvents.activitiesFragmentEvent(this, "urdu_stickers_categ_list_scr")
 
-        if (!NetworkCheck.isNetworkAvailable(this)) {
+        // Initial check for data/internet
+        if (NetworkCheck.isNetworkAvailable(this)) {
+            fetchData()
+        } else {
             noInternet()
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (intent.getStringExtra("MoveTo").equals("sindhi_stickers")) {
-                    val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
-                    startActivity(intent)
-                }
-                finish()
+                val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
+                startActivity(intent)
             }
         })
 
         binding.ivBackPress.blockingClickListener {
-            if (intent.getStringExtra("MoveTo").equals("sindhi_stickers")) {
                 val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
                 startActivity(intent)
+        }
+    }
+
+    // ==========================================
+    // ADDED: Centralized Observers (Prevents multiple triggers)
+    // ==========================================
+    private fun setupObservers() {
+        // Observe Sticker Data
+        stickerViewModel.stickerPackData.observe(this) { stickerPackData ->
+            isDataFetching = false
+            if (stickerPackData != null) {
+                Log.e("DownloadWork", "stickerPackData != null")
+                populateAdapter(stickerPackData)
+            } else {
+                Log.e("DownloadWork", "stickerPackData == null")
+                noInternet()
             }
-            finish()
         }
 
+        // Observe Download Progress
         stickerViewModel.downloadProgress.observe(this) { (packName, progress) ->
             Log.i("DownloadWork", "$packName: $progress")
             stickersPackAdapter.updateProgress(packName, progress)
         }
     }
 
-    fun setStatusBarColor(activity: Activity, color: Int) {
-        val window = activity.window
+    private fun setupNetworkObserver() {
+        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
 
-        // 1. Make the Navigation Bar Transparent
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.navigationBarColor = android.graphics.Color.TRANSPARENT
-        window.statusBarColor = color
-
-        // 2. Disable the system "contrast scrim" (the semi-transparent overlay) on Android 10+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isNavigationBarContrastEnforced = false
-        }
-
-        // 3. Handle Edge-to-Edge and Padding
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { // Android 15+
-            window.decorView.setOnApplyWindowInsetsListener { view, insets ->
-                val statusBarInsets = insets.getInsets(WindowInsets.Type.statusBars())
-                val navBarInsets = insets.getInsets(WindowInsets.Type.navigationBars())
-
-                view.setBackgroundColor(color)
-
-                // We KEEP this padding to prevent your views from merging with the bottom bar
-                view.setPadding(0, statusBarInsets.top, 0, navBarInsets.bottom)
-
-                insets
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                runOnUiThread {
+                    if (stickersPackAdapter.itemCount == 0 && !isDataFetching) {
+                        // Internet is back! FetchData will handle hiding the error and showing the shimmer.
+                        fetchData()
+                    } else if (stickersPackAdapter.itemCount > 0) {
+                        // Internet is back and we already have data
+                        binding.noInternet.visibility = View.GONE
+                        binding.rvStickers.visibility = View.VISIBLE
+                    }
+                }
             }
-        } else {
-            // Android 14 and below
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                runOnUiThread {
+                    if (stickersPackAdapter.itemCount == 0) {
+                        noInternet()
+                    }
+                }
+            }
+        }
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::connectivityManager.isInitialized) {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
         }
     }
 
+    private fun hideSystemUI() {
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
+        windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
+    }
 
     override fun onResume() {
         super.onResume()
+
+        if (::stickersPackAdapter.isInitialized) {
+            stickersPackAdapter.notifyDataSetChanged()
+        }
         if (NetworkCheck.isNetworkAvailable(this)
-            && !getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED,false)
-            && getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(NATIVE_STICKERS,"ON").equals("ON",true)) {
+            && !getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                Context.MODE_PRIVATE
+            ).getBoolean(Preferences.IS_PURCHASED, false)
+            && getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(
+                SHOW_NATIVE_SINDHI_STICKERS_CATEGORY_LIST,
+                "ON"
+            ).equals("ON", true)
+        ) {
             binding.nativeAdContainerAd.visibility = View.VISIBLE
             loadAdmobNativeAd()
         } else if (NetworkCheck.isNetworkAvailable(this)
-            && !getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE).getBoolean(
-                Preferences.IS_PURCHASED,false)
-            && getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(BANNER_STICKER,"ON").equals("ON",true)) {
+            && !getSharedPreferences(
+                RemoteConfigConst.REMOTE_CONFIG,
+                Context.MODE_PRIVATE
+            ).getBoolean(Preferences.IS_PURCHASED, false)
+            && getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(
+                SHOW_BANNER_SINDHI_STICKERS_CATEGORY_LIST,
+                "ON"
+            ).equals("ON", true)
+        ) {
             binding.shimmerLayoutBanner.startShimmer()
             binding.shimmerLayoutBanner.visibility = View.VISIBLE
             binding.adViewContainer.visibility = View.VISIBLE
@@ -147,10 +219,10 @@ class StickersViewActivity : AppCompatBaseActivity() {
     private fun loadAdmobNativeAd() {
         val pref =getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId  =if (!BuildConfig.DEBUG){
-            pref.getString(NATIVE_OVER_ALL,resources.getString(R.string.admob_native))
+            pref.getString(AD_ID_NATIVE_STICKERS_SETTINGS,resources.getString(R.string.NATIVE_DEFAULT))
         }
         else{
-            resources.getString(R.string.admob_native)
+            resources.getString(R.string.NATIVE_DEFAULT)
         }
         NewNativeAdClass.checkAdRequestAdmob(
             mContext = this,
@@ -172,13 +244,12 @@ class StickersViewActivity : AppCompatBaseActivity() {
     }
 
     private fun loadAdmobCollapsibleBannerAd() {
-
         if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("StickersViewActivity")) {
-            val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["StickersViewActivity"]
+            val collapsibleAdView: AdView? =
+                NativeMaster.collapsibleBannerAdMobHashMap!!["StickersViewActivity"]
             binding.shimmerLayoutBanner.stopShimmer()
             binding.shimmerLayoutBanner.visibility = View.GONE
             binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
-            binding.separator.visibility=View.VISIBLE
 
             val parent = collapsibleAdView?.parent as? ViewGroup
             parent?.removeView(collapsibleAdView)
@@ -189,20 +260,19 @@ class StickersViewActivity : AppCompatBaseActivity() {
         }
     }
 
-    private fun loadCollapsibleBanner() {
+        private fun loadCollapsibleBanner() {
         val adView = AdView(this)
         adView.setAdSize(adSize)
         val pref =getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId  =if (!BuildConfig.DEBUG){
-            pref.getString(BANNER_INSIDE,resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_STICKERS_SETTINGS,resources.getString(R.string.BANNER_DEFAULT))
         }
         else{
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
-        adView.adUnitId = adId!!//getString(R.string.admob_banner_inside)
+        adView.adUnitId = adId!!
         val extras = Bundle()
         extras.putString("collapsible", "bottom")
-
         val adRequest = AdRequest.Builder()
             .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
             .build()
@@ -263,18 +333,24 @@ class StickersViewActivity : AppCompatBaseActivity() {
             stickerPackData = StickerDataCache.stickerPackData,
             onStickerDetailsClick = { position ->
                 if (NetworkCheck.isNetworkAvailable(this)) {
+                    val clickedPack = StickerDataCache.stickerPackData?.sticker_packs?.get(position)
+                    val isPremium = clickedPack?.premium.equals("yes", ignoreCase = true)
+
                     CustomFirebaseEvents.activitiesFragmentEvent(this, "detail_sticker_scr")
-                    startActivity(Intent(this, StickersDetailsActivity::class.java)
-                        .putExtra("From", intent.getStringExtra("From"))
-                        .putExtra("MoveTo", intent.getStringExtra("MoveTo"))
-                        .putExtra("selectedIndexNumber", position))
+
+                    startActivity(
+                        Intent(this, StickersDetailsActivity::class.java)
+                            .putExtra("From", intent.getStringExtra("From"))
+                            .putExtra("MoveTo", intent.getStringExtra("MoveTo"))
+                            .putExtra("selectedIndexNumber", position)
+                            .putExtra("isPremium", isPremium)
+                    )
                     finish()
                 } else {
-                    Toast.makeText(this,"No Internet! Please make sure internet is on", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "No Internet!", Toast.LENGTH_LONG).show()
                 }
             }
         )
-
         binding.rvStickers.apply {
             layoutManager = GridLayoutManager(this@StickersViewActivity, 2)
             adapter = stickersPackAdapter
@@ -282,39 +358,49 @@ class StickersViewActivity : AppCompatBaseActivity() {
     }
 
     private fun fetchData() {
+        // 1. Start checking local storage
+        stickerViewModel.loadStickerPacks(this)
+
         if (NetworkCheck.isNetworkAvailable(this)) {
             stickerViewModel.fetchStickers()
         }
 
+        // Observe API Data
         stickerViewModel.stickerPackData.observe(this) { stickerPackData ->
             if (stickerPackData != null) {
-                Log.e("DownloadWork", "stickerPackData != null")
                 populateAdapter(stickerPackData)
             } else {
-                Log.e("DownloadWork", "stickerPackData == null")
                 noInternet()
+            }
+        }
+
+        // ✅ ADD THIS: When local storage check finishes, refresh the UI!
+        stickerViewModel.stickerPackList.observe(this) {
+            if (::stickersPackAdapter.isInitialized) {
+                stickersPackAdapter.notifyDataSetChanged()
             }
         }
     }
 
     private fun populateAdapter(stickerPackData: StickerPackData) {
-        // stop shimmer once data is loaded
         binding.shimmerLayoutStickers.stopShimmer()
         binding.shimmerLayoutStickers.visibility = View.GONE
+        binding.noInternet.visibility = View.GONE
+        binding.rvStickers.visibility = View.VISIBLE
         stickersPackAdapter.updateData(stickerPackData)
     }
 
     private fun noInternet() {
-        // Always stop shimmer
+        // 3. Reset the boolean here so the app knows we are no longer loading!
+        isDataFetching = false
+
         binding.shimmerLayoutStickers.stopShimmer()
         binding.shimmerLayoutStickers.visibility = View.GONE
 
-        // If adapter has no data, show no internet screen
         if (stickersPackAdapter.itemCount == 0) {
             binding.noInternet.visibility = View.VISIBLE
             binding.rvStickers.visibility = View.GONE
         } else {
-            // Data already loaded → keep showing RecyclerView
             binding.noInternet.visibility = View.GONE
             binding.rvStickers.visibility = View.VISIBLE
         }

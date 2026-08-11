@@ -1,11 +1,13 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,7 +19,6 @@ import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
-import androidx.fragment.app.Fragment
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +34,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdListener
@@ -41,7 +43,6 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.manual.mediation.library.sotadlib.data.Language
-import com.sindhi.newvoicetyping.ui.Speechtotext.CountryCountry
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentTextTranslatorBinding
@@ -54,20 +55,21 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClas
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.AllCountryListMe
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText.TranslatorCall
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.CountryModel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_TRANSLATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_TEXT_TRANSLATOR
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_CONVERSATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_TEXT_TRANSLATOR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_TEXT_TRANSLATOR_3_CLICKS
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_TEXT_TRANSLATOR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.SelectCountryDialog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideKeyboard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.ArrayList
 import java.util.Locale
 import java.util.Objects
 
@@ -84,10 +86,12 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
     private var showAdCounterOnThreeClicks = 1
     var fromCountryFlag: Int = 0
     var toCountryFlag: Int = 0
-
     var fromCountryName = ""
     var toCountryName = ""
     var fromTo = ""
+    var autoSpeakSTTSwitch: SwitchCompat? = null
+    var autoSpeakSTTIsOn = true
+    lateinit var mSharedPreferences: SharedPreferences
 
     fun isNavControllerAdded() {
         if (isAdded) {
@@ -107,8 +111,7 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun showSelectCountryDialog() {
         val dialog = SelectCountryDialog().apply {
             setCountrySelectionListener(object : SelectCountryDialog.CountrySelectionListener {
-
-                override fun onCountrySelected(country: CountryCountry) {
+                override fun onCountrySelected(country: CountryModel) {
                     Toast.makeText(context, country.countryName, Toast.LENGTH_SHORT).show()
                     if (fromTo == "from") {
                         setFromLanguage(country = country.countryName)
@@ -125,9 +128,8 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         super.onViewCreated(view, savedInstanceState)
         isNavControllerAdded()
         CustomFirebaseEvents.activitiesFragmentEvent(requireActivity(), "text_translator_scr")
+        mSharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())
         tts = TextToSpeech(requireActivity(), this, "com.google.android.tts")
-
-        binding.animationView.visibility = View.GONE
 
         if (NetworkCheck.isNetworkAvailable(requireActivity())
             && !requireActivity().getSharedPreferences(
@@ -135,7 +137,7 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
                 Context.MODE_PRIVATE
             ).getBoolean(Preferences.IS_PURCHASED, false)
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(BANNER_TEXT_TRANSLATOR, "ON").equals("ON", true)
+                .getString(SHOW_BANNER_TEXT_TRANSLATOR, "ON").equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("Texttanslation")) {
                 val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["Texttanslation"]
@@ -167,14 +169,13 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             .getString("fromlangTT", "English (En)").toString()
         toCountryName = PreferenceManager.getDefaultSharedPreferences(requireActivity())
             .getString("tolangTT", "Sindhi (سنڌي)").toString()
+
         fromCountryFlag.let {
-            binding.ivfromflag.background =
-                AppCompatResources.getDrawable(requireActivity(), fromCountryFlag)
+            binding.ivfromflag.background = AppCompatResources.getDrawable(requireActivity(), fromCountryFlag)
         }
 
         toCountryFlag.let {
-            binding.tocountryflag.background =
-                AppCompatResources.getDrawable(requireActivity(), toCountryFlag)
+            binding.tocountryflag.background = AppCompatResources.getDrawable(requireActivity(), toCountryFlag)
         }
 
         setFromLanguage(fromCountryName)
@@ -184,30 +185,22 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (autoSpeakTTSwitch != null) {
-                        autoSpeakTTSwitch!!.visibility = View.INVISIBLE
-                    }
-                    if (navController != null) {
-                        val action =
-                            TextTranslatorFragmentDirections.actionNavTextTranslatorToNavTranslator()
-                        navController.safeNavigate(action)
-                    } else {
-                        isNavControllerAdded()
-                    }
+                    val action= TextTranslatorFragmentDirections.actionNavTextTranslatorToNavTranslator()
+                    findNavController().navigate(action)
                 }
             })
 
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(NATIVE_CONVERSATION, resources.getString(R.string.admob_native))
+            pref.getString(AD_ID_NATIVE_TRANSLATOR, resources.getString(R.string.NATIVE_DEFAULT))
         } else {
-            resources.getString(R.string.admob_native)
+            resources.getString(R.string.NATIVE_DEFAULT)
         }
 
         if (NetworkCheck.isNetworkAvailable(requireActivity())
             && !requireActivity().getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE).getBoolean(Preferences.IS_PURCHASED, false)
-            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(NATIVE_TEXT_TRANSLATOR, "ON").equals("ON", true)
+            && requireActivity().getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, Context.MODE_PRIVATE)
+                .getString(SHOW_NATIVE_TEXT_TRANSLATOR, "ON").equals("ON", true)
         ) {
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
@@ -248,15 +241,41 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         }
 
         binding.btntranslate.blockingClickListener {
-            btnTranslateClicked()
-
+            requireActivity().hideKeyboard()
+            if (binding.etsource.text.toString().isEmpty()) {
+                Toast.makeText(requireActivity(), "No Text", Toast.LENGTH_SHORT).show()
+            } else {
+                if (NetworkCheck.isNetworkAvailable(requireActivity())) {
+                    if (!requireActivity().getSharedPreferences(
+                            RemoteConfigConst.REMOTE_CONFIG,
+                            Context.MODE_PRIVATE
+                        ).getBoolean(Preferences.IS_PURCHASED, false)
+                        && requireActivity().getSharedPreferences(
+                            "RemoteConfig",
+                            Context.MODE_PRIVATE
+                        ).getString(
+                            SHOW_INTER_TEXT_TRANSLATOR_3_CLICKS, "ON"
+                        ).equals("ON", true)
+                    ) {
+                        if (showAdCounterOnThreeClicks >= 2) {
+                            showAdCounterOnThreeClicks = 0
+                            showAdThenTranslate()
+                        } else {
+                            btnTranslateClicked()
+                        }
+                    } else {
+                        btnTranslateClicked()
+                    }
+                } else {
+                    Toast.makeText(requireActivity(), "Please turn on internet", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
         }
 
         binding.etsource.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
                 s?.let {
                     if (s.isNotEmpty()) {
@@ -325,21 +344,35 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun btnTranslateClicked() {
+        val sourceText = binding.etsource.text.toString()
+        if (sourceText.isEmpty()) {
+            Toast.makeText(requireActivity(), "No Text", Toast.LENGTH_SHORT).show()
+        } else if (fromlanguacode == "null") {
+            Toast.makeText(requireActivity(), "Please Select A Source Language", Toast.LENGTH_SHORT)
+                .show()
+        } else if (tolanguacode == "null") {
+            Toast.makeText(
+                requireActivity(),
+                "Please Select A Language for translation",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            translateText(fromlanguacode, tolanguacode, sourceText)
+        }
+    }
+
     private fun loadBanner() {
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_TRANSLATION, resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_TRANSLATOR, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
-
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
         adView.adUnitId = adId!!
-
-        // 💡 FIX: Just build a standard AdRequest without the collapsible extras
         val adRequest = AdRequest.Builder().build()
-
         adView.loadAd(adRequest)
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
@@ -428,44 +461,38 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             onAdShowedCallBackAdmob = { })
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
         super.onResume()
         isNavControllerAdded()
 
-
         requireActivity().findViewById<ImageView>(R.id.ivHistory)
             .let { it?.visibility = View.INVISIBLE }
 
-//        autoSpeakTTSwitch = requireActivity().findViewById(R.id.switchButtonTT)
-        autoSpeakTTIsOn = PreferenceManager.getDefaultSharedPreferences(requireActivity())
-            .getBoolean("AutoSpeakTTIsOn", true)
-        if (autoSpeakTTSwitch != null) {
-            autoSpeakTTSwitch!!.visibility = View.VISIBLE
-            autoSpeakTTSwitch?.isChecked =
-                PreferenceManager.getDefaultSharedPreferences(requireActivity())
-                    .getBoolean("AutoSpeakTTIsOn", true)
+        autoSpeakSTTSwitch = requireActivity().findViewById(R.id.switchButtonTTS)
+        autoSpeakSTTIsOn = mSharedPreferences.getBoolean("AutoSpeakSTTIsOn", true)
+        if (autoSpeakSTTSwitch != null) {
+            autoSpeakSTTSwitch!!.visibility = View.VISIBLE
+            autoSpeakSTTSwitch?.isChecked = mSharedPreferences.getBoolean("AutoSpeakSTTIsOn", true)
 
-            autoSpeakTTSwitch?.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+            autoSpeakSTTSwitch?.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
                 if (isChecked) {
-                    autoSpeakTTIsOn = true
-                    PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
-                        .putBoolean("AutoSpeakTTIsOn", autoSpeakTTIsOn)
+                    autoSpeakSTTIsOn = true
+                    mSharedPreferences.edit().putBoolean("AutoSpeakSTTIsOn", autoSpeakSTTIsOn)
                         .apply()
-                    Log.e("TAG", "SwitchState:$autoSpeakTTIsOn")
+                    Log.e("TAG", "SwitchState:$autoSpeakSTTIsOn")
                 } else if (!isChecked) {
-                    autoSpeakTTIsOn = false
-                    PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
-                        .putBoolean("AutoSpeakTTIsOn", autoSpeakTTIsOn)
+                    autoSpeakSTTIsOn = false
+                    mSharedPreferences.edit().putBoolean("AutoSpeakSTTIsOn", autoSpeakSTTIsOn)
                         .apply()
-                    Log.e("TAG", "SwitchState:$autoSpeakTTIsOn")
+                    Log.e("TAG", "SwitchState:$autoSpeakSTTIsOn")
                 }
             }
         }
         val clSubDiv = requireActivity().findViewById<ConstraintLayout>(R.id.clSubDiv)
 
         if (clSubDiv != null) {
-            clSubDiv.background =
-                requireActivity().resources.getDrawable(R.drawable.bg_header_blue, null)
+            clSubDiv.background = requireActivity().resources.getDrawable(R.drawable.bg_header_blue, null)
         }
 
         val ivClose = requireActivity().findViewById<ImageView>(R.id.ivClose)
@@ -473,25 +500,43 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
             ivClose.visibility = View.INVISIBLE
         }
 
-        val txtUrduKeyboard =
-            requireActivity().findViewById<AppCompatTextView>(R.id.txtUrduKeyboard)
-        if (txtUrduKeyboard != null) {
-            txtUrduKeyboard.setCompoundDrawablesWithIntrinsicBounds(
+        val txtSindhiKeyboard = requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
+        if (txtSindhiKeyboard != null) {
+            txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(
                 ContextCompat.getDrawable(
-                    requireActivity(),
+                    requireContext(),
                     R.drawable.back
                 ), null, null, null
             )
-            txtUrduKeyboard.text = resources.getString(R.string.label_text_translator)
-            txtUrduKeyboard.setTextColor(resources.getColor(R.color.white, null))
+            txtSindhiKeyboard.text = resources.getString(R.string.label_text_translator)
+            val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
             val gapInDp = 12 // Change this to make the gap bigger or smaller
             val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
-            txtUrduKeyboard.compoundDrawablePadding = gapInPx
-            val startDrawable = txtUrduKeyboard.compoundDrawables[0]
-            txtUrduKeyboard.setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
+            txtSindhiKeyboard.compoundDrawablePadding = gapInPx
+
+            txtSindhiKeyboard.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {  // Fixed: ACTION_DOWN instead of ACTION.DOWN
                     if (event.x <= (startDrawable?.bounds?.width() ?: 0)) {
-                        requireActivity().onBackPressed()
+                        // Ensure navController is properly initialized before navigating
+                        val currentNavController = navController ?: findNavController()
+                        try {
+                            val action= TextTranslatorFragmentDirections.actionNavTextTranslatorToNavTranslator()
+                            findNavController().navigate(action)
+                        } catch (e: Exception) {
+                            Log.e("Navigation", "Failed to navigate: ${e.message}")
+                            // Fallback navigation or error handling
+                            try {
+                               val action= TextTranslatorFragmentDirections.actionNavTextTranslatorToNavTranslator()
+                                findNavController().navigate(action)
+                            } catch (e2: Exception) {
+                                Log.e(
+                                    "Navigation",
+                                    "Fallback navigation also failed: ${e2.message}"
+                                )
+                                val action= TextTranslatorFragmentDirections.actionNavTextTranslatorToNavTranslator()
+                                findNavController().navigate(action)
+                            }
+                        }
                         return@setOnTouchListener true
                     }
                 }
@@ -500,23 +545,6 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun btnTranslateClicked() {
-        val sourceText = binding.etsource.text.toString()
-        if (sourceText.isEmpty()) {
-            Toast.makeText(requireActivity(), "No Text", Toast.LENGTH_SHORT).show()
-        } else if (fromlanguacode == "null") {
-            Toast.makeText(requireActivity(), "Please Select A Source Language", Toast.LENGTH_SHORT)
-                .show()
-        } else if (tolanguacode == "null") {
-            Toast.makeText(
-                requireActivity(),
-                "Please Select A Language for translation",
-                Toast.LENGTH_SHORT
-            ).show()
-        } else {
-            translateText(fromlanguacode, tolanguacode, sourceText)
-        }
-    }
 
     private fun setFromLanguage(country: String) {
         fromCountryName = country
@@ -526,6 +554,9 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.tvfromcountryname.text = fromCountryName
 
         setFlagFromLanguageCode(fromCountryName)
+
+        // Hide the translated layout when the 'From' language is changed
+        binding.clTranslated.visibility = View.GONE
     }
 
     private fun setToLanguage(country: String) {
@@ -536,7 +567,20 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.tvtocountryname.text = toCountryName
 
         setFlagToLanguageCode(toCountryName)
+
+        // Hide the translated layout when the 'To' language is changed
+        binding.clTranslated.visibility = View.GONE
     }
+
+//    private fun setToLanguage(country: String) {
+//        toCountryName = country
+//        PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
+//            .putString("tolangTT", toCountryName).apply()
+//        tolanguacode = getFromLanguageCode(toCountryName)
+//        binding.tvtocountryname.text = toCountryName
+//
+//        setFlagToLanguageCode(toCountryName)
+//    }
 
     private fun getFromLanguageCode(code: String): String {
         var languageCode: String? = null
@@ -597,8 +641,7 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     fun copytexttoclipborad(text: String) {
-        val clipboard: ClipboardManager =
-            activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard: ClipboardManager = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("label", text)
         clipboard.setPrimaryClip(clip)
         Toast.makeText(requireActivity(), "Text Copied", Toast.LENGTH_SHORT).show()
@@ -637,8 +680,6 @@ class TextTranslatorFragment : Fragment(), TextToSpeech.OnInitListener {
                 }
                 binding.tvtranslatedtext.setText(it)
                 binding.clTranslated.visibility = View.VISIBLE
-                binding.animationView.visibility = View.GONE
-                binding.animationView.cancelAnimation()
 
                 btnFavoriteClicked = true
             }

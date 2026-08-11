@@ -5,42 +5,42 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 
-@Dao
-interface wordDao {
-
-    @Insert
-    fun word(word: WordEntity)
-
-    @Query("DELETE FROM history_tb WHERE word = :word AND def = :def")
-    fun deleteWordWhere(word: String?, def: String?)
-
-    @Insert
-    fun insertConvoTemp(conversationExtTemp: ConversationExtensionTemp)
-
-    @Insert
-    fun insertConversationReFormulated(conversationExt: ConversationExtension)
-
-    @Query("Select * from history_tb")
-    fun getWord(): LiveData<List<WordEntity>>
-
-    @Query("Delete From history_tb")
-    fun deleteAll()
-
-    @Query("Delete From convo_ext_tb_temp")
-    fun deleteFromTemporaryDB()
-
-    @Query("DELETE FROM convo_ext_tb WHERE conversationName = :conversationName")
-    fun deleteSelectedConversationHistory(conversationName: String)
-
-    @Query("Select * from convo_tb")
-    fun getfrom(): LiveData<List<Conversation>>
-
-    @Query("Select * from convo_ext_tb_temp")
-    fun getConversationTemporary(): LiveData<List<ConversationExtensionTemp>>
-
-    @Query("Select * from convoto_tb")
-    fun getto(): LiveData<List<Conversationto>>
-
-    @Query("Select * from convo_ext_tb")
-    fun getConversationExtReFormulated(): LiveData<List<ConversationExtension>>
-}
+//@Dao
+//interface WordDao {
+//
+//    @Insert
+//    fun word(word: WordEntity)
+//
+//    @Query("DELETE FROM history_tb WHERE word = :word AND def = :def")
+//    fun deleteWordWhere(word: String?, def: String?)
+//
+//    @Insert
+//    fun insertConvoTemp(conversationExtTemp: ConversationExtensionTemp)
+//
+//    @Insert
+//    fun insertConversationReFormulated(conversationExt: ConversationExtension)
+//
+//    @Query("Select * from history_tb")
+//    fun getWord(): LiveData<List<WordEntity>>
+//
+//    @Query("Delete From history_tb")
+//    fun deleteAll()
+//
+//    @Query("Delete From convo_ext_tb_temp")
+//    fun deleteFromTemporaryDB()
+//
+//    @Query("DELETE FROM convo_ext_tb WHERE conversationName = :conversationName")
+//    fun deleteSelectedConversationHistory(conversationName: String)
+//
+//    @Query("Select * from convo_tb")
+//    fun getfrom(): LiveData<List<Conversation>>
+//
+//    @Query("Select * from convo_ext_tb_temp")
+//    fun getConversationTemporary(): LiveData<List<ConversationExtensionTemp>>
+//
+//    @Query("Select * from convoto_tb")
+//    fun getto(): LiveData<List<Conversationto>>
+//
+//    @Query("Select * from convo_ext_tb")
+//    fun getConversationExtReFormulated(): LiveData<List<ConversationExtension>>
+//}

@@ -1,7 +1,7 @@
 [versions]
 activityCompose = "1.11.0"
-agp = "8.13.0"
-applovin = "13.6.2.0"
+agp = "9.1.1"
+applovin = "13.6.3.0"
 appUpdateKtx = "2.1.0"
 billingKtx = "8.2.0"
 browser = "1.10.0"
@@ -11,7 +11,7 @@ constraintlayoutCompose = "1.1.1"
 converterGson = "3.0.0"
 dexter = "6.2.3"
 emoji2Emojipicker = "1.6.0"
-glide = "5.0.5"
+glide = "5.0.9"
 groupie = "2.10.1"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
@@ -19,45 +19,51 @@ junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
-kotlinxCoroutinesCore = "1.10.2"
+kotlinxCoroutinesCore = "1.11.0"
 library = "2.2.0"
 lifecycleCompiler = "2.9.4"
-lifecycleLivedataKtx = "2.9.4"
-lifecycleProcess = "2.9.4"
-lifecycleViewmodelKtx = "2.9.4"
+lifecycleLivedataKtx = "2.11.0"
+lifecycleProcess = "2.11.0"
+lifecycleViewmodelKtx = "2.11.0"
 lottie = "6.7.1"
-material = "1.13.0"
-activity = "1.11.0"
-constraintlayout = "2.2.1"
+material = "1.14.0"
+activity = "1.13.0"
+constraintlayout = "2.2.2"
 
 
-gms = "4.4.4"
-crashlytics = "3.0.6"
-mintegral = "17.1.51.0"
-navigation = "2.9.5"
-navigationFragmentKtx = "2.9.5"
-navigationUiKtx = "2.9.5"
-okhttp = "5.3.0"
-pangle = "8.0.0.4.0"
+gms = "4.5.0"
+crashlytics = "3.0.7"
+mintegral = "17.1.71.0"
+navigation = "2.9.8"
+navigationFragmentKtx = "2.9.8"
+navigationUiKtx = "2.9.8"
+okhttp = "5.4.0"
+pangle = "8.2.0.4.0"
 perf = "2.0.2"
-
-firebaseBom = "34.5.0"
+cameraExtensions = "1.6.1"
+firebaseBom = "34.17.0"
 firebaseCore = "21.1.1"
-firebaseCrashlytics = "20.0.5"
-firebaseMessaging = "25.0.1"
-firebasePerf = "22.0.3"
-playServicesAds = "25.2.0"
+firebaseCrashlytics = "20.1.0"
+firebaseMessaging = "25.1.1"
+firebasePerf = "22.0.6"
+playServicesAds = "25.4.0"
 preferenceKtx = "1.2.1"
+textRecognitionKorean = "16.0.1"
 retrofit = "3.0.0"
-roomRuntime = "2.8.3"
-runtimeLivedata = "1.9.4"
+roomRuntime = "2.8.4"
+runtimeLivedata = "1.11.4"
 sdpAndroid = "1.1.1"
+roomKtx = "2.8.4"
 shimmer = "0.5.0"
-sot_fof_andadslib = "3.2.4"
+sot_fof_andadslib = "3.2.7.4"
 sspAndroid = "1.1.1"
 userMessagingPlatform = "4.0.0"
-ztZip = "1.17"
+ztZip = "1.18.2"
 colorpicker = "0.0.15"
+androidImageCropper = "4.7.0"
+languageId = "17.0.6"
+visionCommon = "17.3.0"
+
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -69,14 +75,13 @@ androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-emoji2-emojipicker = { module = "androidx.emoji2:emoji2-emojipicker", version.ref = "emoji2Emojipicker" }
-androidx-lifecycle-compiler = { module = "androidx.lifecycle:lifecycle-compiler", version.ref = "lifecycleCompiler" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycleProcess" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
@@ -116,18 +121,25 @@ shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
 sot_fof_andadslib = { module = "com.github.Kalimullah95:SOT_FOF_AndAdsLib", version.ref = "sot_fof_andadslib" }
 ssp-android = { module = "com.intuit.ssp:ssp-android", version.ref = "sspAndroid" }
 user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
+androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "cameraExtensions" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraExtensions" }
+androidx-camera-video = { module = "androidx.camera:camera-video", version.ref = "cameraExtensions" }
 zt-zip = { module = "org.zeroturnaround:zt-zip", version.ref = "ztZip" }
 colorpicker = { module = "com.github.QuadFlask:colorpicker", version.ref = "colorpicker" }
 billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
+android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "androidImageCropper" }
+language-id = { module = "com.google.mlkit:language-id", version.ref = "languageId" }
+text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognitionKorean" }
+text-recognition-chinese = { module = "com.google.mlkit:text-recognition-chinese", version.ref = "textRecognitionKorean" }
+text-recognition-devanagari = { module = "com.google.mlkit:text-recognition-devanagari", version.ref = "textRecognitionKorean" }
+text-recognition-japanese = { module = "com.google.mlkit:text-recognition-japanese", version.ref = "textRecognitionKorean" }
+text-recognition-korean = { module = "com.google.mlkit:text-recognition-korean", version.ref = "textRecognitionKorean" }
 
 [plugins]
-
-
 com-google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "gms" }
 com-google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 androidx-navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 com-google-firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "perf" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
+legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }

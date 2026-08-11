@@ -17,7 +17,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.StrictMode
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.Settings
@@ -123,13 +122,11 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.AdObject.nativeAdMobHashMapKeypad
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.ForegroundCheckTask
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.AdObject.keyPadBannerFailedShowTimeAdmob
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.AdObject.keyPadBannerFailedShowTimeMintegral
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.AdObject.nativeMintegralHashMapKeypad
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_KEYPAD
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.KEYPAD_AD_MEDIATION
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.KEYPAD_AD_VISIBILITY
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_KEYPAD
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_KEYPAD_AD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -141,13 +138,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
-import kotlin.collections.containsKey
-import kotlin.collections.remove
-import kotlin.compareTo
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.text.get
 
 @OptIn(DelicateCoroutinesApi::class)
 class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner,
@@ -157,10 +150,8 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
 
     var remoteAdMobId by mutableStateOf("")
 
-
     lateinit var myContext: Context
 
-    // THE FIX: Use 'by lazy' to prevent initialization during class creation
     private val serviceScope by lazy { CoroutineScope(Dispatchers.Main + SupervisorJob()) }
 
     var mainSuggestionList: MutableList<SuggestionItems> = mutableListOf()
@@ -186,7 +177,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     var getRemoteConfigVisibility by mutableIntStateOf(0)
     var getRemoteConfigAdmob by mutableIntStateOf(0)
     var getRemoteConfigMintegral by mutableIntStateOf(0)
-
     var isAppInForeground by mutableStateOf(true)
     var canShowAdmob by mutableStateOf(false)
     var canShowMintegral by mutableStateOf(false)
@@ -262,92 +252,95 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                 field = value
             }
         }
+
     private var selectionPrevious: Int = -1
         set(value) {
             if (value >= -1) {
                 field = value
             }
         }
+
     private var selectionNext: Int = -1
         set(value) {
             if (value >= -1) {
                 field = value
             }
         }
+
     private var selectionDown: Int = -1
         set(value) {
             if (value >= -1) {
                 field = value
             }
         }
-    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(info, restarting) //
-        Log.i("CustomImeService", "onStartInputView()") //
 
-        if (info == null) { //
-            Log.e("CustomImeService", "EditorInfo is null in onStartInputView") //
-            return //
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+        Log.i("CustomImeService", "onStartInputView()")
+
+        if (info == null) {
+            Log.e("CustomImeService", "EditorInfo is null in onStartInputView")
+            return
         }
 
         // 1. Initialize Ad Manager if not already started
-        if (!adManagerStarted) { //
-            serviceScope.launch { //
-                try { //
-                    withContext(Dispatchers.IO) { //
-                        Log.e("AdManagerDebug", "Fetching ad config...") //
-                        fetchAdIDS(this@CustomImeService) //
-                    } //
-                    adManagerStarted = true //
-                } catch (e: Exception) { //
-                    Log.e("AdManagerDebug", "Error fetching Ad IDs", e) //
-                } //
-            } //
+        if (!adManagerStarted) {
+            serviceScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        Log.e("AdManagerDebug", "Fetching ad config...")
+                        fetchAdIDS(this@CustomImeService)
+                    }
+                    adManagerStarted = true
+                } catch (e: Exception) {
+                    Log.e("AdManagerDebug", "Error fetching Ad IDs", e)
+                }
+            }
         }
 
         // 2. Determine Keyboard Visibility (Ad Blocking Logic)
-        val targetPackage = info.packageName.lowercase(Locale.ROOT) //
-        val myPackage = this.packageName.lowercase(Locale.ROOT) //
+        val targetPackage = info.packageName.lowercase(Locale.ROOT)
+        val myPackage = this.packageName.lowercase(Locale.ROOT)
 
         isKeyboardOpen = when {
-            // ✅ FIX: Do not show ads if the keyboard is opened inside YOUR OWN app
             targetPackage == myPackage -> {
                 Log.d("CustomImeService", "Ads disabled: Keyboard opened inside own app")
                 false
             }
-
-            // Disable ads for browsers and Google apps
             targetPackage.contains("browser") || targetPackage.contains("google") -> {
                 false
             }
-
-            // Use your existing whitelist/blacklist logic for other apps
-            else -> isFromGoogleServices(info.packageName) //
+            else -> isFromGoogleServices(info.packageName)
         }
 
-        // 3. Detect if number input to switch keyboard layout
-        val isNumberInput = when (info.inputType and InputType.TYPE_MASK_CLASS) { //
-            InputType.TYPE_CLASS_NUMBER, //
-            InputType.TYPE_CLASS_PHONE, //
-            InputType.TYPE_CLASS_DATETIME -> true //
-            else -> false //
+        val isNumberInput = when (info.inputType and InputType.TYPE_MASK_CLASS) {
+            InputType.TYPE_CLASS_NUMBER,
+            InputType.TYPE_CLASS_PHONE,
+            InputType.TYPE_CLASS_DATETIME -> true
+            else -> false
         }
 
-        if (isNumberInput) { //
-            Log.i("CustomImeService", "Switching to Numbers layout") //
-            KeyboardState.currentLayout.value = LayoutState.Numbers //
-        } else { //
-            KeyboardState.currentLayout.value = LayoutState.Main //
+        if (isNumberInput) {
+            Log.i("CustomImeService", "Switching to Numbers layout")
+            KeyboardState.currentLayout.value = LayoutState.Numbers
+        } else {
+            KeyboardState.currentLayout.value = LayoutState.Main
         }
 
         // 4. Store imeActionType for UI updates
-        imeActionType = info.imeOptions and EditorInfo.IME_MASK_ACTION //
+        imeActionType = info.imeOptions and EditorInfo.IME_MASK_ACTION
     }
 
     override fun onCreate() {
-        super.onCreate() // View inflation happens here
+        super.onCreate()
         try {
             savedStateRegistryVar.performRestore(null)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            try {
+                mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+            } catch (e: Exception) {
+                Log.e("CustomImeService", "Firebase initialization failed in onCreate", e)
+            }
 
             // 2. BACKGROUND THREAD: Database and Remote Config operations
             serviceScope.launch(Dispatchers.IO) {
@@ -421,8 +414,7 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
             return
         }
 
-        val contentUri =
-            FileProvider.getUriForFile(this, "${context!!.packageName}.fileprovider", file!!)
+        val contentUri = FileProvider.getUriForFile(this, "${context!!.packageName}.fileprovider", file!!)
         val flag: Int
         if (Build.VERSION.SDK_INT >= 25) {
             flag = InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
@@ -443,18 +435,8 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
             }
         }
 
-        val inputContentInfoCompat = InputContentInfoCompat(
-            contentUri,
-            ClipDescription("TestSticker", arrayOf("image/webp.wasticker")),
-            null
-        )
-        InputConnectionCompat.commitContent(
-            currentInputConnection,
-            currentInputEditorInfo,
-            inputContentInfoCompat,
-            flag,
-            null
-        )
+        val inputContentInfoCompat = InputContentInfoCompat(contentUri, ClipDescription("TestSticker", arrayOf("image/webp.wasticker")), null)
+        InputConnectionCompat.commitContent(currentInputConnection, currentInputEditorInfo, inputContentInfoCompat, flag, null)
     }
 
     private fun openAppInfo(context: Context) {
@@ -473,16 +455,13 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
             it.setViewTreeViewModelStoreOwner(this)
             it.setViewTreeSavedStateRegistryOwner(this)
         }
-
         view.let {
             it.setViewTreeLifecycleOwner(this)
             it.setViewTreeViewModelStoreOwner(this)
             it.setViewTreeSavedStateRegistryOwner(this)
         }
-
         return view
     }
-
 
     override fun getResources(): Resources {
         val res = super.getResources()
@@ -506,7 +485,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         val intent = Intent("com.soloftech.RESET_KEYBOARD")
         baseContext.sendBroadcast(intent)
     }
-
 
     override fun onDestroy() {
         speechRecognizer?.destroy()
@@ -536,7 +514,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         }
     }
 
-    // Runnable for handling backspace key long press for emojis
     private var deleteEmojisRunnable = object : Runnable {
         override fun run() {
             doSomethingWith(
@@ -548,7 +525,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         }
     }
 
-    // Runnable for handling previous key long press
     private var previousRunnable = object : Runnable {
         override fun run() {
             doEditText(Key(labelMain = LABEL_PREVIOUS, 1f), false)
@@ -556,16 +532,13 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         }
     }
 
-    // Runnable for handling next key long press
     private var nextRunnable = object : Runnable {
         override fun run() {
             doEditText(Key(labelMain = LABEL_NEXT, 1f), false)
             handler.postDelayed(this, 40)
-
         }
     }
 
-    // Runnable for handling up key long press
     private var upRunnable = object : Runnable {
         override fun run() {
             doEditText(Key(labelMain = LABEL_UP, 1f), false)
@@ -573,7 +546,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         }
     }
 
-    // Runnable for handling down key long press
     private var downRunnable = object : Runnable {
         override fun run() {
             doEditText(Key(labelMain = LABEL_DOWN, 1f), false)
@@ -633,7 +605,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     }
 
     suspend fun getCompleteTextForSuggestionAsync(): String {
-        // Shift this IPC call to a background thread!
         return withContext(Dispatchers.IO) {
             try {
                 currentInputConnection?.getExtractedText(
@@ -647,7 +618,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         }
     }
 
-    // Function to handle EditText actions
     fun doEditText(key: Key, longPressed: Boolean) {
         GlobalScope.launch {
             val currentText = currentInputConnection?.getExtractedText(
@@ -662,7 +632,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                 totalTextLengthSelection?.minus(charsAfterCursorSelection!!) ?: 0
 
             when (key.labelMain) {
-                // Action to perform on clicking on "Copy"
                 LABEL_COPY -> {
                     val charsAfterCursor = textAfterCursor?.length
                     val totalTextLength = currentText?.length
@@ -689,7 +658,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "Paste"
                 LABEL_PASTE -> {
                     val clipboardManager =
                         getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -710,7 +678,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "Select All"
                 LABEL_SELECT_All -> {
                     val charsAfterCursor = textAfterCursor?.length
                     val totalTextLength = currentText?.length
@@ -730,7 +697,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "Previous"
                 LABEL_PREVIOUS -> {
                     if (longPressed) {
                         if (!isPreviousKeyPressed) {
@@ -762,7 +728,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "Next"
                 LABEL_NEXT -> {
                     if (longPressed) {
                         if (!isNextKeyPressed) {
@@ -796,7 +761,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "Start"
                 LABEL_UP -> {
                     if (longPressed) {
                         if (!isUpKeyPressed) {
@@ -828,7 +792,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "End"
                 LABEL_DOWN -> {
                     if (longPressed) {
                         if (!isDownKeyPressed) {
@@ -860,20 +823,16 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                // Action to perform on clicking on "Start"
                 LABEL_DOC_START -> {
                     val charsAfterCursor = textAfterCursor?.length
                     val totalTextLength = currentText?.length
                     val cursorPosition = totalTextLength?.minus(charsAfterCursor!!)
 
                     if (cursorPosition != null && currentText.isNotEmpty()) {
-
                         currentInputConnection?.setSelection(0, 0)
-
                     }
                 }
 
-                //Action to perform on clicking on "End"
                 LABEL_DOC_END -> {
                     val charsAfterCursor = textAfterCursor?.length
                     val totalTextLength = currentText?.length
@@ -888,7 +847,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                     }
                 }
 
-                //Action to perform on clicking on "Select"
                 LABEL_SELECT -> {
                     isSelectionModeActive = !isSelectionModeActive
                     if (selectionDown > 0 || selectionUp > 0 || selectionNext > 0 || selectionPrevious > 0) {
@@ -1008,7 +966,6 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         GlobalScope.launch {
             when (key.labelMain) {
                 LABEL_DELETE -> {
-                    // Stop character deletions when the key is released
                     isBackspaceKeyPressed = false
                     handler.removeCallbacks(deleteCharacterRunnable)
                     handler.removeCallbacks(deleteEmojisRunnable)
@@ -1052,25 +1009,24 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         GlobalScope.launch {
             val selectedText: CharSequence? = currentInputConnection.getSelectedText(0)
             if (selectedText != null && !TextUtils.isEmpty(selectedText)) {
-                // Delete selected text
                 currentInputConnection.commitText("", 1)
             } else {
-                // Delete one character before cursor
                 currentInputConnection.deleteSurroundingText(1, 0)
             }
         }
     }
 
-    fun isTextFieldCompletelyEmpty(): Boolean {
-        val inputConnection = currentInputConnection ?: return true
-        try {
-            val before = inputConnection.getTextBeforeCursor(1, 0)
-            val after = inputConnection.getTextAfterCursor(1, 0)
-
-            return before.isNullOrEmpty() && after.isNullOrEmpty()
-        } catch (e: Exception) {
-            Log.e("CustomImeService", "Error checking if field is empty", e)
-            return true
+    suspend fun isTextFieldCompletelyEmpty(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val inputConnection = currentInputConnection ?: return@withContext true
+                val before = inputConnection.getTextBeforeCursor(1, 0)
+                val after = inputConnection.getTextAfterCursor(1, 0)
+                before.isNullOrEmpty() && after.isNullOrEmpty()
+            } catch (e: Exception) {
+                Log.e("CustomImeService", "Error checking if field is empty", e)
+                true
+            }
         }
     }
 
@@ -1110,17 +1066,13 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryVar.savedStateRegistry
 
-    //Lifecycle Methods
     private val lifecycleRegistry by lazy { LifecycleRegistry(this) }
     override val lifecycle: Lifecycle
         get() = lifecycleRegistry
 
-    //ViewModelStore Methods
     private val store by lazy { ViewModelStore() }
-
     override val viewModelStore: ViewModelStore
         get() = store
-
 
     private fun handleLifecycleEvent(event: Lifecycle.Event) =
         lifecycleRegistry.handleLifecycleEvent(event)
@@ -1200,15 +1152,14 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     }
 
     private fun fetchAdIDS(context: Context) {
-        if (NetworkCheck.isNetworkAvailable(context)) {
-            mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
+        if (NetworkCheck.isNetworkAvailable(context) && mFirebaseRemoteConfig != null) {
             val configSettings =
                 FirebaseRemoteConfigSettings.Builder().setMinimumFetchIntervalInSeconds(0).build()
             mFirebaseRemoteConfig?.setConfigSettingsAsync(configSettings)
             mFirebaseRemoteConfig?.fetchAndActivate()?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     mFirebaseRemoteConfig?.activate()
-                    // Push the database writes to the background!
+                    // ✅ Push the database writes to the background
                     CoroutineScope(Dispatchers.IO).launch {
                         saveAllRemoteConfigs()
                     }
@@ -1221,43 +1172,20 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
         }
     }
 
-    private fun saveAllRemoteConfigs() {
-        val nativeKeypadId = mFirebaseRemoteConfig?.getString(NATIVE_KEYPAD)
-
-        val defaultId = "ca-app-pub-3747520410546258/6904433274"
-
+    private suspend fun saveAllRemoteConfigs() {
+        val nativeKeypadId = mFirebaseRemoteConfig?.getString(AD_ID_NATIVE_KEYPAD)
+        val defaultId = getString(R.string.NATIVE_DEFAULT_KEYPAD)
         Log.e("admobnative", "admob id from Remote Config is $nativeKeypadId")
-
-        if (!BuildConfig.DEBUG) {
-            // RELEASE MODE: Use Remote Config ID or Default Live ID
-            if (!nativeKeypadId.isNullOrEmpty()) {
-                remoteAdMobId = nativeKeypadId
-            } else {
-                remoteAdMobId = defaultId
-            }
+        val newRemoteAdMobId = if (!BuildConfig.DEBUG) {
+            if (!nativeKeypadId.isNullOrEmpty()) nativeKeypadId else defaultId
         } else {
-            // DEBUG MODE: Assign the Test ID to the variable
-            remoteAdMobId = getString(R.string.admob_native_home)
+            getString(R.string.admob_native_home)
         }
 
+        Log.e("NativeAdKeyboard", "RemoteConfig : Native KEYPAD_AD_VISIBILITY :: " + mFirebaseRemoteConfig?.getBoolean(SHOW_KEYPAD_AD))
+        Log.e("NativeAdKeyboard", "RemoteConfig : Native KEYPAD_AD_MEDIATION :: " + mFirebaseRemoteConfig?.getString(KEYPAD_AD_MEDIATION))
 
-
-        Log.e(
-            "NativeAdKeyboard",
-            "RemoteConfig : Native KEYPAD_AD_VISIBILITY :: " + mFirebaseRemoteConfig?.getBoolean(
-                KEYPAD_AD_VISIBILITY
-            )
-        )
-        Log.e(
-            "NativeAdKeyboard",
-            "RemoteConfig : Native KEYPAD_AD_MEDIATION :: " + mFirebaseRemoteConfig?.getString(
-                KEYPAD_AD_MEDIATION
-            )
-        )
-
-        // Continue with Database logic...
-        getInAppPurchases = DataBaseCopyOperationsKt.getInAppPurchases()
-        val adVisibility = mFirebaseRemoteConfig?.getBoolean(KEYPAD_AD_VISIBILITY)
+        val adVisibility = mFirebaseRemoteConfig?.getBoolean(SHOW_KEYPAD_AD)
         val adMediationNetwork = mFirebaseRemoteConfig?.getString(KEYPAD_AD_MEDIATION)?.trim()
 
         if (adVisibility == true) {
@@ -1271,21 +1199,28 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
                 DataBaseCopyOperationsKt.updateRemoteConfigAdmob(1)
                 DataBaseCopyOperationsKt.updateRemoteConfigMintegral(0)
             }
-
             "MINTEGRAL", "mintegral", "Mintegral" -> {
                 DataBaseCopyOperationsKt.updateRemoteConfigAdmob(0)
                 DataBaseCopyOperationsKt.updateRemoteConfigMintegral(1)
             }
-
             else -> {
                 DataBaseCopyOperationsKt.updateRemoteConfigAdmob(0)
                 DataBaseCopyOperationsKt.updateRemoteConfigMintegral(0)
             }
         }
 
-        getRemoteConfigVisibility = DataBaseCopyOperationsKt.getRemoteConfigVisibility()
-        getRemoteConfigAdmob = DataBaseCopyOperationsKt.getRemoteConfigAdmob()
-        getRemoteConfigMintegral = DataBaseCopyOperationsKt.getRemoteConfigMintegral()
+        val iap = DataBaseCopyOperationsKt.getInAppPurchases()
+        val vis = DataBaseCopyOperationsKt.getRemoteConfigVisibility()
+        val admob = DataBaseCopyOperationsKt.getRemoteConfigAdmob()
+        val mint = DataBaseCopyOperationsKt.getRemoteConfigMintegral()
+
+        withContext(Dispatchers.Main) {
+            remoteAdMobId = newRemoteAdMobId
+            getInAppPurchases = iap
+            getRemoteConfigVisibility = vis
+            getRemoteConfigAdmob = admob
+            getRemoteConfigMintegral = mint
+        }
     }
 }
 
@@ -1303,7 +1238,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
     private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
-        // Load network availability asynchronously
         checkNetworkAvailabilityAsync()
         handlerAd = Handler(Looper.getMainLooper())
         reloadAdRunnable = Runnable {
@@ -1378,14 +1312,12 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         val isNetworkReady = isNetworkAvailable
         val isKeyboardOpen = imeService.isKeyboardOpen
 
-        // 1. TRIGGER THE CALCULATION HERE
         LaunchedEffect(isKeyboardOpen) {
             if (isKeyboardOpen) {
                 imeService.evaluateAdConditions()
             }
         }
 
-        // 2. Read the pre-calculated state (these must be mutableStateOf in your Service)
         val isForeground = imeService.isAppInForeground
         val isNoIAP = imeService.getInAppPurchases == 0
         val isRemoteConfigVisible = imeService.getRemoteConfigVisibility == 1
@@ -1395,7 +1327,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         }
 
         Column {
-            // 3. Show the ad if conditions are met
             if (isNetworkReady && isKeyboardOpen && isNoIAP && !isPurchase && isRemoteConfigVisible && isForeground) {
                 if (imeService.getRemoteConfigAdmob == 1 && imeService.canShowAdmob) {
                     AdmobSafeContainer(imeService)
@@ -1418,11 +1349,9 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         val context = LocalContext.current
         val rootContainer = remember(context) { FrameLayout(context) }
         LaunchedEffect(Unit) {
-            // Optional: Yield the thread briefly to let the keyboard fully pop up
-            delay(100)
+            // ✅ FIX 1: Provide delay before asking Admob to inflate layout
+            delay(800)
 
-            // Now inflate the view. Because we pre-warmed MobileAds in onCreate,
-            // this will no longer trigger heavy disk I/O.
             val adCardView =
                 View.inflate(context, R.layout.card_view_ad_keypad_admob, null) as CardView
             removeFromParent(adCardView)
@@ -1435,13 +1364,11 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
                 )
             )
 
-            // Start checking cache and loading the ad
             nativeAdCacheCheckAdmob(imeService, adCardView)
         }
 
         DisposableEffect(Unit) {
             onDispose {
-                // Your cleanup code remains the same
                 handlerAd.removeCallbacks(reloadAdRunnable)
                 Log.e("NativeAdKeyboard", "AdMob Container Disposed - Handler Cleared")
             }
@@ -1469,6 +1396,8 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
             )
 
             val job = CoroutineScope(Dispatchers.Main).launch {
+                // ✅ FIX 1: Delay before processing Mintegral logic to let keyboard animate
+                delay(800)
                 bannerAdCacheCheckMintegral(imeService, adCardView)
             }
 
@@ -1493,12 +1422,8 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         }
     }
 
-
-
     private suspend fun nativeAdCacheCheckAdmob(mContext: CustomImeService?, adContainer: CardView?) {
         if (mContext == null || adContainer == null) return
-
-        // 2. Force View lookups and HashMap checks safely onto the Main Thread
         withContext(Dispatchers.Main) {
             val defaultAdviewBanner: NativeAdView = adContainer.findViewById(R.id.nativead)
             val shimmerBanner: ShimmerFrameLayout = adContainer.findViewById(R.id.shimmerLayout)
@@ -1508,16 +1433,19 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
             if (nativeAdMobHashMapKeypad!!.containsKey(contextName)) {
                 val (nativeAd, timestamp) = nativeAdMobHashMapKeypad!![contextName]!!
 
-                if (System.currentTimeMillis() - timestamp >= 25 * 60 * 1000) { // 25 min delay
+                if (System.currentTimeMillis() - timestamp >= 25 * 60 * 1000) {
                     Log.e("AdMob", "Removing stale ad from cache")
                     nativeAdMobHashMapKeypad!!.remove(contextName)
 
-                    // ✅ Lock check on Main Thread
                     if (!isAdmobLoading) {
+                        // ✅ FIX: Turn on the shimmer and hide the ad view BEFORE loading
+                        shimmerBanner.visibility = View.VISIBLE
+                        shimmerBanner.startShimmer()
+                        defaultAdviewBanner.visibility = View.GONE
+
                         reloadAdAdmob(mContext, shimmerBanner, defaultAdviewBanner)
                     }
                 } else {
-                    // ✅ 3. Move Firebase event to IO thread to prevent UI freeze
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             CustomFirebaseEvents.nativeKeypadAdEvent(mContext, "AdmobPreviousAdIsLoaded")
@@ -1530,8 +1458,12 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
                     populateNativeAdmob(nativeAd, shimmerBanner, defaultAdviewBanner)
                 }
             } else {
-                // ✅ Lock check on Main Thread
                 if (!isAdmobLoading) {
+                    // ✅ FIX: Turn on the shimmer and hide the ad view BEFORE loading
+                    shimmerBanner.visibility = View.VISIBLE
+                    shimmerBanner.startShimmer()
+                    defaultAdviewBanner.visibility = View.GONE
+
                     reloadAdAdmob(mContext, shimmerBanner, defaultAdviewBanner)
                 } else {
                     Log.e("AdMob", "Ad is already loading. Skipping duplicate request.")
@@ -1539,97 +1471,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
             }
         }
     }
-
-//    private fun reloadAdAdmob(
-//        mContext: CustomImeService?,
-//        shimmerBanner: ShimmerFrameLayout,
-//        defaultAdviewBanner: NativeAdView
-//    ) {
-//        val defBanner = "ca-app-pub-3747520410546258/42782709"
-//        if (mContext == null) return
-//
-//        if (mContext.getRemoteConfigAdmob == 0) {
-//            Log.e(logTagAdmob, "Blocked AdMob Request: Config is OFF")
-//            return
-//        }
-//
-//        CustomFirebaseEvents.nativeKeypadAdEvent(mContext, "AdmobRequestNewAd")
-//        val remoteId = mContext.remoteAdMobId
-//        val adId = if (remoteId.isNotEmpty()) remoteId else defBanner
-//
-//        Log.e("NativeAdKeyboard", "Requesting AdMob ad with ID: $adId")
-//
-//        // ✅ NEW: Apply lock
-//        isAdmobLoading = true
-//
-//        try {
-//            val builder = AdLoader.Builder(mContext, adId)
-//
-//            builder.forNativeAd { mNativeAd: NativeAd ->
-//                // ✅ NEW: Release lock on success
-//                isAdmobLoading = false
-//
-//                if (mContext.getRemoteConfigAdmob == 0) {
-//                    mNativeAd.destroy()
-//                    return@forNativeAd
-//                }
-//
-//                shimmerBanner.post {
-//                    if (!shimmerBanner.isAttachedToWindow) {
-//                        mNativeAd.destroy()
-//                        return@post
-//                    }
-//
-//                    handlerAd.removeCallbacks(reloadAdRunnable)
-//                    val currTime = System.currentTimeMillis()
-//
-//                    nativeAdMobHashMapKeypad?.set(
-//                        mContext::class.java.name,
-//                        Pair(mNativeAd, currTime)
-//                    )
-//
-//                    handlerAd.postDelayed(reloadAdRunnable, 900000)
-//
-//                    populateNativeAdmob(mNativeAd, shimmerBanner, defaultAdviewBanner)
-//                }
-//            }
-//
-//            val adOptions = NativeAdOptions.Builder()
-//                .setAdChoicesPlacement(NativeAdOptions.ADCHOICES_TOP_RIGHT)
-//                .build()
-//
-//            builder.withNativeAdOptions(adOptions)
-//
-//            val adLoader = builder.withAdListener(object : AdListener() {
-//                override fun onAdFailedToLoad(error: LoadAdError) {
-//                    // ✅ NEW: Release lock on failure
-//                    isAdmobLoading = false
-//
-//                    if (mContext.getRemoteConfigAdmob == 0) return
-//
-//                    Log.e(logTagAdmob, "Admob Native Failed to Load: ${error.message}")
-//
-//                    shimmerBanner.post {
-//                        if (shimmerBanner.isAttachedToWindow) {
-//                            shimmerBanner.stopShimmer()
-//                            shimmerBanner.visibility = View.GONE
-//                            defaultAdviewBanner.visibility = View.GONE
-//                        }
-//                    }
-//
-//                    nativeAdMobHashMapKeypad?.remove(mContext::class.java.name)
-//                    saveCurrentTimeAdmob()
-//                }
-//            }).build()
-//
-//            adLoader.loadAd(AdRequest.Builder().build())
-//
-//        } catch (e: Exception) {
-//            // ✅ NEW: Release lock on exception
-//            isAdmobLoading = false
-//            Log.e(logTagAdmob, "AdMob Load Exception: ${e.message}")
-//        }
-//    }
 
     private suspend fun reloadAdAdmob(
         mContext: CustomImeService?,
@@ -1644,7 +1485,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
             return
         }
 
-        // 2. Run Firebase Analytics on the IO thread to prevent disk-write ANRs
         withContext(Dispatchers.IO) {
             try {
                 CustomFirebaseEvents.nativeKeypadAdEvent(mContext, "AdmobRequestNewAd")
@@ -1656,9 +1496,8 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         val remoteId = mContext.remoteAdMobId
         val adId = if (remoteId.isNotEmpty()) remoteId else defBanner
 
-        // 3. FORCE the Google Mobile Ads SDK to run on the Main Thread
         withContext(Dispatchers.Main) {
-            if (isAdmobLoading) return@withContext // Safe lock check on main thread
+            if (isAdmobLoading) return@withContext
 
             isAdmobLoading = true
 
@@ -1673,7 +1512,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
                         return@forNativeAd
                     }
 
-                    // No need for post {} since we are safely on the Main thread
                     if (!shimmerBanner.isAttachedToWindow) {
                         mNativeAd.destroy()
                         return@forNativeAd
@@ -1714,7 +1552,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
 
                         nativeAdMobHashMapKeypad?.remove(mContext::class.java.name)
 
-                        // 4. Move Database/Prefs writes to the IO thread on failure
                         CoroutineScope(Dispatchers.IO).launch {
                             saveCurrentTimeAdmob()
                         }
@@ -1842,14 +1679,13 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
     ) {
         if (mContext == null) return
 
-        // Set up timeout mechanism
         val timeoutHandler = Handler(Looper.getMainLooper())
         val timeoutRunnable = Runnable {
             Log.e(logTagMintegral, "Mintegral ad loading timeout")
             frameLayout.visibility = View.GONE
         }
 
-        timeoutHandler.postDelayed(timeoutRunnable, 15000) // 15 second timeout
+        timeoutHandler.postDelayed(timeoutRunnable, 15000)
 
         defaultAdviewBanner.init(
             BannerSize(BannerSize.DEV_SET_TYPE, 320, 50),
@@ -1858,19 +1694,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         )
 
         defaultAdviewBanner.setBannerAdListener(object : BannerAdListener {
-//            override fun onLoadFailed(p0: MBridgeIds?, p1: String?) {
-//                timeoutHandler.removeCallbacks(timeoutRunnable)
-//                Log.e(logTagMintegral, "onLoadFailed() : " + p1)
-//                CustomFirebaseEvents.nativeKeypadAdEvent(mContext, "MintegralOnAdFailedToLoad")
-//
-//                frameLayout.visibility = View.GONE
-//
-//                if (nativeMintegralHashMapKeypad!!.containsKey(mContext::class.java.name)) {
-//                    nativeMintegralHashMapKeypad!!.remove(mContext::class.java.name)
-//                }
-//
-//                saveCurrentTimeMintegral()
-//            }
 
             override fun onLoadFailed(p0: MBridgeIds?, p1: String?) {
                 timeoutHandler.removeCallbacks(timeoutRunnable)
@@ -1885,7 +1708,6 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
 
                 saveCurrentTimeMintegral()
 
-                // ADD THIS ONE LINE TO BREAK THE INFINITE LOOP
                 mContext.canShowMintegral = false
             }
 
@@ -1894,9 +1716,7 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
                 handlerAd.removeCallbacks(reloadAdRunnable)
                 val currTime = System.currentTimeMillis()
 
-                // Safe detach and re-attach
                 if (defaultAdviewBanner != null) {
-                    // Use the helper to safely remove it from whatever old container it might be in
                     removeFromParent(defaultAdviewBanner)
 
                     nativeMintegralHashMapKeypad!![mContext::class.java.name] =
@@ -1954,14 +1774,11 @@ class ComposeKeyboardView(private val imeService: CustomImeService) :
         }
     }
 
-
     private fun populateNativeMintegral(nativeAd: MBBannerView?, defaultAdviewBanner: CardView) {
         try {
             nativeAd?.let { cachedBanner ->
-                // Use helper for safe detachment
                 removeFromParent(cachedBanner)
 
-                // Ensure destination is clear
                 defaultAdviewBanner.removeAllViews()
                 defaultAdviewBanner.addView(cachedBanner)
                 Log.i(logTagMintegral, "Mintegral: BannerAd : Keypad : Showing cached banner")

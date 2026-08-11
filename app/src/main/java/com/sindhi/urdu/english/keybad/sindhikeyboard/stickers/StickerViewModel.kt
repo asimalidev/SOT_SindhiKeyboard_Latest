@@ -20,6 +20,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.URL
 import java.net.URLConnection
+import kotlin.text.set
 
 class StickerViewModel : ViewModel() {
     private val repository = StickerRepository()

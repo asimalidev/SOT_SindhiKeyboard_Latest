@@ -1,17 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.com.google.gms.google.services)
     alias(libs.plugins.com.google.firebase.crashlytics)
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.com.google.firebase.perf)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.legacy.kapt) apply false
+    id 'com.google.devtools.ksp'
 }
 
 android {
     namespace 'com.sindhi.urdu.english.keybad'
-    compileSdk 36
+    compileSdk 37
 
     tasks.register('cleanBuildDir') {
         doLast {
@@ -19,14 +19,17 @@ android {
         }
     }
 
+    buildFeatures {
+        resValues = true
+    }
+
     defaultConfig {
         applicationId "com.sindhi.urdu.english.keybad"
-        minSdk 23
-        targetSdk 36
-        versionCode 74
-        versionName '7.0'
+        minSdk 24
+        targetSdk 37
+        versionCode 78
+        versionName '7.0.4'
         multiDexEnabled true
-        setProperty("archivesBaseName","SindhiKeyboard_VN" + versionName + "("+versionCode+")_" + new Date().format('dd-MM-YYYY'))
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -42,21 +45,25 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            manifestPlaceholders = [crashlyticsCollectionEnabled:"true"]
-            minifyEnabled false
-            shrinkResources false
+            manifestPlaceholders = [crashlyticsCollectionEnabled: "true"]
+            optimization {
+                enable = true // Enables code and resource optimizations.
+            }
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue "string", "ShowPopups", '"false"'
             resValue "string", "admob_app_id", '"ca-app-pub-3747520410546258~6769204044"'
             resValue "string", "interstitial", '"ca-app-pub-3747520410546258/8061968598"'
             resValue "string", "admob_native", '"ca-app-pub-3747520410546258/2241847463"'
 
-
             resValue "string", "MINTEGRAL_APP_ID", '"373617"'
             resValue "string", "MINTEGRAL_APP_KEY", '"af82803f3b7ce492df493de280ee8bf3"'
             resValue "string", "banner_size_native_keyboard", '"ca-app-pub-3747520410546258/5577098379"'
             resValue "string", "admob_native_themes", '"ca-app-pub-3747520410546258/2809641910"'
             resValue "string", "BANNER_INSIDE", '"ca-app-pub-3747520410546258/1697692330"'
+            resValue "string", "NATIVE_DEFAULT", '"ca-app-pub-3747520410546258/6727149276"'
+            resValue "string", "BANNER_DEFAULT", '"ca-app-pub-3747520410546258/6403715647"'
             resValue "string", "admob_native_home", '"ca-app-pub-3747520410546258/4721264045"'
             resValue "string", "admob_native_conversation", '"ca-app-pub-3747520410546258/7012610803"'
             resValue "string", "admob_app_open", '"ca-app-pub-3747520410546258/7925749832"'
@@ -68,6 +75,7 @@ android {
             resValue "string", "ADMOB_NATIVE_LANGUAGE_2", '"ca-app-pub-3747520410546258/9581434677"'
             resValue "string", "ADMOB_NATIVE_SURVEY_1", '"ca-app-pub-3747520410546258/1743484865"'
             resValue "string", "ADMOB_NATIVE_SURVEY_2", '"ca-app-pub-3747520410546258/9019339653"'
+            resValue "string", "INTERSTITIAL_DEFAULT", '"ca-app-pub-3747520410546258/4015677297"'
             resValue "string", "ADMOB_NATIVE_WALKTHROUGH_1", '"ca-app-pub-3747520410546258/8117321523"'
             resValue "string", "ADMOB_NATIVE_WALKTHROUGH_FULLSCR", '"ca-app-pub-3747520410546258/1098926537"'
             resValue "string", "ADMOB_NATIVE_WALKTHROUGH_3", '"ca-app-pub-3747520410546258/7706257983"'
@@ -75,14 +83,17 @@ android {
             resValue("string", "ADMOB_INTERSTITIAL_LETS_START", "ca-app-pub-3747520410546258/3016026325")
             resValue "string", "MINTEGRAL_BANNER_KEYPAD", '"2339869-5085280"'
             resValue "string", "NATIVE_INSIDE_BIDDING", '"ca-app-pub-3747520410546258/8117321523"'
-
             resValue("string", "RESUME_OVER_ALL", "ca-app-pub-3747520410546258/7925749832")
+            resValue "string", "AD_ID_SOCCER_REWARDED", '"ca-app-pub-3747520410546258/3763756239"'
+            resValue "string", "AD_ID_REWARDED", '"ca-app-pub-3747520410546258/3763756239"'
+            resValue "string", "NATIVE_DEFAULT_KEYPAD", '"ca-app-pub-3747520410546258/6649760674"'
 
         }
 
         debug {
-            manifestPlaceholders = [crashlyticsCollectionEnabled:"false"]
+            manifestPlaceholders = [crashlyticsCollectionEnabled: "false"]
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             resValue "string", "ShowPopups", '"true"'
@@ -97,6 +108,9 @@ android {
             resValue "string", "admob_native_conversation", '"ca-app-pub-3940256099942544/2247696110"'
             resValue "string", "admob_app_open", '"ca-app-pub-3940256099942544/9257395921"'
             resValue "string", "NATIVE_INSIDE_BIDDING", '"ca-app-pub-3940256099942544/2247696110"'
+            resValue "string", "NATIVE_DEFAULT", '"ca-app-pub-3940256099942544/2247696110"'
+            resValue "string", "BANNER_DEFAULT", '"ca-app-pub-3940256099942544/9214589741"'
+            resValue "string", "INTERSTITIAL_DEFAULT", '"ca-app-pub-3940256099942544/1033173712"'
 
             resValue "string", "admob_banner_inside", '"ca-app-pub-3940256099942544/9214589741"'
             resValue "string", "BANNER_BIDDING", '"ca-app-pub-3940256099942544/9214589741"'
@@ -114,6 +128,8 @@ android {
             resValue("string", "ADMOB_NATIVE_WALKTHROUGH_2", "ca-app-pub-3940256099942544/2247696110")
             resValue("string", "ADMOB_INTERSTITIAL_LETS_START", "ca-app-pub-3940256099942544/1033173712")
             resValue "string", "BANNER_INSIDE", '"ca-app-pub-3940256099942544/9214589741"'
+            resValue "string", "NATIVE_DEFAULT_KEYPAD", '"ca-app-pub-3940256099942544/2247696110"'
+
 
             resValue("string", "RESUME_OVER_ALL", "ca-app-pub-3940256099942544/9257395921")
 
@@ -121,6 +137,9 @@ android {
             resValue "string", "NATIVE_INSIDE_BIDDING", '"ca-app-pub-3940256099942544/2247696110"'
             resValue "string", "BANNER_BIDDING", '"ca-app-pub-3940256099942544/9214589741"'
             resValue "string", "MINTEGRAL_BANNER_KEYPAD", '"2339869-5085280"'
+            resValue "string", "AD_ID_SOCCER_REWARDED", '"ca-app-pub-3747520410546258/3763756239"'
+
+            resValue "string", "AD_ID_REWARDED", '"ca-app-pub-3747520410546258/3763756239"'
 
 
         }
@@ -137,14 +156,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-    buildFeatures{
+
+    buildFeatures {
         buildConfig = true
         viewBinding = true
         compose = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.15'
     }
@@ -164,6 +182,7 @@ dependencies {
     implementation libs.firebase.messaging
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.crashlytics
+    implementation("io.coil-kt:coil:2.7.0")
     implementation(libs.firebase.perf)
     implementation libs.play.services.ads
     implementation libs.app.update.ktx
@@ -172,14 +191,12 @@ dependencies {
     implementation libs.androidx.navigation.fragment.ktx
     implementation libs.androidx.navigation.ui.ktx
     implementation libs.androidx.lifecycle.process
-    kapt libs.androidx.lifecycle.compiler
     implementation libs.ssp.android
     implementation libs.sdp.android
     implementation libs.lottie
     implementation libs.groupie
     implementation libs.androidx.room.runtime
     implementation libs.androidx.room.ktx
-    kapt libs.androidx.room.compiler
     implementation libs.androidx.browser
     implementation libs.glide
     implementation libs.converter.gson
@@ -212,6 +229,18 @@ dependencies {
     implementation libs.zt.zip
     implementation(libs.billing.ktx)
     implementation("androidx.compose.material:material-icons-extended")
-    implementation "androidx.asynclayoutinflater:asynclayoutinflater:1.0.0"
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    implementation "androidx.camera:camera-view:1.6.1"
+    implementation "androidx.camera:camera-core:1.6.1"
+    implementation "androidx.camera:camera-camera2:1.6.1"
+    implementation libs.androidx.camera.lifecycle
+    implementation libs.androidx.camera.video
+    implementation libs.androidx.camera.extensions
+    implementation libs.android.image.cropper
+    implementation libs.language.id
+    implementation libs.text.recognition.chinese
+    implementation libs.text.recognition.devanagari
+    implementation libs.text.recognition.japanese
+    implementation libs.text.recognition.korean
+    implementation libs.text.recognition
+    ksp 'androidx.room:room-compiler:2.5.0'
 }

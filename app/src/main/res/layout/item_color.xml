@@ -4,12 +4,24 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@+id/selectedBorder"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="@dimen/_5sdp"
+        android:background="@drawable/bg_color_stroke"
+        android:elevation="@dimen/_2sdp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
         android:id="@+id/colorView"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="@dimen/_5sdp"
         android:background="@drawable/bg_color"
-        android:backgroundTint="@color/navy_blue"
         android:elevation="@dimen/_1sdp"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="@+id/selectedBorder"
@@ -17,15 +29,4 @@
         app:layout_constraintStart_toStartOf="@+id/selectedBorder"
         app:layout_constraintTop_toTopOf="@+id/selectedBorder" />
 
-    <ImageView
-        android:id="@+id/selectedBorder"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="@dimen/_5sdp"
-        android:background="@drawable/bg_color"
-        android:backgroundTint="@color/transp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

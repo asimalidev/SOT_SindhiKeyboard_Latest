@@ -36,6 +36,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import com.google.firebase.messaging.FirebaseMessaging
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentHomeBinding
@@ -46,21 +47,28 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.keyboardLayout.isHuaweiDevice
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_HOME
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_HOME
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.IS_PURCHASED
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_INTER_POST_GALLERY_ENTER
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.FOFStartActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.StickersViewActivity
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.SubscriptionActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.INTERSTITIAL_STICKER_ENTER
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_HOME
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_SLKB_HOME
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_SLKB_HOME
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.ViewDialog
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_HOME_SCR
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_EXIT_APP
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_EDITOR_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_STATUS_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_SINDHI_STICKERS_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_STYLISH_TEXT_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_TEXT_REVERSE_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_INTER_THEMES_ENTER
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_NATIVE_HOME_SCR
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 
@@ -95,7 +103,7 @@ class HomeFragment : Fragment(), IBillingHandler {
         if (NetworkCheck.isNetworkAvailable(requireActivity())
             && !isPurchased!!
             && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                .getString(COLLAPSIBLE_HOME, "ON").equals("ON", true)
+                .getString(SHOW_BANNER_HOME_SCR, "ON").equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("HomeFragment")) {
                 val collapsibleAdView: AdView? =
@@ -118,10 +126,8 @@ class HomeFragment : Fragment(), IBillingHandler {
             binding?.shimmerLayoutBanner?.visibility = View.GONE
         }
 
-
         val toolbarContainer = requireActivity().findViewById<View>(R.id.inclToolBar)
         toolbarContainer?.visibility = View.VISIBLE
-
 
         if (!requireActivity().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
                 .getBoolean(IS_PURCHASED, false)
@@ -136,9 +142,8 @@ class HomeFragment : Fragment(), IBillingHandler {
                             requireActivity(),
                             "home_scr_tap_removeads"
                         )
-                        val action =
-                            HomeFragmentDirections.actionNavHomeToNavSubscriptionFragment("Home")
-                        navController?.safeNavigate(action)
+                        val intent = Intent(requireActivity(), SubscriptionActivity::class.java)
+                        requireContext().startActivity(intent)
                     } else {
                         isNavControllerAdded()
                     }
@@ -151,18 +156,14 @@ class HomeFragment : Fragment(), IBillingHandler {
             .let { it?.visibility = View.INVISIBLE }
 
         if (NetworkCheck.isNetworkAvailable(requireActivity())
-            && !isPurchased!! && requireActivity().getSharedPreferences(
-                "RemoteConfig",
-                Context.MODE_PRIVATE
-            )
-                .getString(ADS_NATIVE_HOME, "ON").equals("ON", true)
+            && !isPurchased!! && requireActivity().getSharedPreferences("RemoteConfig",
+                Context.MODE_PRIVATE).getString(SHOW_NATIVE_HOME_SCR, "ON").equals("ON", true)
         ) {
-
             val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
             val adId = if (!BuildConfig.DEBUG) {
-                pref.getString(NATIVE_HOME, resources.getString(R.string.admob_native_home))
+                pref.getString(AD_ID_NATIVE_SLKB_HOME, resources.getString(R.string.NATIVE_DEFAULT))
             } else {
-                resources.getString(R.string.admob_native_home)
+                resources.getString(R.string.NATIVE_DEFAULT)
             }
             NewNativeAdClass.checkAdRequestAdmob(
                 mContext = requireActivity(),
@@ -183,8 +184,7 @@ class HomeFragment : Fragment(), IBillingHandler {
             binding?.nativeAdContainerAd?.visibility = View.GONE
         }
 
-        val txtSindhiKeyboard =
-            requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
+        val txtSindhiKeyboard = requireActivity().findViewById<AppCompatTextView>(R.id.txtSindhiKeyboard)
         if (txtSindhiKeyboard != null) {
             txtSindhiKeyboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             txtSindhiKeyboard.text = resources.getString(R.string.title_home)
@@ -209,21 +209,21 @@ class HomeFragment : Fragment(), IBillingHandler {
         }
     }
 
+
     private fun loadBanner() {
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(BANNER_INSIDE, resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_SLKB_HOME, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
         if (adId != null) {
             adView.adUnitId = adId
         }
         val extras = Bundle()
         extras.putString("collapsible", "bottom")
-
         val adRequest = AdRequest.Builder()
             .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
             .build()
@@ -298,56 +298,143 @@ class HomeFragment : Fragment(), IBillingHandler {
             ?.getBoolean(IS_PURCHASED, false) == true
 
         binding?.clEditor?.blockingClickListener {
-            if (isAdded && navController != null) {
-                val action = HomeFragmentDirections.actionNavHomeToNavEditors()
-                // Use safeNavigate to ensure the action exists for the current destination
-                navController?.safeNavigate(action)
+            if (NetworkCheck.isNetworkAvailable(requireActivity())
+                && !requireActivity().getSharedPreferences(
+                    RemoteConfigConst.REMOTE_CONFIG,
+                    MODE_PRIVATE
+                ).getBoolean(IS_PURCHASED, false)
+                && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+                    .getString(SHOW_INTER_SINDHI_EDITOR_ENTER, "ON").equals("ON", true)
+            ) {
+                InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                    context = requireActivity(),
+                    nameFragment = "SindhiEditorFragment",
+                    onAdClosedCallBackAdmob = {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            onCvUrduEditorClick()
+                        }, 300)
+                    },
+                    onAdShowedCallBackAdmob = {
+
+                    })
+            } else {
+                onCvUrduEditorClick()
             }
+        }
+
+
+        binding?.clStylishText?.setOnClickListener {
+            if (navController != null) {
+                if (NetworkCheck.isNetworkAvailable(requireContext()) && requireActivity().getSharedPreferences(
+                        "RemoteConfig",
+                        Context.MODE_PRIVATE
+                    ).getString(SHOW_INTER_STYLISH_TEXT_ENTER, "ON").equals("ON", true)
+                ) {
+                    if (isPurchased!!) {
+                        val action = HomeFragmentDirections.actionNavHomeToStylishFragment()
+                        navController?.safeNavigate(action)
+                    } else {
+                        showInterstitialAll(transition = "stylish_text")
+                    }
+                } else {
+                    val action = HomeFragmentDirections.actionNavHomeToStylishFragment()
+                    navController?.safeNavigate(action)
+                }
+            } else {
+                isNavControllerAdded()
+            }
+
+        }
+
+
+        binding?.cvIbadat?.setOnClickListener {
+            val action = HomeFragmentDirections.actionNavHomeToIbadatFragment()
+            navController?.safeNavigate(action)
         }
 
         bundle.putString("HomeFragment", "HomeFragment")
         FirebaseLog.getAnalytics(requireContext()).logEvent("event_home", bundle)
+
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (isAdded && navController != null) {
-                        val action = HomeFragmentDirections.actionNavHomeToExitScreenFragment()
-                        navController?.safeNavigate(action)
+                        if (NetworkCheck.isNetworkAvailable(requireActivity())
+                            && !requireActivity().getSharedPreferences(
+                                RemoteConfigConst.REMOTE_CONFIG,
+                                MODE_PRIVATE
+                            ).getBoolean(Preferences.IS_PURCHASED, false)
+                            && requireActivity().getSharedPreferences(
+                                "RemoteConfig",
+                                MODE_PRIVATE
+                            )
+                                .getString(SHOW_INTER_EXIT_APP, "ON").equals("ON", true)
+                        ) {
+                            // Show the ad before navigating to the Exit Screen
+                            InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                                context = requireContext(),
+                                nameFragment = "ExitScreen",
+                                onAdClosedCallBackAdmob = {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        if (isAdded && navController != null) {
+                                            val action =
+                                                HomeFragmentDirections.actionNavHomeToExitScreenFragment()
+                                            navController?.safeNavigate(action)
+                                        }
+                                    }, 300)
+                                },
+                                onAdShowedCallBackAdmob = { }
+                            )
+                        } else {
+                            // Navigate immediately if there's no internet, user is premium, or ads are OFF
+                            val action = HomeFragmentDirections.actionNavHomeToExitScreenFragment()
+                            navController?.safeNavigate(action)
+                        }
+
                     } else {
                         isNavControllerAdded()
                     }
                 }
             })
 
-
-
-
         binding!!.clTextTranslation.blockingClickListener {
-            if (navController != null) {
-                if (NetworkCheck.isNetworkAvailable(requireContext()) && requireActivity().getSharedPreferences(
-                        "RemoteConfig",
-                        Context.MODE_PRIVATE
-                    ).getString(Preferences.INTERSTITIAL_TRANSLATION_ENTER, "ON").equals("ON", true)
+            onBtnTranslationClick()
+        }
+
+        binding!!.clTextReverse.blockingClickListener {
+
+            if (isAdded && navController != null) {
+                if (NetworkCheck.isNetworkAvailable(requireActivity())
+                    && !requireActivity().getSharedPreferences(
+                        RemoteConfigConst.REMOTE_CONFIG,
+                        MODE_PRIVATE
+                    ).getBoolean(Preferences.IS_PURCHASED, false)
+                    && requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+                        .getString(SHOW_INTER_TEXT_REVERSE_ENTER, "ON").equals("ON", true)
                 ) {
-                    if (isPurchased!!) {
-                        onBtnTranslationClick()
-                    } else {
-                        showInterstitialAll(transition = "translation")
-                    }
+                    InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                        context = requireActivity(),
+                        nameFragment = "TextReverse",
+                        onAdClosedCallBackAdmob = {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                navController?.safeNavigate(HomeFragmentDirections.actionNavHomeToReverseFragment())
+                            }, 300)
+                        },
+                        onAdShowedCallBackAdmob = {
+                        }
+                    )
                 } else {
-                    onBtnTranslationClick()
+                    navController?.safeNavigate(HomeFragmentDirections.actionNavHomeToReverseFragment())
                 }
             } else {
                 isNavControllerAdded()
             }
-        }
 
 
-        binding!!.clTextReverse.blockingClickListener {
-            navController?.safeNavigate(HomeFragmentDirections.actionNavHomeToReverseFragment())
         }
+
         binding!!.clDictionary.blockingClickListener {
             Toast.makeText(
                 requireActivity(),
@@ -361,7 +448,7 @@ class HomeFragment : Fragment(), IBillingHandler {
                 if (NetworkCheck.isNetworkAvailable(requireContext()) && requireActivity().getSharedPreferences(
                         "RemoteConfig",
                         Context.MODE_PRIVATE
-                    ).getString(Preferences.INTERSTITIAL_THEME_ENTER, "ON").equals("ON", true)
+                    ).getString(SHOW_INTER_THEMES_ENTER, "ON").equals("ON", true)
                 ) {
                     if (isPurchased!!) {
                         onBtnThemeClick()
@@ -383,7 +470,7 @@ class HomeFragment : Fragment(), IBillingHandler {
             )
             if (NetworkCheck.isNetworkAvailable(requireActivity())
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                    .getString(INTERSTITIAL_STICKER_ENTER, "ON").equals("ON", true)
+                    .getString(SHOW_INTER_SINDHI_STICKERS_ENTER, "ON").equals("ON", true)
             ) {
                 InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
                     context = requireActivity(),
@@ -413,12 +500,11 @@ class HomeFragment : Fragment(), IBillingHandler {
             }
         }
 
-
         binding!!.clDailyStatus.blockingClickListener {
             if (navController != null) {
                 if (NetworkCheck.isNetworkAvailable(requireContext()) && requireActivity().getSharedPreferences(
                         "RemoteConfig", Context.MODE_PRIVATE
-                    ).getString(Preferences.INTERSTITIAL_SINDHI_STATUS_ENTER, "ON")
+                    ).getString(SHOW_INTER_SINDHI_STATUS_ENTER, "ON")
                         .equals("ON", true)
                 ) {
                     if (isPurchased!!) {
@@ -434,9 +520,41 @@ class HomeFragment : Fragment(), IBillingHandler {
             }
         }
 
-        binding!!.clDisable.blockingClickListener {
-            onBtnDisableClick()
+        binding!!.clPostGallery.blockingClickListener {
+            if (isAdded && navController != null) {
+                if (NetworkCheck.isNetworkAvailable(requireActivity())
+                    && !requireActivity().getSharedPreferences(
+                        RemoteConfigConst.REMOTE_CONFIG,
+                        Context.MODE_PRIVATE
+                    ).getBoolean(Preferences.IS_PURCHASED, false)
+                    && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                        .getString(SHOW_INTER_POST_GALLERY_ENTER, "ON").equals("ON", true)
+                ) {
+                    InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                        context = requireActivity(),
+                        nameFragment = "TextTranslator",
+                        onAdClosedCallBackAdmob = {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                val action = HomeFragmentDirections.actionNavHomeToAllPosterFragment()
+                                navController?.safeNavigate(action)
+                            }, 300)
+                        },
+                        onAdShowedCallBackAdmob = {
+                        }
+                    )
+                } else {
+                    val action = HomeFragmentDirections.actionNavHomeToAllPosterFragment()
+                    navController?.safeNavigate(action)
+                }
+            } else {
+                isNavControllerAdded()
+            }
         }
+    }
+
+    private fun onCvUrduEditorClick() {
+        val action = HomeFragmentDirections.actionNavHomeToNavEditors()
+        navController?.safeNavigate(action)
     }
 
     override fun onDestroy() {
@@ -529,8 +647,16 @@ class HomeFragment : Fragment(), IBillingHandler {
                 "dailystatus" -> {
                     onBtnDailyStatus()
                 }
+                "stylish_text" -> {
+                    onBtnstylishtext()
+                }
             }
         }, 1200)
+    }
+
+    private fun onBtnstylishtext() {
+        val action = HomeFragmentDirections.actionNavHomeToStylishFragment()
+        navController?.safeNavigate(action)
     }
 
     override fun onProductPurchased(productId: String, details: PurchaseInfo?) {

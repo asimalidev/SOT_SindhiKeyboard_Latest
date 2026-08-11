@@ -3,6 +3,7 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.keyboardLa
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.domain.keyboard_classes.Key
 
+
 val husneguftarOneLayout = arrayOf(
     arrayOf(
         Key("أَسْتَغْفِرُ اللّٰه", 2f, shouldBeResized = true),
@@ -63,7 +64,7 @@ val husneguftarTwoLayout = arrayOf(
     arrayOf(
         Key("۲/۳ ", 1.5f, isCharacter = false, isSpecialCharacter = true, shouldBeResized = true, shouldShowPopUp = false, shouldBeRounded = false),
         Key("إِنَّا لِلّهِ وَإِنَّـا إِلَيْهِ رَاجِعونَ", 4f, shouldBeResized = true),
-        Key("سوری یار!", 2f, shouldBeResized = true),
+        Key("سوری یار", 2f, shouldBeResized = true),
         Key("میں پہنچ گیاھوں", 3f, shouldBeResized = true),
         Key("Delete", 1.5f, isSpecialCharacter = true, icon = R.drawable.ic_backspace, shouldShowPopUp = false, isCharacter = false, shouldShowIcon = true, contentDescription = "Delete")
     ),

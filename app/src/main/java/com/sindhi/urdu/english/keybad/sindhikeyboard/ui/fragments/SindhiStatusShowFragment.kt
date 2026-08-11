@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -21,10 +20,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -35,19 +34,18 @@ import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentSindhiStatusShowBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck.Companion.isNetworkAvailable
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.adapters.SindhiPoetryShowAdapter
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.sindhiPoetryModels.SindhiPoetry
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.sindhiPoetryModels.SindhiPoetryItemClickListener
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.ADMOB_BANNER_SINDHI_STATUS
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_SINDHI_STATUS_SHOW
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_SINDHI_POETRY
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_SINDHI_POETRY
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
-import kotlin.collections.set
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SINDHI_POETRY
+import org.json.JSONArray
+import java.io.InputStream
 
 class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
     lateinit var binding: FragmentSindhiStatusShowBinding
@@ -80,7 +78,6 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
                     } else {
                         navController.popBackStack()
                     }
-
                 }
             })
 
@@ -88,37 +85,42 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
 
         binding.rvPoetryShow.layoutManager = LinearLayoutManager(requireActivity())
 
-        when (args.poetryName) {
-            "استادبخاري" -> {
-                adapter = SindhiPoetryShowAdapter(SindhiPoetry.getUstadBukhariList(), this)
-                binding.rvPoetryShow.adapter = adapter
-            }
+        // 1. Construct the filename (e.g., "استادبخاري.json")
+        val jsonFileName = "${args.poetryName}.json"
 
-            "رومينٽڪ شاعري" -> {
-                adapter = SindhiPoetryShowAdapter(SindhiPoetry.getRomanticShayriList(), this)
-                binding.rvPoetryShow.adapter = adapter
-            }
+        // 2. Read and parse the list from assets
+        val poetryList = loadPoetryFromAssets(jsonFileName)
 
-            "شاھ لطيف جي شاعري ۽ سمجھاني" -> {
-                adapter = SindhiPoetryShowAdapter(SindhiPoetry.getShahLatifShayriList(), this)
-                binding.rvPoetryShow.adapter = adapter
-            }
+        // 3. Bind the list to the adapter
+        adapter = SindhiPoetryShowAdapter(poetryList, this)
+        binding.rvPoetryShow.adapter = adapter
+    }
 
-            "شيخ اياز" -> {
-                adapter = SindhiPoetryShowAdapter(SindhiPoetry.getSheikhAyazShayriList(), this)
-                binding.rvPoetryShow.adapter = adapter
-            }
 
-            "کل ۽پوگ" -> {
-                adapter = SindhiPoetryShowAdapter(SindhiPoetry.getKulPogShayriList(), this)
-                binding.rvPoetryShow.adapter = adapter
-            }
+    private fun loadPoetryFromAssets(fileName: String): List<String> {
+        val poetryList = ArrayList<String>()
+        try {
+            // Open the JSON file from the assets folder
+            val inputStream: InputStream = requireContext().assets.open(fileName)
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            inputStream.close()
 
-            "لطيفيات" -> {
-                adapter = SindhiPoetryShowAdapter(SindhiPoetry.getLatifiyatShayriList(), this)
-                binding.rvPoetryShow.adapter = adapter
+            // Convert buffer to string
+            val jsonString = String(buffer, Charsets.UTF_8)
+
+            // Parse JSON array
+            val jsonArray = JSONArray(jsonString)
+            for (i in 0 until jsonArray.length()) {
+                poetryList.add(jsonArray.getString(i))
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("SindhiStatusShow", "Error reading JSON file: $fileName")
+            // Optionally show a toast to the user if the file isn't found
         }
+        return poetryList
     }
 
     private fun checkForLoadBanner() {
@@ -128,7 +130,7 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
                 "RemoteConfig",
                 Context.MODE_PRIVATE
             ).getString(
-                BANNER_SINDHI_STATUS_SHOW, "ON"
+                SHOW_BANNER_SINDHI_POETRY, "ON"
             ).equals("ON", true)
         ) {
             if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("showFragment")) {
@@ -154,8 +156,6 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
         }
     }
 
-    /*private val adSize: AdSize
-        get() = AdSize.BANNER*/
     private val adSize: AdSize
         get() {
             val display = requireActivity().windowManager.defaultDisplay
@@ -180,13 +180,13 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
         Log.d("jdjasjjsa", "loading: ")
         val pref = requireContext().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
         val adId = if (!BuildConfig.DEBUG) {
-            pref.getString(ADMOB_BANNER_SINDHI_STATUS, resources.getString(R.string.admob_banner_inside))
+            pref.getString(AD_ID_BANNER_SINDHI_POETRY, resources.getString(R.string.BANNER_DEFAULT))
         } else {
-            resources.getString(R.string.admob_banner_inside)
+            resources.getString(R.string.BANNER_DEFAULT)
         }
         val adView = AdView(requireActivity())
         adView.setAdSize(adSize)
-        adView.adUnitId = adId!!//getString(R.string.BANNER_BIDDING)
+        adView.adUnitId = adId!!
         val adRequest = AdRequest.Builder().build()
 
         adView.loadAd(adRequest)
@@ -196,25 +196,19 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
                 binding.adViewContainer.addView(adView)
                 NativeMaster.collapsibleBannerAdMobHashMap!!["showFragment"] = adView
                 Log.d("jdjasjjsa", "onAdLoaded: ")
-
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
-
-
             }
 
             override fun onAdOpened() {
                 Log.d("jdjasjjsa", "onAdOpened: ")
-
             }
 
             override fun onAdClicked() {
-
             }
 
             override fun onAdClosed() {
-
             }
         }
     }
@@ -239,7 +233,7 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
                 ), null, null, null
             )
             txtSindhiKeyboard.text = args.poetryName
-            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInDp = 12
             val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
             txtSindhiKeyboard.compoundDrawablePadding = gapInPx
             val startDrawable = txtSindhiKeyboard.compoundDrawables[0]
@@ -259,17 +253,17 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
         } else {
             if (isNetworkAvailable(requireContext())
                 && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                    .getString(Preferences.ADS_NATIVE_POETRY_INSIDE, "ON").equals("ON", true)
+                    .getString(Preferences.SHOW_NATIVE_SINDHI_POETRY, "ON").equals("ON", true)
             ) {
                 val pref = requireActivity().getSharedPreferences("RemoteConfig", MODE_PRIVATE)
                 val adId = if (!BuildConfig.DEBUG) {
-                    pref.getString(NATIVE_OVER_ALL,  resources.getString(R.string.admob_banner_inside))
+                    pref.getString(AD_ID_NATIVE_SINDHI_POETRY,  resources.getString(R.string.NATIVE_DEFAULT))
                 } else {
-                    resources.getString(R.string.admob_banner_inside)
+                    resources.getString(R.string.NATIVE_DEFAULT)
                 }
                 NewNativeAdClass.checkAdRequestAdmob(
                     mContext = requireActivity(),
-                    adId = adId!!,//getString(R.string.admob_native),
+                    adId = adId!!,
                     fragmentName = "showFragment",
                     isMedia = false,
                     adContainer = binding.nativeAdContainerAd,
@@ -286,7 +280,6 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
             } else {
                 binding.nativeAdContainerAd.visibility = View.GONE
                 binding.separator.visibility = View.GONE
-
             }
         }
     }
@@ -318,9 +311,7 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
         whatsappIntent.type = "text/plain"
         whatsappIntent.setPackage("com.whatsapp")
         whatsappIntent.putExtra(Intent.EXTRA_TEXT, poetry)
-
         whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
         try {
             requireContext().startActivity(whatsappIntent)
         } catch (ex: ActivityNotFoundException) {
@@ -357,5 +348,14 @@ class SindhiStatusShowFragment : Fragment(), SindhiPoetryItemClickListener {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    // 3. ADDED this function to handle passing text and navigating
+    override fun onPoetryItemEditClicked(poetry: String) {
+        val bundle = Bundle().apply {
+            putString("passed_text", poetry)
+        }
+
+        navController?.navigate(R.id.action_navSindhiStatusShow_to_sindhiEditor, bundle)
     }
 }

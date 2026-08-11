@@ -2,25 +2,23 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities
 
 import android.Manifest
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
-import android.preference.PreferenceManager
+import android.os.Looper
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.content.res.AppCompatResources
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -28,124 +26,106 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.manual.mediation.library.sotadlib.activities.AppCompatBaseActivity
-import com.manual.mediation.library.sotadlib.utils.hideSystemUIUpdated
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.ActivityKeyboardSelectionBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NativeMaster
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.ADS_NATIVE_SELECT_KEYBOARD
-import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.COLLAPSIBLE_SELECT_KEYBOARD
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.BANNER_INSIDE
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_HOME
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences.SHOW_NATIVE_SELECT_KEYBOARD
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.isKeyboardEnabled
+import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.isKeyboardSelected
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_BANNER_SLKB_HOME
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_SLKB_HOME
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.OVERALL_BANNER_RELOADING
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.checkIfKeyboardEnabled
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.isInputMethodEnabled
-import kotlin.system.exitProcess
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_BANNER_SELECT_KEYBOARD
 
 class KeyboardSelectionActivity : AppCompatBaseActivity() {
-
     lateinit var binding: ActivityKeyboardSelectionBinding
-
-    private lateinit var oneBlueDrawable: Drawable
-    private lateinit var twoBlueDrawable: Drawable
-    private lateinit var oneGreenDrawable: Drawable
-    private lateinit var twoGreenDrawable: Drawable
-
-    private lateinit var tickDrawable: Drawable
-    lateinit var nextDrawable: Drawable
-
-    var isPurchased: Boolean? = null
-    var bundle = Bundle()
-    lateinit var shakeAnimation: TranslateAnimation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityKeyboardSelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-                Glide.with(this@KeyboardSelectionActivity)
-                    .asBitmap()
-                    .load(R.drawable.ic_selection_theme)
-                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .skipMemoryCache(true)
-                    .into(binding.ivActivateKeyboard)
 
+        window.statusBarColor = android.graphics.Color.WHITE
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-        bundle.putString("SelectKeyboardActivity","SelectKeyboardActivity")
-        FirebaseLog.getAnalytics(this).logEvent("event_select_keyboard", bundle)
+            v.setPadding(0, insets.top, 0, 0)
 
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+                topMargin = 0 // 2. Remove the top margin!
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+        hideSystemUI()
 
-        supportActionBar?.hide()
-      isPurchased = getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)?.getBoolean(IS_PURCHASED, false) == true
+        CustomFirebaseEvents.logEvent(this, eventName = "keyboard_setup_scr")
+        CustomFirebaseEvents.activitiesFragmentEvent(this, "SelectKeyboardActivity")
 
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS), 0)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS),
+            0
+        )
 
-        shakeAnimation = TranslateAnimation(0f, 20f, 0f, 0f)
-        shakeAnimation.duration = 100
-        shakeAnimation.repeatMode = Animation.REVERSE
-        shakeAnimation.repeatCount = 10
-
-        oneBlueDrawable = ContextCompat.getDrawable(this@KeyboardSelectionActivity, R.drawable.ic_one_default)!!
-        twoBlueDrawable = ContextCompat.getDrawable(this@KeyboardSelectionActivity, R.drawable.ic_two_default)!!
-        oneGreenDrawable = ContextCompat.getDrawable(this@KeyboardSelectionActivity, R.drawable.ic_one_blue)!!
-        twoGreenDrawable = ContextCompat.getDrawable(this@KeyboardSelectionActivity, R.drawable.ic_two_blue)!!
-        tickDrawable = ContextCompat.getDrawable(this@KeyboardSelectionActivity, R.drawable.ic_tick)!!
-        nextDrawable = ContextCompat.getDrawable(this@KeyboardSelectionActivity, R.drawable.ic_next)!!
-
-        nextMove()
-
-        binding.btnActivate.blockingClickListener {
-            if (!checkIfKeyboardEnabled()) {
+        binding.btnEnableStep1.setOnClickListener {
+            it.clearAnimation()
+            if (!isKeyboardEnabled(this)) {
                 try {
-                    startActivityForResult(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS), 0)
+                    CustomFirebaseEvents.logEvent(this, eventName = "enable_scr_tap")
+                    val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+                    startActivity(intent)
                 } catch (ignored: ActivityNotFoundException) {
+                    Toast.makeText(this, "Unable to open keyboard settings.", Toast.LENGTH_SHORT)
+                        .show()
                 }
-            } else {
-                binding.btnSwitch.startAnimation(shakeAnimation)
             }
         }
 
-        binding.btnSwitch.blockingClickListener {
-            if (checkIfKeyboardEnabled()) {
-                try {
-                    val mgr = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                    mgr.showInputMethodPicker()
-                } catch (ignored: ActivityNotFoundException) { }
-            } else {
-                binding.btnActivate.startAnimation(shakeAnimation)
+        binding.btnSelectStep2.setOnClickListener {
+            it.clearAnimation() // Stops the animation immediately on click
+            try {
+                CustomFirebaseEvents.logEvent(this, eventName = "setkeyboard_scr_tap")
+                val mgr = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                mgr.showInputMethodPicker()
+            } catch (ignored: ActivityNotFoundException) {
             }
         }
 
-        val callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                finishAffinity()
-                exitProcess(0)
-            }
-        }
-
-        onBackPressedDispatcher.addCallback(this, callback)
-
+        // Ads Logic
         if (NetworkCheck.isNetworkAvailable(this)
-            && !isPurchased!!
-            && getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(ADS_NATIVE_SELECT_KEYBOARD,"ON").equals("ON",true)) {
+            && !getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, MODE_PRIVATE).getBoolean(
+                Preferences.IS_PURCHASED, false
+            )
+            && getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(
+                SHOW_NATIVE_SELECT_KEYBOARD,
+                "ON"
+            ).equals("ON", true)
+        ) {
             binding.nativeAdContainerAd.visibility = View.VISIBLE
             loadAdmobNativeAd()
         } else if (NetworkCheck.isNetworkAvailable(this)
-            && !isPurchased!!
-            && getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE).getString(COLLAPSIBLE_SELECT_KEYBOARD,"ON").equals("ON",true)) {
+            && !getSharedPreferences(RemoteConfigConst.REMOTE_CONFIG, MODE_PRIVATE).getBoolean(
+                Preferences.IS_PURCHASED,
+                false
+            )
+            && getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(
+                SHOW_BANNER_SELECT_KEYBOARD,
+                "ON"
+            ).equals("ON", true)
+        ) {
             binding.shimmerLayoutBanner.startShimmer()
             binding.shimmerLayoutBanner.visibility = View.VISIBLE
             binding.adViewContainer.visibility = View.VISIBLE
-            binding.separator.visibility = View.VISIBLE
-
             loadAdmobCollapsibleBannerAd()
         } else {
             binding.shimmerLayoutBanner.visibility = View.GONE
@@ -153,71 +133,141 @@ class KeyboardSelectionActivity : AppCompatBaseActivity() {
             binding.adViewContainer.visibility = View.GONE
         }
 
+        // Initial UI State Check
+        updateUIState()
+    }
+
+    private fun startPulseAnimation(view: View) {
+        val scaleDownX = android.animation.ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.06f)
+        val scaleDownY = android.animation.ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.06f)
+
+        scaleDownX.duration = 300
+        scaleDownY.duration = 300
+
+        scaleDownX.repeatCount = android.animation.ObjectAnimator.INFINITE
+        scaleDownY.repeatCount = android.animation.ObjectAnimator.INFINITE
+
+        scaleDownX.repeatMode = android.animation.ObjectAnimator.REVERSE
+        scaleDownY.repeatMode = android.animation.ObjectAnimator.REVERSE
+
+        val animatorSet = android.animation.AnimatorSet()
+        animatorSet.playTogether(scaleDownX, scaleDownY)
+        animatorSet.start()
+    }
+
+    private fun hideSystemUI() {
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
+        windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
     }
 
     override fun onResume() {
         super.onResume()
-        this.hideSystemUIUpdated()
+        supportActionBar?.hide()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            updateUIState()
+        }
+    }
+
+    private fun updateUIState() {
+        if (isKeyboardEnabled(this)) {
+            if (isKeyboardSelected(this)) {
+                // Both steps complete! Move to next screen
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (!NetworkCheck.isNetworkAvailable(this)) {
+                        startActivity(
+                            Intent(
+                                this@KeyboardSelectionActivity,
+                                NavigationActivity::class.java
+                            )
+                        )
+                    } else {
+                        val moveTo = intent.getStringExtra("MoveTo")
+                        val intent = Intent(this, SubscriptionActivity::class.java).apply {
+                            putExtra("fromName", "SelectKeyboard")
+                            putExtra("MoveTo", moveTo)
+                        }
+                        startActivity(intent)
+                        finish()
+                    }
+                }, 0)
+            } else {
+                // Step 1 done, move to Step 2
+                binding.layoutStep1.visibility = View.GONE
+                binding.layoutStep2.visibility = View.VISIBLE
+
+                // FIX: Trigger animation for Step 2 button
+                startPulseAnimation(binding.btnSelectStep2)
+            }
+        } else {
+            // Step 1 not done yet
+            binding.layoutStep1.visibility = View.VISIBLE
+            binding.layoutStep2.visibility = View.GONE
+
+            // FIX: Trigger animation for Step 1 button
+            startPulseAnimation(binding.btnEnableStep1)
+        }
+    }
+
+
+    private fun loadAdmobCollapsibleBannerAd() {
+        if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("KeyboardSelectionFragment")) {
+            val collapsibleAdView: AdView? =
+                NativeMaster.collapsibleBannerAdMobHashMap!!["KeyboardSelectionFragment"]
+            binding.shimmerLayoutBanner.stopShimmer()
+            binding.shimmerLayoutBanner.visibility = View.INVISIBLE
+            binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
+            val parent = collapsibleAdView?.parent as? ViewGroup
+            parent?.removeView(collapsibleAdView)
+            binding.adViewContainer.addView(collapsibleAdView)
+        } else {
+            loadCollapsibleBanner()
+        }
     }
 
     private fun loadAdmobNativeAd() {
-        val pref =getSharedPreferences("RemoteConfig", MODE_PRIVATE)
-        val adId  =if (!BuildConfig.DEBUG){
-           // pref.getString(NATIVE_HOME,"ca-app-pub-3747520410546258/7968970100")
-            pref.getString(NATIVE_HOME, resources.getString(R.string.admob_native_home))
-        }
-        else {
-            resources.getString(R.string.admob_native_home)
+        val pref = getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId = if (!BuildConfig.DEBUG) {
+            pref.getString(AD_ID_NATIVE_SLKB_HOME, resources.getString(R.string.NATIVE_DEFAULT))
+        } else {
+            resources.getString(R.string.NATIVE_DEFAULT)
         }
 
-            NewNativeAdClass.checkAdRequestAdmob(
+
+
+        NewNativeAdClass.checkAdRequestAdmob(
             mContext = this@KeyboardSelectionActivity,
             adId = adId!!,
             fragmentName = "KeyboardSelectionFragment",
             isMedia = true,
             isMediaOnLeft = true,
             adContainer = binding.nativeAdContainerAd,
-            isMediumAd = true,
+            isMediumAd = false,
             onFailed = {
                 binding.nativeAdContainerAd.visibility = View.GONE
-
             },
             onAddLoaded = {
                 binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
+                binding.shimmerLayout.visibility = View.INVISIBLE
             })
     }
 
-    private fun loadAdmobCollapsibleBannerAd() {
-        if (NativeMaster.collapsibleBannerAdMobHashMap!!.containsKey("KeyboardSelectionFragment")) {
-            val collapsibleAdView: AdView? = NativeMaster.collapsibleBannerAdMobHashMap!!["KeyboardSelectionFragment"]
-            Handler().postDelayed({
-                binding.shimmerLayoutBanner.stopShimmer()
-                binding.shimmerLayoutBanner.visibility = View.GONE
-                binding.adViewContainer.removeView(binding.shimmerLayoutBanner)
-                binding.separator.visibility = View.VISIBLE
-                val parent = collapsibleAdView?.parent as? ViewGroup
-                parent?.removeView(collapsibleAdView)
-
-                binding.adViewContainer.addView(collapsibleAdView)
-            },500)
-        } else {
-            loadCollapsibleBanner()
-        }
-    }
-
     private fun loadCollapsibleBanner() {
-        val pref =getSharedPreferences("RemoteConfig", MODE_PRIVATE)
-        val adId  =if (!BuildConfig.DEBUG){
-          //  pref.getString(BANNER_INSIDE,"ca-app-pub-3747520410546258/1697692330")
-            pref.getString(BANNER_INSIDE,resources.getString(R.string.admob_banner_inside))
-        }
-        else{
-            resources.getString(R.string.admob_banner_inside)
+        val pref = getSharedPreferences("RemoteConfig", MODE_PRIVATE)
+        val adId = if (!BuildConfig.DEBUG) {
+            pref.getString(AD_ID_BANNER_SLKB_HOME, resources.getString(R.string.BANNER_DEFAULT))
+        } else {
+            resources.getString(R.string.BANNER_DEFAULT)
         }
         val adView = AdView(this)
         adView.setAdSize(adSize)
-        adView.adUnitId =adId!!
+        adView.adUnitId = adId!!
         val extras = Bundle()
         extras.putString("collapsible", "bottom")
 
@@ -228,32 +278,30 @@ class KeyboardSelectionActivity : AppCompatBaseActivity() {
         adView.loadAd(adRequest)
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.INVISIBLE
                 binding.adViewContainer.removeAllViews()
                 binding.adViewContainer.addView(adView)
-                if (getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(OVERALL_BANNER_RELOADING, "SAVE").equals("SAVE")) {
-                    NativeMaster.collapsibleBannerAdMobHashMap!!["KeyboardSelectionFragment"] = adView
+                if (getSharedPreferences("RemoteConfig", MODE_PRIVATE).getString(
+                        OVERALL_BANNER_RELOADING,
+                        "SAVE"
+                    ).equals("SAVE")
+                ) {
+                    NativeMaster.collapsibleBannerAdMobHashMap!!["KeyboardSelectionFragment"] =
+                        adView
                 }
-                binding.separator.visibility = View.VISIBLE
-                binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
-                binding.shimmerLayout.stopShimmer()
-                binding.shimmerLayout.visibility = View.GONE
-                binding.separator.visibility = View.GONE
-            }
-
-            override fun onAdOpened() {
-
-            }
-
-            override fun onAdClicked() {
-
+                binding.shimmerLayoutBanner.stopShimmer()
+                binding.shimmerLayoutBanner.visibility = View.INVISIBLE
             }
 
             override fun onAdClosed() {
-
+                val layoutParams =
+                    binding.adViewContainer.layoutParams as ConstraintLayout.LayoutParams
+                layoutParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                binding.adViewContainer.layoutParams = layoutParams
             }
         }
     }
@@ -263,89 +311,17 @@ class KeyboardSelectionActivity : AppCompatBaseActivity() {
             val display = windowManager.defaultDisplay
             val outMetrics = DisplayMetrics()
             display.getMetrics(outMetrics)
-
             val density = outMetrics.density
-
             var adWidthPixels = binding.adViewContainer.width.toFloat()
             if (adWidthPixels == 0f) {
                 adWidthPixels = outMetrics.widthPixels.toFloat()
             }
-
             val adWidth = (adWidthPixels / density).toInt()
             return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
         }
 
-    private fun nextMove() {
-            if (checkIfKeyboardEnabled() && isInputMethodEnabled()) {
-                activateState(true)
-                switchState(true)
-                Handler().postDelayed({
-                    // CHANGED: Assigned intent to a variable and added startActivity()
-                    val intent = Intent(this, SubscriptionActivity::class.java).apply {
-                        putExtra("fromName", "SelectKeyboard")
-                        putExtra("MoveTo", intent.getStringExtra("MoveTo"))
-                    }
-                    startActivity(intent) // <--- THIS WAS MISSING!
-                    finish()
-                }, 0)
-            } else if (!checkIfKeyboardEnabled() && !isInputMethodEnabled()) {
-            binding.btnActivate.startAnimation(shakeAnimation)
-            activateState(false)
-            switchState(false)
-        } else {
-            if (checkIfKeyboardEnabled()) {
-                activateState(true)
-            } else {
-                binding.btnActivate.startAnimation(shakeAnimation)
-                activateState(false)
-            }
-
-            if (isInputMethodEnabled()) {
-                switchState(true)
-            } else {
-                binding.btnSwitch.startAnimation(shakeAnimation)
-                switchState(false)
-            }
-        }
-    }
-
-    private fun activateState(state: Boolean) {
-        if (state) {
-            binding.btnActivate.background = AppCompatResources.getDrawable(this, R.drawable.bg_enabled_keyboard)
-            binding.btnActivate.setCompoundDrawablesRelativeWithIntrinsicBounds(oneGreenDrawable,null,tickDrawable,null)
-        } else {
-            binding.btnActivate.background = AppCompatResources.getDrawable(this, R.drawable.bg_disabled_keyboard)
-            binding.btnActivate.setCompoundDrawablesRelativeWithIntrinsicBounds(oneBlueDrawable,null,nextDrawable,null)
-        }
-    }
-
-    private fun switchState(state: Boolean) {
-        if (state) {
-            binding.btnSwitch.background = AppCompatResources.getDrawable(this, R.drawable.bg_enabled_keyboard)
-            binding.btnSwitch.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                twoGreenDrawable,
-                null,
-                tickDrawable,
-                null
-            )
-        } else {
-            binding.btnSwitch.background = AppCompatResources.getDrawable(this, R.drawable.bg_disabled_keyboard)
-            binding.btnSwitch.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                twoBlueDrawable,
-                null,
-                nextDrawable,
-                null
-            )
-        }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            if (inputMethodManager.enabledInputMethodList.toString().contains(packageName)) {
-                nextMove()
-            }
-        }
+    override fun onDestroy() {
+        binding.adViewContainer.removeAllViews()
+        super.onDestroy()
     }
 }

@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -17,7 +18,9 @@ import com.sindhi.urdu.english.keybad.R
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextPaint
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -29,10 +32,11 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -43,7 +47,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.manual.mediation.library.sotadlib.utils.NetworkCheck
 import com.sindhi.urdu.english.keybad.databinding.FragmentUrduEditorBinding
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.ApplicationClass.Companion.imageUriUrduEditorBackgrounds
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.editorAdapters.BackgroundImagesAdapter
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.editorAdapters.ColorAdapter
@@ -54,7 +57,6 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.Backgroun
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.ColorItem
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.FontCache
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.FontCache.fontCache
-import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.FontCache.loadFonts
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.StickerDataCache
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.TextItem
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.stickerview.StickerImageView
@@ -62,16 +64,17 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.StickersViewA
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideKeyboard
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.viewModels.StickerViewModel
 import kotlin.collections.iterator
-import androidx.core.view.isGone
 import androidx.navigation.NavOptions
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.NavigationActivity
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 class UrduEditorFragment : Fragment() {
     private lateinit var binding: FragmentUrduEditorBinding
     private var navController: NavController? = null
-    private var clDoneCancel: ConstraintLayout? = null
-    private var ivDismissEditing: ImageView? = null
-    private var ivDoneEditing: ImageView? = null
     private var currentEditedTextItem: TextItem? = null
+    private var originalTextBeforeEdit: TextItem? = null
     private var colorList: MutableList<ColorItem>? = null
     private val handler = Handler(Looper.getMainLooper())
     private var isTouchingPlus = false
@@ -80,9 +83,8 @@ class UrduEditorFragment : Fragment() {
     private lateinit var fontsAdapter: FontSpinnerAdapter
     private var backgroundBitmap: Bitmap? = null
     private val stickerViewModel: StickerViewModel by viewModels()
-    var txtUrduKeyboard: AppCompatTextView? = null
-    var ivSaveEditing: ImageView? = null
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
+    private var imageUriUrduEditorBackgrounds: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -93,27 +95,44 @@ class UrduEditorFragment : Fragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        galleryLauncher =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-                uri?.let {
-                    imageUriUrduEditorBackgrounds = it
-                    backgroundBitmap = createBitmapFromUri(it)
-                    binding.textEditorView.setBackgroundImage(bitmap = backgroundBitmap)
-                }
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                imageUriUrduEditorBackgrounds = it
+                backgroundBitmap = createBitmapFromUri(it)
+                binding.textEditorView.setBackgroundImage(bitmap = backgroundBitmap)
+                Log.i("UrduEditorFragment", "MyUriTAG 1 : $imageUriUrduEditorBackgrounds")
             }
-
+        }
         setupTextEditorView()
         isNavControllerAdded()
 
+
         binding.tvAddText.blockingClickListener {
-            addTextItem("")
+            binding.clDoneCancel.visibility = View.VISIBLE
+            binding.clDoneCancel.bringToFront()
+
+            // USE HELPER HERE INSTEAD OF hideAllTexts = true
+            setCanvasElementsVisibility(false)
+
+            originalTextBeforeEdit = null
+            addTextItem(" ")
+            binding.textEditorView.selectedTextItem?.let {
+                currentEditedTextItem = it.copy()
+            }
+            binding.textEditorView.selectedTextItem?.let {
+                binding.textEditorView.clearText(it)
+                binding.textEditorView.selectedTextItem = null
+            }
             handleEditText()
+            binding.etEnterText.setText("")
+            binding.etEnterText.requestFocus()
         }
 
         binding.tvAddSticker.setOnClickListener {
-            if (binding.clAddSticker.isGone) {
+            if (binding.clAddSticker.visibility == View.GONE) {
                 binding.clAddSticker.visibility = View.VISIBLE
             } else {
                 binding.clAddSticker.visibility = View.GONE
@@ -121,7 +140,7 @@ class UrduEditorFragment : Fragment() {
         }
 
         binding.tvBackground.setOnClickListener {
-            if (binding.clTextBackground.isGone) {
+            if (binding.clTextBackground.visibility == View.GONE) {
                 binding.clTextBackground.visibility = View.VISIBLE
             } else {
                 binding.clTextBackground.visibility = View.GONE
@@ -208,7 +227,47 @@ class UrduEditorFragment : Fragment() {
                 stickersAdapter.updateData(combinedList)
             }
         }
+        val passedText = arguments?.getString("passed_text")
+        if (!passedText.isNullOrEmpty()) {
+            // Use post to ensure the canvas is fully measured before drawing
+            binding.textEditorView.post {
+                // 1. Add the passed text to the canvas
+                addTextItem(passedText)
 
+                // 2. Open the text editor UI immediately with the passed text
+                binding.clDoneCancel.visibility = View.VISIBLE
+                binding.clDoneCancel.bringToFront()
+                binding.textEditorView.hideAllTexts = true
+                originalTextBeforeEdit = null
+
+                binding.textEditorView.selectedTextItem?.let {
+                    it.textSize = 40f
+                    currentEditedTextItem = it.copy()
+                    binding.textEditorView.clearText(it)
+                    binding.textEditorView.selectedTextItem = null
+                }
+
+                handleEditText()
+                binding.etEnterText.requestFocus()
+
+                // 3. Clear the argument so it doesn't re-trigger if the screen rotates
+                arguments?.putString("passed_text", null)
+            }
+        }
+    }
+
+    private fun setCanvasElementsVisibility(isVisible: Boolean) {
+        // 1. Toggle text canvas items
+        binding.textEditorView.hideAllTexts = !isVisible
+
+        // 2. Toggle child views (stickers)
+        val visibilityStatus = if (isVisible) View.VISIBLE else View.INVISIBLE
+        for (i in 0 until binding.textEditorView.childCount) {
+            binding.textEditorView.getChildAt(i).visibility = visibilityStatus
+        }
+
+        // 3. Refresh the view
+        binding.textEditorView.invalidateChanges()
     }
 
     private fun addStickerToTextEditorView(drawable: Drawable) {
@@ -224,7 +283,15 @@ class UrduEditorFragment : Fragment() {
         super.onResume()
         stickerViewModel.loadStickerPacks(requireActivity())
         initUI()
+        (activity as? NavigationActivity)?.hidetoolbar()
+
     }
+
+    override fun onStop() {
+        super.onStop()
+        (activity as? NavigationActivity)?.showtoolbar()
+    }
+
 
     override fun onPause() {
         super.onPause()
@@ -233,7 +300,8 @@ class UrduEditorFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initUI() {
-        if (fontCache == null) {
+
+        if (fontCache.isEmpty()) {
             FontCache.loadAllTypefacesFromAssets(requireContext())
         }
 
@@ -276,7 +344,9 @@ class UrduEditorFragment : Fragment() {
             })
     }
 
+
     private fun showColorPicker() {
+        // Assume ColorPickerDialogFragment is correctly implemented elsewhere
         ColorPickerDialogFragment(
             context = requireContext(),
             initialColor = selectedColor,
@@ -288,12 +358,11 @@ class UrduEditorFragment : Fragment() {
                 }
             },
             onDismiss = {
-//                if (isAdded) {
-//                    activity?.hideSystemUIUpdated()
-//                }
+                // handle dismiss
             }
         ).show()
     }
+
 
     private val backgroundItems = mutableListOf(
         BackgroundImageItem(R.drawable.bg_1),
@@ -301,13 +370,10 @@ class UrduEditorFragment : Fragment() {
         BackgroundImageItem(R.drawable.bg_3),
         BackgroundImageItem(R.drawable.bg_4),
         BackgroundImageItem(R.drawable.bg_5),
-        BackgroundImageItem(R.drawable.bg_6)
+
     )
 
     private fun setupTextEditorFooter() {
-        clDoneCancel = requireActivity().findViewById(R.id.clDoneCancel)
-        ivDismissEditing = requireActivity().findViewById(R.id.ivDismissEditing)
-        ivDoneEditing = requireActivity().findViewById(R.id.ivDoneEditing)
         binding.rvColors.layoutManager =
             LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false)
 
@@ -331,11 +397,13 @@ class UrduEditorFragment : Fragment() {
         }
         binding.rvBackgrounds.adapter = adapterBackground
 
-        val fontList = loadFonts(context = requireActivity())
+        val fontList = FontCache.loadFonts(context = requireActivity())
         fontsAdapter =
             FontSpinnerAdapter(context = requireActivity(), fontList = fontList) { fontName ->
                 Log.i("UrduEditorFragment", "Selected font: $fontName")
-                binding.txtFont.text = fontName
+
+                binding.txtFont.text = getPreviewTextForFont(fontName)
+
                 FontCache.getTypeface(context = requireActivity(), fontName = fontName)?.let {
                     binding.txtFont.typeface = it
                     currentEditedTextItem?.fontName = fontName
@@ -362,15 +430,19 @@ class UrduEditorFragment : Fragment() {
         }
 
         binding.btnPhoneStorage.blockingClickListener {
-            if (checkImagesPermissions()) {
-                if (navController != null) {
-                    galleryClicked()
-                } else {
-                    isNavControllerAdded()
-                }
+            if (navController != null) {
+                galleryClicked()
             } else {
-                askForCameraImagesPermissions()
+                isNavControllerAdded()
             }
+        }
+    }
+
+    private fun getPreviewTextForFont(fontName: String): String {
+        return if (FontCache.isUrduFont(fontName)) {
+            "سندھی کی بورڈ"
+        } else {
+            "Sindhi Keyboard"
         }
     }
 
@@ -384,6 +456,7 @@ class UrduEditorFragment : Fragment() {
         } else {
             binding.textEditorView.saveBitmapToLegacyStorage(bitmap, context)
         }
+
         binding.rvFonts.adapter = fontsAdapter
         if (!notInCache) {
             if (savedUri != null) {
@@ -420,64 +493,31 @@ class UrduEditorFragment : Fragment() {
         colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.settingsColor)))
         colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.candidate_other)))
         colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.navy_blue)))
-        colorList?.add(
-            ColorItem(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.candidate_secondary_recommended
-                )
-            )
-        )
-        colorList?.add(
-            ColorItem(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.board_theme__red
-                )
-            )
-        )
+        colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.candidate_secondary_recommended)))
+        colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.red)))
         colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.colorAccent)))
         colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.Amber)))
         colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.Chocolate)))
-        colorList?.add(
-            ColorItem(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.btnEnabledKeyboard
-                )
-            )
-        )
-        colorList?.add(
-            ColorItem(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.btnEnabledKeyboardNumber
-                )
-            )
-        )
-        colorList?.add(
-            ColorItem(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.candidate_background
-                )
-            )
+        colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.btnEnabledKeyboard)))
+        colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.btnEnabledKeyboardNumber)))
+        colorList?.add(ColorItem(ContextCompat.getColor(requireContext(), R.color.candidate_background))
         )
     }
 
-    @SuppressLint("ClickableViewAccessibility", "UseCompatLoadingForDrawables")
+    @SuppressLint("ClickableViewAccessibility")
     private fun hideUnusedUIComponents() {
         isNavControllerAdded()
         requireActivity().findViewById<ImageView>(R.id.ivHistory)
-            .let { it?.visibility = View.INVISIBLE }
+            ?.visibility = View.INVISIBLE
         requireActivity().findViewById<ImageView>(R.id.ivPremium)
-            .let { it?.visibility = View.INVISIBLE }
+            ?.visibility = View.INVISIBLE
+
         val clEditing = requireActivity().findViewById<ConstraintLayout>(R.id.clEditing)
         val clSubDiv = requireActivity().findViewById<ConstraintLayout>(R.id.clSubDiv)
 
         if (clEditing != null) {
-            clSubDiv.background =
-                requireActivity().resources.getDrawable(R.drawable.bg_header_blue, null)
+            clSubDiv?.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.bg_header_blue)
         }
 
         if (clEditing != null) {
@@ -485,78 +525,83 @@ class UrduEditorFragment : Fragment() {
         }
     }
 
+
     @SuppressLint("ClickableViewAccessibility")
     private fun setupTextEditorHeader() {
-        // Ensure fragment is attached to activity before accessing it
-        activity?.let { ctx ->
-            txtUrduKeyboard = ctx.findViewById(R.id.txtSindhiKeyboard)
-            ivSaveEditing = ctx.findViewById(R.id.ivSaveEditing)
-            val ivShare = ctx.findViewById<ImageView>(R.id.ivShare)
+        binding.txtUrduKeyboard.apply {
+            setCompoundDrawablesWithIntrinsicBounds(
+                ContextCompat.getDrawable(requireContext(), R.drawable.back), null, null, null
+            )
+            compoundDrawablePadding = 30
 
-            txtUrduKeyboard?.apply {
-                setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(
-                        requireContext(),
-                        R.drawable.back
-                    ), null, null, null
-                )
-                text = resources.getString(R.string.label_sindhi_editor)
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            text = resources.getString(R.string.label_sindhi_editor)
+            setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
 
-                setOnTouchListener { _, event ->
-                    if (event.action == MotionEvent.ACTION_DOWN && event.x <= (compoundDrawables[0]?.bounds?.width()
-                            ?: 0)
-                    ) {
-                        if (binding.clTextEditor.visibility == View.VISIBLE) {
-                            ivDismissEditing?.performClick()
-                        } else if (binding.clTextEditor.visibility == View.GONE || binding.clTextEditor.visibility == View.INVISIBLE) {
-                            clDoneCancel?.visibility = View.GONE
-                            Log.i("UrduEditorFragment", "setupTextEditorHeader:")
-                            changeDialogTitleDescription(
-                                title = ctx.getString(R.string.label_quit_editing),
-                                description = ctx.getString(R.string.label_description_exit_editing),
-                                btnSaveVisibility = true,
-                                btnCancelVisibility = true
-                            )
-                            binding.clExitDialog.visibility = View.VISIBLE
-                        }
-                        true
-                    } else {
-                        false
-                    }
-                }
-            }
-
-            ivShare.apply {
-                setOnClickListener {
-                    if (binding.clTextEditor.visibility == View.GONE || binding.clTextEditor.visibility == View.INVISIBLE) {
-                        binding.textEditorView.addWaterMarkText("Sindhi Keyboard")
-                        val bitmap = binding.textEditorView.captureAsBitmap()
-                        imgSaveOrShare(bitmap = bitmap, context = ctx)
-                    }
-                }
-            }
-
-            ivSaveEditing?.apply {
-                setOnClickListener {
-                    if (binding.clTextEditor.visibility == View.GONE || binding.clTextEditor.visibility == View.INVISIBLE) {
+            setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN && event.x <= (compoundDrawables[0]?.bounds?.width() ?: 0)) {
+                    if (binding.clTextEditor.visibility == View.VISIBLE) {
+                        ivDismissEditingClicked()
+                    } else if (binding.clTextEditor.visibility == View.GONE || binding.clTextEditor.visibility == View.INVISIBLE) {
+                        binding.clDoneCancel.visibility = View.INVISIBLE
+                        Log.i("UrduEditorFragment", "setupTextEditorHeader:")
                         changeDialogTitleDescription(
-                            title = ctx.getString(R.string.save_poster),
-                            description = ctx.getString(R.string.are_you_sure_to_save_changes),
+                            title = requireContext().getString(R.string.label_quit_editing),
+                            description = requireContext().getString(R.string.label_description_exit_editing),
                             btnSaveVisibility = true,
                             btnCancelVisibility = true
                         )
                         binding.clExitDialog.visibility = View.VISIBLE
-
-//                        requireActivity().findViewById<ConstraintLayout>(R.id.clEditing)
-//                            .let { it?.visibility = View.INVISIBLE }
                     }
+                    true
+                } else {
+                    false
                 }
             }
-        } ?: run {
-            Log.e("UrduEditorFragment", "Fragment is not attached to activity")
         }
 
+        binding.ivdoneEditor.setOnClickListener {
+            // 1. Add watermark and capture
+//            binding.textEditorView.addWaterMarkText("Urdu Keyboard")
+            val bitmap = binding.textEditorView.captureAsBitmap()
+
+            // 2. Save to cache so we can safely pass it to the next screen
+            val cachedImageUri = saveBitmapToCache(bitmap, requireContext())
+
+            binding.clExitDialog.visibility = View.GONE
+
+            // 3. Navigate to Preview screen with the URI
+            if (cachedImageUri != null) {
+                val bundle = Bundle().apply {
+                    putString("preview_image_uri", cachedImageUri.toString())
+                }
+                // Replace with your actual navigation action ID
+                findNavController().navigate(
+                    R.id.action_editor_to_previewPosterFragment,
+                    bundle
+                )
+            } else {
+                Toast.makeText(context, "Failed to process image", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    }
+
+
+    private fun saveBitmapToCache(bitmap: Bitmap, context: Context): Uri? {
+        return try {
+            val cachePath = File(context.cacheDir, "images")
+            cachePath.mkdirs() // don't forget to make the directory
+            val stream =
+                FileOutputStream(File(cachePath, "preview_image.png")) // overwrites this image every time
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            stream.close()
+
+            val imagePath = File(cachePath, "preview_image.png")
+            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", imagePath)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     private fun isNavControllerAdded() {
@@ -577,16 +622,29 @@ class UrduEditorFragment : Fragment() {
 
         binding.textEditorView.onCornerButtonTouchListener = { buttonIndex ->
             when (buttonIndex) {
-                0 -> handleEditText()
+                0 -> {
+
+                    setCanvasElementsVisibility(false)
+                    binding.textEditorView.selectedTextItem?.let {
+                        originalTextBeforeEdit = it.copy()
+                        currentEditedTextItem = it.copy()
+                        binding.textEditorView.clearText(it)
+                        binding.textEditorView.selectedTextItem = null
+                    }
+                    handleEditText()
+                    binding.etEnterText.requestFocus()
+                }
                 1 -> handleCloseText()
             }
         }
     }
 
     private fun addTextItem(text: String) {
-        val textColor = colorList?.get(3)?.color
-        val textSize = 50f
-        binding.textEditorView.addText(text, 150.0f, 150.0f, textColor!!, textSize)
+        val textColor = colorList?.get(1)?.color ?: Color.BLACK
+
+        val textSize = 100f
+
+        binding.textEditorView.addText(text, 250.0f, 250.0f, textColor, textSize)
         binding.textEditorView.selectedTextItem = binding.textEditorView.textItems.lastOrNull()
     }
 
@@ -612,11 +670,12 @@ class UrduEditorFragment : Fragment() {
             it.typeface?.let { typeface ->
                 Log.i("UrduEditorFragment", "It has fonts")
                 binding.txtFont.typeface = typeface
-                binding.txtFont.text = it.fontName
+                binding.txtFont.text = getPreviewTextForFont(it.fontName ?: "")
             } ?: run {
                 for ((fontName, typeface) in fontCache) {
                     if (typeface != null) {
-                        binding.txtFont.text = fontName
+                        binding.txtFont.text = getPreviewTextForFont(fontName)
+
                         binding.etEnterText.typeface =
                             FontCache.getTypeface(requireActivity(), fontName)
                         binding.txtFont.typeface =
@@ -636,11 +695,9 @@ class UrduEditorFragment : Fragment() {
                 Paint.Align.LEFT.name -> {
                     changeLeftDrawables()
                 }
-
                 Paint.Align.CENTER.name -> {
                     changeCenterDrawable()
                 }
-
                 Paint.Align.RIGHT.name -> {
                     changeRightDrawable()
                 }
@@ -654,16 +711,18 @@ class UrduEditorFragment : Fragment() {
         )
 
         binding.clTextEditor.visibility = View.VISIBLE
-        if (clDoneCancel != null && ivDismissEditing != null && ivDoneEditing != null) {
-            clDoneCancel?.visibility = View.VISIBLE
 
-            ivDismissEditing?.blockingClickListener {
-                ivDismissEditingClicked()
-            }
+        // --- FIX FOR UNCLICKABLE DONE/CANCEL BUTTONS ---
+        binding.clDoneCancel.visibility = View.VISIBLE
+        binding.clDoneCancel.bringToFront() // Forces it above the clTextEditor shield
 
-            ivDoneEditing?.blockingClickListener {
-                ivDoneEditingClicked()
-            }
+        // Removed null checks, viewbinding guarantees existence
+        binding.ivDismissEditing.setOnClickListener {
+            ivDismissEditingClicked()
+        }
+
+        binding.ivDoneEditing.setOnClickListener {
+            ivDoneEditingClicked()
         }
 
         val increaseTextSize = object : Runnable {
@@ -702,7 +761,6 @@ class UrduEditorFragment : Fragment() {
                     isTouchingPlus = true
                     handler.post(increaseTextSize)
                 }
-
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     isTouchingPlus = false
                     handler.removeCallbacks(increaseTextSize)
@@ -717,7 +775,6 @@ class UrduEditorFragment : Fragment() {
                     isTouchingMinus = true
                     handler.post(decreaseTextSize)
                 }
-
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     isTouchingMinus = false
                     handler.removeCallbacks(decreaseTextSize)
@@ -726,24 +783,20 @@ class UrduEditorFragment : Fragment() {
             true
         }
 
-        binding.seekbarTextSize.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, progress: Int, progress2: Boolean) {
-                setTextView()
-                Log.i("UrduEditorFragment", "onProgressChanged:$progress")
+        binding.seekbarTextSize.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, progress: Int, fromUser: Boolean) {
+                // 1. Update the data model FIRST
                 currentEditedTextItem?.let {
                     it.textSize = progress.toFloat()
                     binding.tvTxtSize.text = "$progress"
                 }
+
+                // 2. THEN update the UI
+                setTextView()
+                Log.i("UrduEditorFragment", "onProgressChanged:$progress")
             }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-
-            }
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+            override fun onStopTrackingTouch(p0: SeekBar?) {}
         })
 
         binding.ivAlignStart.setOnClickListener {
@@ -770,20 +823,40 @@ class UrduEditorFragment : Fragment() {
 
     private fun setTextView() {
         currentEditedTextItem?.let {
-            binding.etEnterText.setText(it.text)
-            binding.etEnterText.textSize = it.textSize
+            // If the canvas just has our placeholder space, show an empty box to the user
+            val textToShow = if (it.text == " ") "" else it.text
+
+            // Prevent infinite loops with the TextWatcher by checking before setting
+            if (binding.etEnterText.text.toString() != textToShow) {
+                binding.etEnterText.setText(textToShow)
+                binding.etEnterText.setSelection(textToShow.length) // Move cursor to the end
+            }
+
+            binding.etEnterText.setTextSize(TypedValue.COMPLEX_UNIT_PX, it.textSize)
             binding.etEnterText.setTextColor(it.textColor)
             binding.etEnterText.typeface = it.typeface
 
-            binding.llEnterText.gravity = when (it.alignment) {
-                Paint.Align.LEFT -> Gravity.START
+            // FIX: Use absolute LEFT/RIGHT to override Urdu RTL behavior
+            val absoluteGravity = when (it.alignment) {
+                Paint.Align.LEFT -> Gravity.LEFT or Gravity.CENTER_VERTICAL
                 Paint.Align.CENTER -> Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
-                Paint.Align.RIGHT -> Gravity.END
+                Paint.Align.RIGHT -> Gravity.RIGHT or Gravity.CENTER_VERTICAL
             }
+
+            // Apply gravity to the wrapper layout to push the box across the screen
+            binding.llEnterText.gravity = absoluteGravity
+
+            // Apply gravity to the EditText to align multi-line text correctly
+            binding.etEnterText.gravity = absoluteGravity
         }
     }
 
-    private fun changeDialogTitleDescription(title: String, description: String, btnSaveVisibility: Boolean, btnCancelVisibility: Boolean) {
+    private fun changeDialogTitleDescription(
+        title: String,
+        description: String,
+        btnSaveVisibility: Boolean,
+        btnCancelVisibility: Boolean
+    ) {
         binding.txtTitle.text = title
         binding.descExitEditing.text = description
 
@@ -802,47 +875,47 @@ class UrduEditorFragment : Fragment() {
 
     private fun changeRightDrawable() {
         setTextView()
-        binding.ivAlignStart.setBackgroundResource(0)
-        binding.ivAlignCenter.setBackgroundResource(0)
-        binding.ivAlignEnd.setBackgroundDrawable(resources.getDrawable(R.drawable.bg_selected_alignment))
+        binding.ivAlignStart.clearColorFilter()
+        binding.ivAlignCenter.clearColorFilter()
+        binding.ivAlignEnd.setColorFilter(Color.parseColor("#0066FF"))
     }
 
     private fun changeCenterDrawable() {
         setTextView()
-        binding.ivAlignStart.setBackgroundResource(0)
-        binding.ivAlignCenter.setBackgroundDrawable(resources.getDrawable(R.drawable.bg_selected_alignment))
-        binding.ivAlignEnd.setBackgroundResource(0)
+        binding.ivAlignStart.clearColorFilter()
+        binding.ivAlignCenter.setColorFilter(Color.parseColor("#0066FF"))
+        binding.ivAlignEnd.clearColorFilter()
     }
 
     private fun changeLeftDrawables() {
         setTextView()
-        binding.ivAlignStart.setBackgroundDrawable(resources.getDrawable(R.drawable.bg_selected_alignment))
-        binding.ivAlignCenter.setBackgroundResource(0)
-        binding.ivAlignEnd.setBackgroundResource(0)
+        binding.ivAlignStart.setColorFilter(Color.parseColor("#0066FF")) // Selected Blue
+        binding.ivAlignCenter.clearColorFilter() // Unselected Normal
+        binding.ivAlignEnd.clearColorFilter()    // Unselected Normal
     }
 
     private fun ivDoneEditingClicked() {
-        Log.e("UrduEditorFragment", "ivDoneEditingClicked()")
-
-        // Ensure the fragment is attached to an activity
         val activity = if (isAdded) activity else null ?: return
+        val finalString = binding.etEnterText.text.toString().trim()
+        activity?.hideKeyboard()
+        setCanvasElementsVisibility(true)
+        binding.textEditorView.hideAllTexts = false
+        binding.clTextEditor.visibility = View.GONE
+        binding.rvFonts.visibility = View.GONE
+        binding.clFontsRV.visibility = View.GONE
+        binding.clDoneCancel.visibility = View.INVISIBLE
 
-        val text = currentEditedTextItem?.text.orEmpty()
-        if (text.isNotEmpty()) {
-
-            activity?.hideKeyboard()
-            binding.clTextEditor.visibility = View.GONE
-            binding.rvFonts.visibility = View.GONE
-            binding.clFontsRV.visibility = View.GONE
-            clDoneCancel?.visibility = View.GONE
-
+        if (finalString.isNotEmpty()) {
             val current = currentEditedTextItem
-            val selected = binding.textEditorView.selectedTextItem
+            var selected = binding.textEditorView.selectedTextItem
+
+            if (selected == null && current != null) {
+                addTextItem(finalString)
+                selected = binding.textEditorView.selectedTextItem
+            }
 
             if (current != null && selected != null) {
-                selected.text = current.text
-                selected.x = current.x
-                selected.y = current.y
+                selected.text = finalString
                 selected.textColor = current.textColor
                 selected.textSize = current.textSize
                 selected.rotation = current.rotation
@@ -851,36 +924,86 @@ class UrduEditorFragment : Fragment() {
                 selected.fontName = current.fontName
                 selected.isSelected = current.isSelected
                 current.typeface?.let { selected.typeface = it }
+
+                // --- FIX: UPDATED MARGIN CALCULATION ---
+                val canvasWidth = binding.textEditorView.width.toFloat()
+
+                val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+                    textSize = selected.textSize
+                    typeface = selected.typeface
+                }
+
+                var maxLineWidth = 0f
+                val lines = finalString.split("\n")
+                for (line in lines) {
+                    val w = paint.measureText(line)
+                    if (w > maxLineWidth) maxLineWidth = w
+                }
+
+                // Calculate total safe margin:
+                // 20f (box padding) + 30f (half of button size 60f) + 10f (extra breathing room)
+                val edgeMargin = 60f
+
+                val safeTextWidth = minOf(maxLineWidth, canvasWidth - (edgeMargin * 2))
+
+                when (selected.alignment) {
+                    Paint.Align.LEFT -> {
+                        selected.x = edgeMargin
+                    }
+                    Paint.Align.CENTER -> {
+                        selected.x = (canvasWidth - safeTextWidth) / 2f
+                    }
+                    Paint.Align.RIGHT -> {
+                        selected.x = canvasWidth - safeTextWidth - edgeMargin
+                    }
+                }
+
+                selected.y = current.y
             }
 
             binding.textEditorView.invalidateChanges()
+            originalTextBeforeEdit = null
 
         } else {
-            // Safely show dialog message if no text is present
-            changeDialogTitleDescription(
-                title = activity?.getString(R.string.no_text) ?: "",
-                description = activity?.getString(R.string.there_is_no_text_in_the_field) ?: "",
-                btnSaveVisibility = false,
-                btnCancelVisibility = false
-            )
-            binding.clExitDialog.visibility = View.GONE
+            originalTextBeforeEdit = null
+            binding.textEditorView.invalidateChanges()
         }
     }
 
     private fun ivDismissEditingClicked() {
-        Log.e("UrduEditorFragment", "ivDismissEditingClicked()")
-
         val activity = if (isAdded) activity else null
         activity?.hideKeyboard()
-
-
+        setCanvasElementsVisibility(true)
+        binding.textEditorView.hideAllTexts = false
         binding.clTextEditor.visibility = View.GONE
         binding.rvFonts.visibility = View.GONE
         binding.clFontsRV.visibility = View.GONE
-        clDoneCancel?.visibility = View.GONE
+        binding.clDoneCancel.visibility = View.INVISIBLE
 
-        if (currentEditedTextItem?.text.isNullOrEmpty() || binding.textEditorView.selectedTextItem?.text.isNullOrEmpty()) {
-            handleCloseText()
+        // --- RESTORE BACKUP IF THEY CANCEL EDITING ---
+        if (originalTextBeforeEdit != null) {
+            val backup = originalTextBeforeEdit!!
+            addTextItem(backup.text)
+            val restored = binding.textEditorView.selectedTextItem
+            if (restored != null) {
+                restored.text = backup.text
+                restored.x = backup.x
+                restored.y = backup.y
+                restored.textColor = backup.textColor
+                restored.textSize = backup.textSize
+                restored.rotation = backup.rotation
+                restored.alignment = backup.alignment
+                restored.rect = backup.rect
+                restored.fontName = backup.fontName
+                restored.isSelected = false // Ensure it's not selected
+                backup.typeface?.let { restored.typeface = it }
+            }
+            binding.textEditorView.invalidateChanges()
+            originalTextBeforeEdit = null // Clear backup
+        } else {
+            if (currentEditedTextItem?.text.isNullOrEmpty() || binding.textEditorView.selectedTextItem?.text.isNullOrEmpty()) {
+                handleCloseText()
+            }
         }
     }
 
@@ -896,18 +1019,13 @@ class UrduEditorFragment : Fragment() {
         binding.imgClose.visibility = View.VISIBLE
         binding.descExitEditing.visibility = View.VISIBLE
 
-        // Safely access the activity context
+        binding.btnSave.blockingClickListener {
+            navigateBackOrHome()
+        }
+
         activity?.let { ctx ->
             binding.txtTitle.text = ctx.getString(R.string.label_quit_editing)
-            binding.btnCancel.text = ctx.getString(R.string.label_discard)
-
-            binding.btnSave.blockingClickListener {
-                binding.textEditorView.addWaterMarkText("Urdu English Keyboard")
-                val bitmap = binding.textEditorView.captureAsBitmap()
-                imgSaveOrShare(bitmap = bitmap, context = ctx, notInCache = true)
-                binding.clExitDialog.visibility = View.GONE
-                navigateBackOrHome()
-            }
+            binding.btnCancel.text = ctx.getString(R.string.label_cancel)
 
             binding.imgClose.blockingClickListener {
                 binding.clExitDialog.visibility = View.GONE
@@ -915,72 +1033,39 @@ class UrduEditorFragment : Fragment() {
 
             binding.btnCancel.blockingClickListener {
                 binding.clExitDialog.visibility = View.GONE
-                navigateBackOrHome()
             }
         } ?: run {
-            // Handle the case where the fragment is not attached to the activity
             Log.e("UrduEditorFragment", "Fragment is not attached to activity")
         }
     }
 
     private fun navigateBackOrHome() {
-        val popped = navController?.popBackStack() ?: false
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.nav_home, false)
+            .build()
 
-        // If 'popped' is false, we opened this directly via Intent
-        if (!popped) {
-            val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.nav_editor, true) // Clear the editor from history
-                .build()
-
-            navController?.navigate(R.id.nav_home, null, navOptions)
-        }
-    }
-
-    private fun checkImagesPermissions(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_MEDIA_IMAGES
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(
-                        requireContext(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ) == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    private fun askForCameraImagesPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.CAMERA),
-                0
-            )
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ), 0
-            )
-        }
+        navController?.navigate(R.id.nav_home, null, navOptions)
     }
 
     private fun createBitmapFromUri(uri: Uri): Bitmap? {
         return try {
-            requireActivity().contentResolver.openInputStream(uri)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream)
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true // Check size without loading into memory
+            }
+            requireActivity().contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, options)
+            }
+
+            // Calculate a sample size (e.g., scale down by 2 or 4)
+            options.inSampleSize = 2
+            options.inJustDecodeBounds = false
+
+            requireActivity().contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it, null, options)
             }
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
-
 }

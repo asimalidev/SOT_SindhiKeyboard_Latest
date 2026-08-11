@@ -11,8 +11,12 @@
         android:id="@+id/clMainBg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_splash"
-        android:scaleType="fitXY" />
+        android:background="@color/white"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/ivSplashIcon"
@@ -36,8 +40,8 @@
 
     <ImageView
         android:id="@+id/ivSplashTextIcon"
-        android:layout_width="@dimen/_200sdp"
-        android:layout_height="@dimen/_130sdp"
+        android:layout_width="@dimen/_180sdp"
+        android:layout_height="@dimen/_100sdp"
         android:layout_marginTop="@dimen/_5sdp"
         android:src="@drawable/ic_splash_text"
         app:layout_constraintBottom_toBottomOf="@+id/animation"
@@ -55,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ivSplashTextIcon"
         app:lottie_autoPlay="true"
-        app:lottie_colorFilter="@color/White"
+        app:lottie_colorFilter="@color/lottiecolor"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/ic_splash_loading" />
 
@@ -65,7 +69,7 @@
         android:gravity="center"
         android:fontFamily="@font/lexend_semibold"
         android:text="This action may contain ad "
-        android:textColor="@color/white"
+        android:textColor="#670000"
         app:layout_constraintTop_toBottomOf="@id/animation" />
 
     <FrameLayout

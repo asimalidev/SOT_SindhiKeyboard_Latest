@@ -5,15 +5,15 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg_color"
+    android:background="#FFFFFF"
     tools:context=".sindhikeyboard.ui.activities.StickersDetailsActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clHeaderStickerDetails"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_60sdp"
-        android:background="@color/maroon_200"
-        app:layout_constraintBottom_toTopOf="@+id/clSubDiv1"
+        android:layout_height="@dimen/_50sdp"
+        android:background="@drawable/bg_header_blue"
+        android:backgroundTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -28,20 +28,19 @@
             app:layout_constraintEnd_toStartOf="@+id/txtUrduKeyboard"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/White" />
+            app:tint="@color/black" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtUrduKeyboard"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:drawablePadding="@dimen/_10sdp"
-            android:drawableTint="@color/White"
             android:fontFamily="@font/lexend_medium"
             android:gravity="start|center_vertical"
-
+            android:paddingStart="@dimen/_5sdp"
             android:text="@string/label_sticker_details"
-            android:textColor="@color/White"
-            android:textSize="@dimen/_17ssp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15ssp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivBackPress"
@@ -50,233 +49,565 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clSubDiv1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/rvStickersDetails"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="0dp"
+        android:background="#F4F4F4"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cvTrayImage"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSubDiv1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/_5sdp"
-            android:elevation="@dimen/_10sdp"
-            app:cardCornerRadius="@dimen/_10sdp"
-            app:layout_constraintBottom_toTopOf="@+id/txtAddSticker"
+            android:background="@drawable/rounded_bg"
+            android:backgroundTint="@color/white"
+            app:layout_constraintBottom_toTopOf="@+id/rvStickersDetails"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="@dimen/_120sdp"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvTrayImage"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="@dimen/_3sdp">
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:elevation="@dimen/_10sdp"
+                app:cardCornerRadius="@dimen/_10sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:id="@+id/ivStickerTrayImage"
-                    android:layout_width="@dimen/_60sdp"
-                    android:layout_height="@dimen/_60sdp"
-                    android:layout_marginVertical="@dimen/_5sdp"
-                    android:src="@drawable/ic_no_stickers"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:id="@+id/ivStickerTrayImage"
+                        android:layout_width="@dimen/_70sdp"
+                        android:layout_height="@dimen/_60sdp"
+                        android:layout_marginVertical="@dimen/_5sdp"
+                        android:src="@drawable/ic_no_stickers"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/txtPackName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:fontFamily="@font/lexend_bold"
+                android:gravity="center_vertical"
+                android:maxLines="1"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:paddingEnd="@dimen/_2sdp"
+                android:text="Pack Name"
+                android:textColor="#0F0F0F"
+                android:textSize="@dimen/_16ssp"
+                app:layout_constraintEnd_toStartOf="@+id/lottieAnimation"
+                app:layout_constraintStart_toEndOf="@+id/cvTrayImage"
+                app:layout_constraintTop_toTopOf="@+id/cvTrayImage" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/txtSize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_4sdp"
+                android:ellipsize="end"
+                android:fontFamily="@font/lexend_extralight"
+                android:gravity="center_vertical"
+                android:text="Pack Size"
+                android:textColor="#0F0F0F"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintEnd_toEndOf="@+id/txtPackName"
+                app:layout_constraintStart_toStartOf="@+id/txtPackName"
+                app:layout_constraintTop_toBottomOf="@+id/txtPackName" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:layout_marginHorizontal="@dimen/_20sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cvTrayImage">
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/txtProgress"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="#CC000000"
-                    android:elevation="@dimen/_1sdp"
-                    android:fontFamily="@font/lexend_bold"
+                    android:id="@+id/txtAddSticker"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_35sdp"
                     android:gravity="center"
-                    android:text=""
-                    android:textColor="#FFFFFF"
-                    android:textSize="@dimen/_16ssp"
-                    android:visibility="invisible"
+                    android:fontFamily="@font/lexend_semibold"
+                    android:textSize="@dimen/_18sdp"
+                    android:background="@drawable/bg_btn_blue_gradient"
+                    android:text="@string/label_add"
+                    android:textColor="#FFFFFF" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarSticker"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_35sdp"
+                    android:layout_marginHorizontal="@dimen/_30sdp"
+                    android:padding="8dp"
+                    android:max="100"
+                    android:progress="0"
+                    android:visibility="gone"
+                    android:progressDrawable="@drawable/custom_progress_bar" />
+            </FrameLayout>
+
+
+
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieAnimation"
+                android:layout_width="@dimen/_55sdp"
+                android:layout_height="@dimen/_55sdp"
+                android:layout_marginEnd="@dimen/_15sdp"
+                app:layout_constraintBottom_toBottomOf="@+id/cvTrayImage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/cvTrayImage"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/ic_premium_badge" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvStickersDetails"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginVertical="@dimen/_5sdp"
+            android:padding="@dimen/_5sdp"
+            app:layout_constraintBottom_toTopOf="@+id/clAds"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/clSubDiv1" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clStickerShow"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="#80000000"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/clAds"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvStickerShow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:elevation="@dimen/_10sdp"
+                app:cardCornerRadius="@dimen/_10sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/ivStickerShow"
+                    android:layout_width="@dimen/_200sdp"
+                    android:layout_height="@dimen/_200sdp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_no_stickers"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+            </androidx.cardview.widget.CardView>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/txtPackName"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/lexend_bold"
-                    android:gravity="center_vertical"
-                    android:text="Pack Name"
-                    android:textColor="#0F0F0F"
-                    android:textSize="@dimen/_16ssp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ivStickerTrayImage" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/txtSize"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/lexend_extralight"
-                    android:gravity="center_vertical"
-                    android:text="Pack Size"
-                    android:textColor="#0F0F0F"
-                    android:textSize="@dimen/_12ssp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/txtPackName" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/txtAddSticker"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_30sdp"
-            android:layout_marginVertical="@dimen/_5sdp"
-            android:background="@drawable/ic_add_sticker_bg"
-            android:drawableStart="@drawable/ic_add"
-            android:drawablePadding="@dimen/_5sdp"
-            android:fontFamily="@font/lexend_medium"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/_10sdp"
-            android:text="@string/label_add"
-            android:textColor="#0F0F0F"
-            android:textSize="@dimen/_16ssp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cvTrayImage" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvStickersDetails"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginVertical="@dimen/_5sdp"
-        android:padding="@dimen/_5sdp"
-        app:layout_constraintBottom_toTopOf="@+id/clAds"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clSubDiv1" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clStickerShow"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#80000000"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/clAds"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cvStickerShow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:elevation="@dimen/_10sdp"
-            app:cardCornerRadius="@dimen/_10sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmerLayoutStickerDetails"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/ivStickerShow"
-                android:layout_width="@dimen/_200sdp"
-                android:layout_height="@dimen/_200sdp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_no_stickers"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.cardview.widget.CardView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmerLayoutStickerDetails"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails">
-
-        <ImageView
-            android:id="@+id/ivStickersPackShimmer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_stickers_details_shimmer" />
-    </com.facebook.shimmer.ShimmerFrameLayout>
-
-    <View
-        android:id="@+id/separator"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_1sdp"
-        android:background="@color/black"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/clAds"
-        />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clAds"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1">
-
-        <FrameLayout
-            android:id="@+id/adViewContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/shimmerLayoutBanner"
+                android:id="@+id/ivStickersPackShimmer"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_50sdp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1">
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_stickers_details_shimmer" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
-                <include layout="@layout/size_native_small_shimmer" />
-            </com.facebook.shimmer.ShimmerFrameLayout>
 
-        </FrameLayout>
+        <View
+            android:id="@+id/Separator"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@drawable/separator_gradient"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/clAds" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/nativeAdContainerAd"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAds"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_3sdp"
-            android:visibility="gone"
-            app:cardBackgroundColor="@color/nativeAdBackground"
-            app:cardCornerRadius="@dimen/_5sdp"
-            app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1">
 
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/shimmerLayout"
+            <FrameLayout
+                android:id="@+id/adViewContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent">
 
-                <include layout="@layout/size_native_small_shimmer" />
-            </com.facebook.shimmer.ShimmerFrameLayout>
-        </androidx.cardview.widget.CardView>
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_50sdp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1">
+
+                    <include layout="@layout/size_native_small_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+            </FrameLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/nativeAdContainerAd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_3sdp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/nativeAdBackground"
+                app:cardCornerRadius="@dimen/_5sdp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/size_native_small_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:id="@+id/main"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    tools:context=".sindhikeyboard.ui.activities.StickersDetailsActivity">-->
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/clHeaderStickerDetails"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="@dimen/_50sdp"-->
+<!--        android:background="@color/white"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/ivBackPress"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:padding="@dimen/_5sdp"-->
+<!--            android:src="@drawable/back"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/txtUrduKeyboard"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:tint="@color/black" />-->
+
+<!--        <androidx.appcompat.widget.AppCompatTextView-->
+<!--            android:id="@+id/txtUrduKeyboard"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:drawablePadding="@dimen/_10sdp"-->
+<!--            android:fontFamily="@font/lexend_medium"-->
+<!--            android:gravity="start|center_vertical"-->
+<!--            android:text="@string/label_sticker_details"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:textSize="@dimen/_17ssp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/ivBackPress"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:background="@color/home_bg_color"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent">-->
+
+
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/clSubDiv1"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/rvStickersDetails"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--       app:layout_constraintTop_toTopOf="parent">-->
+
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/cvTrayImage"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/_5sdp"-->
+<!--            android:elevation="@dimen/_10sdp"-->
+<!--            app:cardCornerRadius="@dimen/_10sdp"-->
+<!--            app:layout_constraintBottom_toTopOf="@+id/txtAddSticker"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
+
+<!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                android:layout_width="@dimen/_120sdp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:padding="@dimen/_3sdp">-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/ivStickerTrayImage"-->
+<!--                    android:layout_width="@dimen/_60sdp"-->
+<!--                    android:layout_height="@dimen/_60sdp"-->
+<!--                    android:layout_marginVertical="@dimen/_5sdp"-->
+<!--                    android:src="@drawable/ic_no_stickers"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--                <androidx.appcompat.widget.AppCompatTextView-->
+<!--                    android:id="@+id/txtProgress"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    android:background="#CC000000"-->
+<!--                    android:elevation="@dimen/_1sdp"-->
+<!--                    android:fontFamily="@font/lexend_bold"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text=""-->
+<!--                    android:textColor="#FFFFFF"-->
+<!--                    android:textSize="@dimen/_16ssp"-->
+<!--                    android:visibility="invisible"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--                <androidx.appcompat.widget.AppCompatTextView-->
+<!--                    android:id="@+id/txtPackName"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:fontFamily="@font/lexend_bold"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:text="Pack Name"-->
+<!--                    android:textColor="#0F0F0F"-->
+<!--                    android:textSize="@dimen/_16ssp"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/ivStickerTrayImage" />-->
+
+<!--                <androidx.appcompat.widget.AppCompatTextView-->
+<!--                    android:id="@+id/txtSize"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:fontFamily="@font/lexend_extralight"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:text="Pack Size"-->
+<!--                    android:textColor="#0F0F0F"-->
+<!--                    android:textSize="@dimen/_12ssp"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/txtPackName" />-->
+<!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
+<!--        </androidx.cardview.widget.CardView>-->
+
+<!--        <androidx.appcompat.widget.AppCompatTextView-->
+<!--            android:id="@+id/txtAddSticker"-->
+<!--            android:layout_width="@dimen/_100sdp"-->
+<!--            android:layout_height="@dimen/_30sdp"-->
+<!--            android:layout_marginVertical="@dimen/_5sdp"-->
+<!--            android:background="@drawable/ic_add_sticker_bg"-->
+<!--            android:drawableStart="@drawable/ic_add"-->
+<!--            android:drawablePadding="@dimen/_5sdp"-->
+<!--            android:fontFamily="@font/lexend_medium"-->
+<!--            android:gravity="center"-->
+<!--            android:paddingHorizontal="@dimen/_10sdp"-->
+<!--            android:text="@string/label_add"-->
+<!--            android:textColor="#0F0F0F"-->
+<!--            android:textSize="@dimen/_16ssp"-->
+<!--            android:visibility="visible"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/cvTrayImage" />-->
+
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/rvStickersDetails"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_marginVertical="@dimen/_5sdp"-->
+<!--        android:padding="@dimen/_5sdp"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/clAds"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/clSubDiv1" />-->
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/clStickerShow"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:background="#80000000"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/clAds"-->
+<!--        app:layout_constraintTop_toTopOf="parent">-->
+
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/cvStickerShow"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/_5sdp"-->
+<!--            android:elevation="@dimen/_10sdp"-->
+<!--            app:cardCornerRadius="@dimen/_10sdp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/ivStickerShow"-->
+<!--                android:layout_width="@dimen/_200sdp"-->
+<!--                android:layout_height="@dimen/_200sdp"-->
+<!--                android:scaleType="fitXY"-->
+<!--                android:src="@drawable/ic_no_stickers"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
+<!--        </androidx.cardview.widget.CardView>-->
+
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+<!--    <com.facebook.shimmer.ShimmerFrameLayout-->
+<!--        android:id="@+id/shimmerLayoutStickerDetails"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--       app:layout_constraintTop_toTopOf="parent">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/ivStickersPackShimmer"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:scaleType="fitXY"-->
+<!--            android:src="@drawable/ic_stickers_details_shimmer" />-->
+<!--    </com.facebook.shimmer.ShimmerFrameLayout>-->
+
+<!--    <View-->
+<!--        android:id="@+id/separator"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="@dimen/_1sdp"-->
+<!--        android:background="@color/black"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/clAds"-->
+<!--        />-->
+
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/clAds"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="1">-->
+
+<!--        <FrameLayout-->
+<!--            android:id="@+id/adViewContainer"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:visibility="gone"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent">-->
+
+<!--            <com.facebook.shimmer.ShimmerFrameLayout-->
+<!--                android:id="@+id/shimmerLayoutBanner"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="@dimen/_50sdp"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintVertical_bias="1">-->
+
+<!--                <include layout="@layout/size_native_small_shimmer" />-->
+<!--            </com.facebook.shimmer.ShimmerFrameLayout>-->
+
+<!--        </FrameLayout>-->
+
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/nativeAdContainerAd"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="@dimen/_3sdp"-->
+<!--            android:visibility="gone"-->
+<!--            app:cardBackgroundColor="@color/nativeAdBackground"-->
+<!--            app:cardCornerRadius="@dimen/_5sdp"-->
+<!--            app:cardElevation="0dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
+
+<!--            <com.facebook.shimmer.ShimmerFrameLayout-->
+<!--                android:id="@+id/shimmerLayout"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content">-->
+
+<!--                <include layout="@layout/size_native_small_shimmer" />-->
+<!--            </com.facebook.shimmer.ShimmerFrameLayout>-->
+<!--        </androidx.cardview.widget.CardView>-->
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->
+
+
+

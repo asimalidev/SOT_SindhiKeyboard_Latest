@@ -28,7 +28,7 @@ import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.dbClasses.DataBaseCopyOperationsKt
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.CustomFirebaseEvents
-import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_KEYPAD
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.AD_ID_NATIVE_KEYPAD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -135,7 +135,7 @@ class KeyboardAdManager(
         try {
             val defBanner = "ca-app-pub-3747520410546258/3314026333"
             val pref = context.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-            val adId = if (!BuildConfig.DEBUG) pref?.getString(NATIVE_KEYPAD, defBanner) ?: defBanner else context.getString(R.string.admob_native_home)
+            val adId = if (!BuildConfig.DEBUG) pref?.getString(AD_ID_NATIVE_KEYPAD, defBanner) ?: defBanner else context.getString(R.string.admob_native_home)
 
             CustomFirebaseEvents.nativeKeypadAdEvent(context, "AdmobRequestNewAd")
 

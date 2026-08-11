@@ -5,14 +5,16 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg_color"
     tools:context=".sindhikeyboard.ui.activities.StickersViewActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clHeader"
+        android:id="@+id/clHeaderStickerDetails"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_60sdp"
-        android:background="@color/maroon_200"
+        android:layout_height="@dimen/_50sdp"
+        android:background="@drawable/bg_header_blue"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -25,19 +27,19 @@
             app:layout_constraintEnd_toStartOf="@+id/txtUrduKeyboard"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/White" />
+            app:tint="@color/black" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtUrduKeyboard"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:drawablePadding="@dimen/_10sdp"
-            android:drawableTint="@color/White"
             android:fontFamily="@font/lexend_medium"
             android:gravity="start|center_vertical"
-            android:textSize="@dimen/_17ssp"
+            android:paddingStart="@dimen/_5sdp"
             android:text="@string/label_sticker"
-            android:textColor="@color/White"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_15ssp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivBackPress"
@@ -45,109 +47,120 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/noInternet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_no_internet"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/clHeader"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvStickers"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:padding="@dimen/_5sdp"
-        app:layout_constraintBottom_toTopOf="@+id/clAds"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clHeader"
-        tools:listitem="@layout/item_stickers_view" />
-
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/shimmerLayoutStickers"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/rvStickers"
-        app:layout_constraintEnd_toEndOf="@+id/rvStickers"
-        app:layout_constraintStart_toStartOf="@+id/rvStickers"
-        app:layout_constraintTop_toTopOf="@+id/rvStickers">
-
-        <ImageView
-            android:id="@+id/ivStickersPackShimmer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_stickers_pack_shimmer" />
-    </com.facebook.shimmer.ShimmerFrameLayout>
-
-    <View
-        android:id="@+id/separator"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_1sdp"
-        android:background="@color/black"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/clAds"
-        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clAds"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:background="@color/home_bg_color"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1">
+        app:layout_constraintTop_toBottomOf="@+id/clHeaderStickerDetails">
 
-        <FrameLayout
-            android:id="@+id/adViewContainer"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/noInternet"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ad_bg_banner"
-            android:padding="@dimen/_2sdp"
+            android:src="@drawable/ic_no_internet"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/shimmerLayoutBanner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1">
-
-                <include layout="@layout/size_native_small_shimmer" />
-            </com.facebook.shimmer.ShimmerFrameLayout>
-
-        </FrameLayout>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/nativeAdContainerAd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_3sdp"
-            android:visibility="gone"
-            app:cardBackgroundColor="@color/nativeAdBackground"
-            app:cardCornerRadius="@dimen/_5sdp"
-            app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+           app:layout_constraintTop_toTopOf="parent"/>
 
-            <com.facebook.shimmer.ShimmerFrameLayout
-                android:id="@+id/shimmerLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvStickers"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="@dimen/_5sdp"
+            app:layout_constraintBottom_toTopOf="@+id/clAds"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/item_stickers_view" />
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmerLayoutStickers"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/rvStickers"
+            app:layout_constraintEnd_toEndOf="@+id/rvStickers"
+            app:layout_constraintStart_toStartOf="@+id/rvStickers"
+            app:layout_constraintTop_toTopOf="@+id/rvStickers">
+
+            <ImageView
+                android:id="@+id/ivStickersPackShimmer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_stickers_pack_shimmer" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
-                <include layout="@layout/size_native_small_shimmer" />
-            </com.facebook.shimmer.ShimmerFrameLayout>
-        </androidx.cardview.widget.CardView>
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_1sdp"
+            android:background="@color/black"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/clAds" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1">
+
+            <FrameLayout
+                android:id="@+id/adViewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ad_bg_banner"
+                android:padding="@dimen/_2sdp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1">
+
+                    <include layout="@layout/size_native_small_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+            </FrameLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/nativeAdContainerAd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_3sdp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/nativeAdBackground"
+                app:cardCornerRadius="@dimen/_5sdp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/size_native_small_shimmer" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,12 +31,14 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NetworkCheck
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.NewNativeAdClass
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ads.TinyDB
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.preferences.Preferences
+import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.CountryModel
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.FirebaseLog
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.PURCHASE
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.IS_PURCHASED
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.NATIVE_OVER_ALL
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.REMOTE_CONFIG
 import java.util.Locale
+import kotlin.text.get
 
 class tocountry_fragment : Fragment() {
     private var _binding: FragmentTocountryFragmentBinding? = null
@@ -222,23 +224,22 @@ class tocountry_fragment : Fragment() {
     }
 
     private fun filter(text: String) {
-        val filteredList: java.util.ArrayList<CountryCountry> = ArrayList()
-
+        val filteredList: ArrayList<CountryModel> = ArrayList()
         for (item in AllCountryListMe.getCountryList().indices) {
-            Log.d("Something", "Something")
             if (AllCountryListMe.getCountryList()[item].countryName.lowercase(Locale.ROOT).contains(text.lowercase(Locale.ROOT))) {
                 filteredList.add(AllCountryListMe.getCountryList()[item])
             }
         }
-        adapter.getcountryinfo(filteredList)
+        adapter.getCountryInfo(filteredList)
 
         if (filteredList.isEmpty()) {
             Toast.makeText(requireContext(), "No Language Found...", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun addcountries() {
-        adapter.getcountryinfo(AllCountryListMe.getCountryList())
+
+    private  fun addcountries() {
+        adapter.getCountryInfo(AllCountryListMe.getCountryList())
         binding.rvtocountry.layoutManager = LinearLayoutManager(requireContext())
         binding.rvtocountry.adapter = adapter
     }

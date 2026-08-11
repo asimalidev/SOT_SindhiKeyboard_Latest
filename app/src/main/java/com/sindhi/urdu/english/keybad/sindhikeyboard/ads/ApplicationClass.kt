@@ -63,7 +63,7 @@ class ApplicationClass : Application() {
                 // 1. AI Clean
                 val aiCleanShortCut = ShortcutInfo.Builder(this@ApplicationClass, "action_ai_clean")
                     .setShortLabel(getString(R.string.sindhi_stickers))
-                    .setIcon(Icon.createWithResource(this@ApplicationClass, R.drawable.ic_sindhi_stickers))
+                    .setIcon(Icon.createWithResource(this@ApplicationClass, R.drawable.ic_instant_stickers))
                     .setIntent(Intent(this@ApplicationClass, FOFStartActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

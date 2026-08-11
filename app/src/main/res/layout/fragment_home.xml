@@ -19,23 +19,96 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvIbadat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_11sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginBottom="10dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_ibadaat_gradient"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:id="@+id/iv_mosque_icon"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:src="@drawable/ic_ibdat"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_arrow"
+                        app:layout_constraintStart_toEndOf="@+id/iv_mosque_icon"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/_7sdp"
+                            android:fontFamily="@font/lexend_semibold"
+                            android:text="@string/ibadaat"
+                            android:textColor="#FFFFFF"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/lexend_medium"
+                            android:text="@string/your_daily_dose_of_iman"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/iv_arrow"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:src="@drawable/ic_forwardd"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="#FFFFFF" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- ROW 1: Themes & Sindhi Stickers -->
             <View
                 android:id="@+id/clThemes"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
-                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginHorizontal="@dimen/_11sdp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/buttons_bg"
-                app:layout_constraintEnd_toStartOf="@+id/clDailyStatus"
+                app:layout_constraintEnd_toStartOf="@+id/clStickers"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/cvIbadat" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvThemes"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
@@ -44,7 +117,7 @@
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
+                app:fontFamily="@font/lexend"
                 app:layout_constraintBottom_toBottomOf="@+id/clThemes"
                 app:layout_constraintEnd_toEndOf="@+id/clThemes"
                 app:layout_constraintStart_toStartOf="@+id/clThemes"
@@ -60,10 +133,10 @@
                 app:layout_constraintBottom_toTopOf="@+id/tvThemes"
                 app:layout_constraintEnd_toEndOf="@+id/clThemes"
                 app:layout_constraintStart_toStartOf="@+id/clThemes"
-                app:layout_constraintTop_toTopOf="@+id/clThemes" />
+                android:layout_marginBottom="@dimen/_3sdp"/>
 
             <View
-                android:id="@+id/clDailyStatus"
+                android:id="@+id/clStickers"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
@@ -73,38 +146,40 @@
                 app:layout_constraintTop_toTopOf="@+id/clThemes" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvSindhiStatus"
+                android:id="@+id/tvStickers"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
                 android:gravity="center"
-                android:text="@string/label_sindhi_status"
+                android:text="@string/sindhi_stickers"
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
-                app:layout_constraintBottom_toBottomOf="@+id/clDailyStatus"
-                app:layout_constraintEnd_toEndOf="@+id/clDailyStatus"
-                app:layout_constraintStart_toStartOf="@+id/clDailyStatus"
-                app:layout_constraintTop_toTopOf="@+id/clDailyStatus"
+                app:fontFamily="@font/lexend"
+                app:layout_constraintBottom_toBottomOf="@+id/clStickers"
+                app:layout_constraintEnd_toEndOf="@+id/clStickers"
+                app:layout_constraintStart_toStartOf="@+id/clStickers"
+                app:layout_constraintTop_toTopOf="@+id/clStickers"
                 app:layout_constraintVertical_bias="1" />
 
             <ImageView
-                android:id="@+id/ivDailyStatus"
+                android:id="@+id/ivStickers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="@dimen/_11sdp"
-                android:src="@drawable/ic_status"
-                app:layout_constraintBottom_toTopOf="@+id/tvSindhiStatus"
-                app:layout_constraintEnd_toEndOf="@+id/clDailyStatus"
-                app:layout_constraintStart_toStartOf="@+id/clDailyStatus"
-                app:layout_constraintTop_toTopOf="@+id/clDailyStatus" />
+                android:src="@drawable/ic_sindhi_stickers"
+                app:layout_constraintBottom_toTopOf="@+id/tvStickers"
+                app:layout_constraintEnd_toEndOf="@+id/clStickers"
+                app:layout_constraintStart_toStartOf="@+id/clStickers"
+                android:layout_marginBottom="@dimen/_3sdp" />
 
 
+            <!-- NATIVE AD CONTAINER (Placement preserved) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/nativeAdContainerAd"
                 android:layout_width="match_parent"
@@ -128,15 +203,16 @@
                 </com.facebook.shimmer.ShimmerFrameLayout>
             </androidx.cardview.widget.CardView>
 
+
+            <!-- ROW 2: Sindhi Editor & Post Gallery (clPostGallery) -->
             <View
                 android:id="@+id/clEditor"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
-                android:background="@drawable/buttons_bg"
                 android:layout_marginHorizontal="@dimen/_10sdp"
                 android:layout_marginTop="@dimen/_10sdp"
-                app:cardBackgroundColor="@color/white"
-                app:layout_constraintEnd_toStartOf="@+id/clStickers"
+                android:background="@drawable/buttons_bg"
+                app:layout_constraintEnd_toStartOf="@+id/clPostGallery"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/nativeAdContainerAd" />
 
@@ -145,7 +221,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
@@ -154,7 +231,7 @@
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
+                app:fontFamily="@font/lexend"
                 app:layout_constraintBottom_toBottomOf="@+id/clEditor"
                 app:layout_constraintEnd_toEndOf="@+id/clEditor"
                 app:layout_constraintStart_toStartOf="@+id/clEditor"
@@ -166,74 +243,118 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="@dimen/_11sdp"
+                android:layout_marginBottom="@dimen/_3sdp"
                 android:src="@drawable/ic_sindhi_editor"
-
                 app:layout_constraintBottom_toTopOf="@+id/tvEditor"
                 app:layout_constraintEnd_toEndOf="@+id/clEditor"
                 app:layout_constraintStart_toStartOf="@+id/clEditor"
-                app:layout_constraintTop_toTopOf="@+id/clEditor" />
+              />
 
             <View
-                android:id="@+id/clStickers"
+                android:id="@+id/clPostGallery"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
                 android:background="@drawable/buttons_bg"
-                app:layout_constraintBottom_toBottomOf="@+id/tvEditor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/clEditor"
                 app:layout_constraintTop_toTopOf="@+id/clEditor" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvStickers"
+                android:id="@+id/tvDisable"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
                 android:gravity="center"
-                android:text="@string/sindhi_stickers"
+                android:text="@string/post_gallery"
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
-                app:layout_constraintBottom_toBottomOf="@+id/clStickers"
-                app:layout_constraintEnd_toEndOf="@+id/clStickers"
-                app:layout_constraintStart_toStartOf="@+id/clStickers"
-                app:layout_constraintTop_toTopOf="@+id/clStickers"
+                app:fontFamily="@font/lexend"
+                app:layout_constraintBottom_toBottomOf="@+id/clPostGallery"
+                app:layout_constraintEnd_toEndOf="@+id/clPostGallery"
+                app:layout_constraintStart_toStartOf="@+id/clPostGallery"
+                app:layout_constraintTop_toTopOf="@+id/clPostGallery"
                 app:layout_constraintVertical_bias="1" />
 
             <ImageView
-                android:id="@+id/ivStickers"
+                android:id="@+id/ivDisable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="@dimen/_11sdp"
-                android:src="@drawable/ic_sindhi_stickers"
-                app:layout_constraintBottom_toTopOf="@+id/tvStickers"
-                app:layout_constraintEnd_toEndOf="@+id/clStickers"
-                app:layout_constraintStart_toStartOf="@+id/clStickers"
-                app:layout_constraintTop_toTopOf="@+id/clStickers" />
+                android:src="@drawable/ic_post_gallery"
+                app:layout_constraintBottom_toTopOf="@+id/tvDisable"
+                app:layout_constraintEnd_toEndOf="@+id/clPostGallery"
+                app:layout_constraintStart_toStartOf="@+id/clPostGallery"
+                android:layout_marginBottom="@dimen/_3sdp" />
 
+
+            <View
+                android:id="@+id/clDailyStatus"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/_70sdp"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/buttons_bg"
+                app:layout_constraintEnd_toStartOf="@+id/clTextTranslation"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clEditor" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSindhiStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:clickable="false"
+                android:elevation="@dimen/_11sdp"
+                android:ellipsize="marquee"
+                android:gravity="center"
+                android:text="@string/label_sindhi_status"
+                android:textColor="@color/app_text"
+                android:textSize="@dimen/_12ssp"
+                android:textStyle="bold"
+                app:fontFamily="@font/lexend"
+                app:layout_constraintBottom_toBottomOf="@+id/clDailyStatus"
+                app:layout_constraintEnd_toEndOf="@+id/clDailyStatus"
+                app:layout_constraintStart_toStartOf="@+id/clDailyStatus"
+                app:layout_constraintTop_toTopOf="@+id/clDailyStatus"
+                app:layout_constraintVertical_bias="1" />
+
+            <ImageView
+                android:id="@+id/ivDailyStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/_11sdp"
+                android:src="@drawable/ic_status"
+                app:layout_constraintBottom_toTopOf="@+id/tvSindhiStatus"
+                app:layout_constraintEnd_toEndOf="@+id/clDailyStatus"
+                app:layout_constraintStart_toStartOf="@+id/clDailyStatus"
+                android:layout_marginBottom="@dimen/_3sdp" />
 
             <View
                 android:id="@+id/clTextTranslation"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/buttons_bg"
-                app:layout_constraintEnd_toStartOf="@+id/clTextReverse"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clEditor" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/clDailyStatus"
+                app:layout_constraintTop_toTopOf="@+id/clDailyStatus" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTextResize"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
@@ -242,7 +363,7 @@
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
+                app:fontFamily="@font/lexend"
                 app:layout_constraintBottom_toBottomOf="@+id/clTextTranslation"
                 app:layout_constraintEnd_toEndOf="@+id/clTextTranslation"
                 app:layout_constraintStart_toStartOf="@+id/clTextTranslation"
@@ -258,26 +379,30 @@
                 app:layout_constraintBottom_toTopOf="@+id/tvTextResize"
                 app:layout_constraintEnd_toEndOf="@+id/clTextTranslation"
                 app:layout_constraintStart_toStartOf="@+id/clTextTranslation"
-                app:layout_constraintTop_toTopOf="@+id/clTextTranslation" />
+                android:layout_marginBottom="@dimen/_3sdp" />
+
+
 
             <View
                 android:id="@+id/clTextReverse"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_20sdp"
                 android:background="@drawable/buttons_bg"
-
-                app:layout_constraintBottom_toBottomOf="@+id/clTextTranslation"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/clTextTranslation"
-                app:layout_constraintTop_toTopOf="@+id/clTextTranslation" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/clStylishText"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clDailyStatus" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTextReverse"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
@@ -286,7 +411,7 @@
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
+                app:fontFamily="@font/lexend"
                 app:layout_constraintBottom_toBottomOf="@+id/clTextReverse"
                 app:layout_constraintEnd_toEndOf="@+id/clTextReverse"
                 app:layout_constraintStart_toStartOf="@+id/clTextReverse"
@@ -299,100 +424,78 @@
                 android:layout_height="wrap_content"
                 android:elevation="@dimen/_11sdp"
                 android:src="@drawable/ic_text_reverse"
-
                 app:layout_constraintBottom_toTopOf="@+id/tvTextReverse"
                 app:layout_constraintEnd_toEndOf="@+id/clTextReverse"
                 app:layout_constraintStart_toStartOf="@+id/clTextReverse"
-                app:layout_constraintTop_toTopOf="@+id/clTextReverse" />
-
+                android:layout_marginBottom="@dimen/_3sdp" />
 
             <View
-                android:id="@+id/clDictionary"
+                android:id="@+id/clStylishText"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_70sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/buttons_bg"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/clDisable"
-                app:layout_constraintTop_toBottomOf="@+id/clTextReverse" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/clTextReverse"
+                app:layout_constraintTop_toTopOf="@+id/clTextReverse" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvDictionary"
+                android:id="@+id/tvStylish"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:clickable="false"
                 android:elevation="@dimen/_11sdp"
                 android:ellipsize="marquee"
                 android:gravity="center"
-                android:text="@string/label_dictionary"
+                android:text="Stylish Text"
                 android:textColor="@color/app_text"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
-                app:layout_constraintBottom_toBottomOf="@+id/clDictionary"
-                app:layout_constraintEnd_toEndOf="@+id/clDictionary"
-                app:layout_constraintStart_toStartOf="@+id/clDictionary"
-                app:layout_constraintTop_toTopOf="@+id/clDictionary"
+                app:fontFamily="@font/lexend"
+                app:layout_constraintBottom_toBottomOf="@+id/clStylishText"
+                app:layout_constraintEnd_toEndOf="@+id/clStylishText"
+                app:layout_constraintStart_toStartOf="@+id/clStylishText"
+                app:layout_constraintTop_toTopOf="@+id/clStylishText"
                 app:layout_constraintVertical_bias="1" />
+
+            <ImageView
+                android:id="@+id/ivTextstylish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/_11sdp"
+                android:src="@drawable/ic_stylish_txt"
+                app:layout_constraintBottom_toTopOf="@+id/tvStylish"
+                app:layout_constraintEnd_toEndOf="@+id/clStylishText"
+                app:layout_constraintStart_toStartOf="@+id/clStylishText"
+                android:layout_marginBottom="@dimen/_3sdp" />
+
+            <View
+                android:id="@+id/clDictionary"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDictionary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/ivDictionary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:elevation="@dimen/_11sdp"
-                android:src="@drawable/ic_dictionary"
-                app:layout_constraintBottom_toTopOf="@+id/tvDictionary"
-                app:layout_constraintEnd_toEndOf="@+id/clDictionary"
-                app:layout_constraintStart_toStartOf="@+id/clDictionary"
-                app:layout_constraintTop_toTopOf="@+id/clDictionary" />
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-
-            <View
-                android:id="@+id/clDisable"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/_70sdp"
-                android:layout_marginHorizontal="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_50sdp"
-                android:background="@drawable/buttons_bg"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/clDictionary"
-                app:layout_constraintTop_toBottomOf="@+id/clTextReverse" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvDisable"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginVertical="@dimen/_5sdp"
-                android:clickable="false"
-                android:elevation="@dimen/_11sdp"
-                android:ellipsize="marquee"
-                android:gravity="center"
-                android:text="@string/label_disable"
-                android:textColor="@color/app_text"
-                android:textSize="@dimen/_12ssp"
-                android:textStyle="bold"
-                app:fontFamily="@font/lexend_medium"
-                app:layout_constraintBottom_toBottomOf="@+id/clDisable"
-                app:layout_constraintEnd_toEndOf="@+id/clDisable"
-                app:layout_constraintStart_toStartOf="@+id/clDisable"
-                app:layout_constraintTop_toTopOf="@+id/clDisable"
-                app:layout_constraintVertical_bias="1" />
-
-            <ImageView
-                android:id="@+id/ivDisable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="@dimen/_11sdp"
-                android:src="@drawable/ic_disable"
-                app:layout_constraintBottom_toTopOf="@+id/tvDisable"
-                app:layout_constraintEnd_toEndOf="@+id/clDisable"
-                app:layout_constraintStart_toStartOf="@+id/clDisable"
-                app:layout_constraintTop_toTopOf="@+id/clDisable" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
@@ -420,6 +523,7 @@
             android:id="@+id/shimmerLayoutBanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <include layout="@layout/size_native_small_shimmer" />
         </com.facebook.shimmer.ShimmerFrameLayout>
     </FrameLayout>
