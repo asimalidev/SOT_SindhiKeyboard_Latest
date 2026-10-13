@@ -5,9 +5,15 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.ActivityConfirmUninstallBinding
@@ -29,7 +35,27 @@ class ConfirmUninstallActivity : AppCompatActivity() {
         _binding = ActivityConfirmUninstallBinding.inflate(layoutInflater)
         setContentView(binding?.root)
         supportActionBar?.hide()
-     hideSystemUIUpdated()
+        supportActionBar?.hide()
+
+        window.statusBarColor = android.graphics.Color.WHITE
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+        _binding?.root?.let {
+            ViewCompat.setOnApplyWindowInsetsListener(it) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+                // 1. Use PADDING for the top so the background color extends behind the time bar
+                v.setPadding(0, insets.top, 0, 0)
+
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    leftMargin = insets.left
+                    bottomMargin = insets.bottom
+                    rightMargin = insets.right
+                    topMargin = 0 // 2. Remove the top margin!
+                }
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+        hideSystemUI()
         pref = getSharedPreferences(REMOTE_CONFIG, Context.MODE_PRIVATE)
         loadNativeAd()
         _binding?.imgBack?.blockingClickListener {
@@ -54,10 +80,19 @@ class ConfirmUninstallActivity : AppCompatActivity() {
 
     }
 
+    private fun hideSystemUI() {
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        windowInsetsController.show(WindowInsetsCompat.Type.statusBars()) // changed to show()
+        windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
+    }
+
     private fun whenBack() {
-        Intent(this, NavigationActivity::class.java).apply {
-            startActivity(this)
+        val intent = Intent(this, NavigationActivity::class.java).apply {
+            // Clears all activities on top of NavigationActivity
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
+        startActivity(intent)
         finish()
     }
 

@@ -3,6 +3,7 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.SpeechToText
 import android.net.Uri
 import android.provider.Settings
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -11,9 +12,11 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.preference.PreferenceManager
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.text.Editable
@@ -78,6 +81,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.Objects
+import kotlin.text.get
 
 class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var binding: FragmentSpeechBinding
@@ -145,15 +149,8 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         toCountryName =
             android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity())
                 .getString("toLangSTT", "Sindhi (سنڌي)").toString()
-        fromCountryFlag.let {
-            binding.ivfromflag.background =
-                AppCompatResources.getDrawable(requireActivity(), fromCountryFlag)
-        }
 
-        toCountryFlag.let {
-            binding.tocountryflag.background =
-                AppCompatResources.getDrawable(requireActivity(), toCountryFlag)
-        }
+
 
         setFromLanguage(fromCountryName)
         setToLanguage(toCountryName)
@@ -463,6 +460,7 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
         super.onResume()
         isNavControllerAdded()
@@ -619,28 +617,28 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
 
+
+
     private fun setFromLanguage(country: String) {
         fromCountryName = country
-        android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
-            .putString("fromlangTT", fromCountryName).apply()
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).edit()
+            .putString("fromlangVT", fromCountryName).apply()
         fromlanguacode = getFromLanguageCode(fromCountryName)
         binding.tvfromcountryname.text = fromCountryName
 
         setFlagFromLanguageCode(fromCountryName)
-        binding.clTranslated.visibility = View.GONE
     }
 
     private fun setToLanguage(country: String) {
         toCountryName = country
-        android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity()).edit()
-            .putString("tolangTT", toCountryName).apply()
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).edit()
+            .putString("tolangVT", toCountryName).apply()
         tolanguacode = getFromLanguageCode(toCountryName)
         binding.tvtocountryname.text = toCountryName
 
         setFlagToLanguageCode(toCountryName)
-
-        binding.clTranslated.visibility = View.GONE
     }
+
 
     private fun getFromLanguageCode(code: String): String {
         var languageCode: String? = null
@@ -670,17 +668,18 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     private fun setFlagFromLanguageCode(code: String) {
-        var flagID: Int
         for (i in AllCountryListMe.getCountryList().indices) {
             if (code == AllCountryListMe.getCountryList()[i].countryName) {
-                flagID = AllCountryListMe.getCountryList()[i].arImage
-                android.preference.PreferenceManager.getDefaultSharedPreferences(requireActivity())
-                    .edit().putInt("fromFlagSTT", flagID).apply()
-                fromCountryFlag = flagID
-                fromCountryFlag.let {
-                    binding.ivfromflag.background =
-                        AppCompatResources.getDrawable(requireActivity(), fromCountryFlag)
+                val flagID = AllCountryListMe.getCountryList()[i].arImage
+                if (flagID != 0) {
+                    try {
+                        fromCountryFlag = flagID
+                        binding.ivfromflag.background = AppCompatResources.getDrawable(requireContext(), fromCountryFlag)
+                    } catch (e: Resources.NotFoundException) {
+                        e.printStackTrace()
+                    }
                 }
+                break
             }
         }
     }
@@ -696,24 +695,6 @@ class SpeechFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-//    fun askforpermission() {
-//        Dexter.withContext(requireContext())
-//            .withPermission(Manifest.permission.RECORD_AUDIO)
-//            .withListener(object : PermissionListener {
-//                override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-//                }
-//
-//                override fun onPermissionDenied(response: PermissionDeniedResponse?) {
-//                }
-//
-//                override fun onPermissionRationaleShouldBeShown(
-//                    p0: com.karumi.dexter.listener.PermissionRequest?,
-//                    token: PermissionToken?
-//                ) {
-//                    token?.continuePermissionRequest()
-//                }
-//            }).check()
-//    }
 
     fun askforpermission() {
         Dexter.withContext(requireContext())

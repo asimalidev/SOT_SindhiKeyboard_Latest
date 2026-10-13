@@ -139,7 +139,7 @@ object InterstitialClassAdMob : CoroutineScope by MainScope() {
         }
     }
 
-    // 🟢 FIX: Added 'showDialogHere' parameter to control dialog flashing
+
     private fun showAdmobInterstitial(onAdShowedCallBackAdmob: () -> Unit, nameFragment: String, showDialogHere: Boolean) {
         if (showDialogHere) {
             showWaitDialog()

@@ -307,31 +307,57 @@ class SubscriptionActivity : AppCompatActivity() {
         }
     }
 
+//    private fun navigateAway() {
+//        val fromSubscription = intent.getStringExtra("fromName")
+//        val actionData = intent.getStringExtra("ACTION")
+//        val moveToData = intent.getStringExtra("MoveTo")
+//        if (moveToData == "sindhi_stickers" || actionData == DESTINATION2) {
+//            val stickerIntent = Intent(this, StickersViewActivity::class.java).apply {
+//                if (actionData != null) putExtra("ACTION", actionData)
+//            }
+//            startActivity(stickerIntent)
+//            finish()
+//            return // Exit the function here so the code below doesn't execute
+//        }
+//
+//        if (fromSubscription == "Splash") {
+//            val navIntent = Intent(this, NavigationActivity::class.java).apply {
+//                if (actionData != null) putExtra("ACTION", actionData)
+//                if (moveToData != null) putExtra("MoveTo", moveToData)
+//            }
+//            startActivity(navIntent)
+//            finish()
+//        } else {
+//            val navIntent = Intent(this, NavigationActivity::class.java)
+//            startActivity(navIntent)
+//            finish() // <--- ADD THIS SO SUBSCRIPTION ACTIVITY CLOSES
+//        }
+//    }
+
+
     private fun navigateAway() {
-        val fromSubscription = intent.getStringExtra("fromName")
+        // Note: Ensure you use the exact string "ACTION" to match your ApplicationClass
         val actionData = intent.getStringExtra("ACTION")
         val moveToData = intent.getStringExtra("MoveTo")
-        if (moveToData == "sindhi_stickers" || actionData == DESTINATION2) {
-            val stickerIntent = Intent(this, StickersViewActivity::class.java).apply {
-                if (actionData != null) putExtra("ACTION", actionData)
-            }
-            startActivity(stickerIntent)
-            finish()
-            return // Exit the function here so the code below doesn't execute
-        }
 
-        if (fromSubscription == "Splash") {
-            val navIntent = Intent(this, NavigationActivity::class.java).apply {
+        // If it's Stickers, route directly to StickersViewActivity and STOP
+        if (moveToData == "sindhi_stickers" || actionData == "DESTINATION2") {
+            val stickerIntent = Intent(this, StickersViewActivity::class.java).apply {
                 if (actionData != null) putExtra("ACTION", actionData)
                 if (moveToData != null) putExtra("MoveTo", moveToData)
             }
-            startActivity(navIntent)
+            startActivity(stickerIntent)
             finish()
-        } else {
-            val navIntent = Intent(this, NavigationActivity::class.java)
-            startActivity(navIntent)
-            finish() // <--- ADD THIS SO SUBSCRIPTION ACTIVITY CLOSES
+            return // Exits here so the rest of the code doesn't run
         }
+
+        // For everything else (including DESTINATION3 / Themes), route to NavigationActivity
+        val navIntent = Intent(this, NavigationActivity::class.java).apply {
+            if (actionData != null) putExtra("ACTION", actionData)
+            if (moveToData != null) putExtra("MoveTo", moveToData)
+        }
+        startActivity(navIntent)
+        finish() // Closes SubscriptionActivity
     }
 
     private fun openSubscriptionsLink() {

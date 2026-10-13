@@ -124,7 +124,6 @@
             android:layout_height="@dimen/_40sdp"
             android:padding="@dimen/_5sdp"
             android:src="@drawable/ic_close_black"
-            android:tint="@color/black"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

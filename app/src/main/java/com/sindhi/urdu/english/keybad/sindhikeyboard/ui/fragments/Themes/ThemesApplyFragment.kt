@@ -1,13 +1,11 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.Themes
 
-import android.R.attr.theme
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

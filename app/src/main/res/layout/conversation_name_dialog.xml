@@ -97,7 +97,7 @@
                 android:gravity="center"
                 android:background="@android:color/transparent"
                 android:text="@string/label_description_exit_editing"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
 

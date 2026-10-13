@@ -6,12 +6,16 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import com.sindhi.urdu.english.keybad.BuildConfig
 import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.ActivitySurveyBinding
@@ -35,7 +39,26 @@ class SurveyActivity : AppCompatActivity() {
 
         setContentView(binding?.root)
         supportActionBar?.hide()
-        hideSystemUIUpdated()
+
+        window.statusBarColor = android.graphics.Color.WHITE
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+        _binding?.let {
+            ViewCompat.setOnApplyWindowInsetsListener(it.root) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+                // 1. Use PADDING for the top so the background color extends behind the time bar
+                v.setPadding(0, insets.top, 0, 0)
+
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    leftMargin = insets.left
+                    bottomMargin = insets.bottom
+                    rightMargin = insets.right
+                    topMargin = 0 // 2. Remove the top margin!
+                }
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+        hideSystemUI()
 
         binding?.main.let { mainView ->
             if (mainView != null) {
@@ -74,12 +97,23 @@ class SurveyActivity : AppCompatActivity() {
         })
 
     }
+
     private fun whenBack() {
-        Intent(this, NavigationActivity::class.java).apply {
-            startActivity(this)
+        val intent = Intent(this, NavigationActivity::class.java).apply {
+            // Clears all activities on top of NavigationActivity
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
+        startActivity(intent)
         finish()
     }
+
+    private fun hideSystemUI() {
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        windowInsetsController.show(WindowInsetsCompat.Type.statusBars()) // changed to show()
+        windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
+    }
+
     private fun loadNativeAd(){
         if (isNetworkAvailable(this) && pref.getBoolean(
                 NATIVE_SURVEY, true) && !pref.getBoolean(IS_PURCHASED,false)

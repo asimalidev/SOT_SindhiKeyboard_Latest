@@ -81,6 +81,9 @@ class CropFragment : Fragment(), CropImageView.OnCropImageCompleteListener {
     }
 
     override fun onCropImageComplete(view: CropImageView, result: CropImageView.CropResult) {
+        // SAFEGUARD: Abort if the user left the screen while it was cropping
+        if (!isAdded || context == null) return
+
         binding.clProgress.visibility = View.GONE
 
         if (result.isSuccessful) {
@@ -95,15 +98,10 @@ class CropFragment : Fragment(), CropImageView.OnCropImageCompleteListener {
                 // Instantly pass the newly cropped image to ML Kit!
                 processImage(croppedUri)
             } else {
-                Toast.makeText(requireContext(), "Failed to get cropped image", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Failed to get cropped image", Toast.LENGTH_SHORT).show()
             }
         } else {
-            Toast.makeText(
-                requireContext(),
-                "Crop failed: ${result.error?.message}",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Crop failed: ${result.error?.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -143,6 +141,7 @@ class CropFragment : Fragment(), CropImageView.OnCropImageCompleteListener {
 
             val textFutures = recognizers.map { it.process(image) }
             Tasks.whenAllComplete(textFutures).addOnSuccessListener {
+                if (!isAdded || context == null) return@addOnSuccessListener
                 DialogView.dismissDialog()
 
                 val sb = StringBuilder()
@@ -189,6 +188,9 @@ class CropFragment : Fragment(), CropImageView.OnCropImageCompleteListener {
 
     private fun detectLanguage(text: String) {
         LanguageIdentification.getClient().identifyLanguage(text).addOnSuccessListener { code ->
+            // SAFEGUARD: Abort if the fragment is detached
+            if (!isAdded || context == null) return@addOnSuccessListener
+
             if (code != "und") {
                 AllCountryListMe.getCountryList().firstOrNull { it.code == code }?.let {
                     android.preference.PreferenceManager.getDefaultSharedPreferences(requireContext())

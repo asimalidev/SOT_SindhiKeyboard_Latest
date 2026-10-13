@@ -185,13 +185,11 @@ class PhotoTranslatorResultFragment : Fragment(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(requireContext(), this, "com.google.android.tts")
 
-//        binding.animationView.visibility = View.GONE
-
         fromCountryFlag = PreferenceManager.getDefaultSharedPreferences(requireContext()).getInt("fromflagPT", Language.English.imageId)
         toCountryFlag = PreferenceManager.getDefaultSharedPreferences(requireContext()).getInt("toflagPT", Language.Urdu.imageId)
 
         fromCountryName = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("fromlangPT", "English (En)").toString()
-        toCountryName = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("tolangPT", "Urdu (اردو)").toString()
+        toCountryName = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("tolangPT", "Sindhi (سنڌي)").toString()
         fromCountryFlag.let {
             binding.ivfromflag.background = AppCompatResources.getDrawable(requireContext(), fromCountryFlag)
         }

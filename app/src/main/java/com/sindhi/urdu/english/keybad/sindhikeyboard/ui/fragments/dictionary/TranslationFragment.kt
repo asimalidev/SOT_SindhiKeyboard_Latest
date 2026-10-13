@@ -2,10 +2,12 @@ package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments.dictionary
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -17,6 +19,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -25,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -59,6 +64,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHO
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.safeNavigate
 
+
 class TranslationFragment : Fragment() {
     private lateinit var binding: FragmentTranslationBinding
     var navController: NavController? = null
@@ -66,21 +72,55 @@ class TranslationFragment : Fragment() {
     var bundle = Bundle()
     var isPurchase = false
 
+    // Action variables to hold the pending clicks
+    private var actionOnCameraGranted: (() -> Unit)? = null
+    private var actionOnAudioGranted: (() -> Unit)? = null
 
-    private val requestCameraPermissionLauncher =
+    // --- Launchers for Clicks ---
+    private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                // Permission granted, proceed to navigation
-                navigateToPhotoFragment()
+                actionOnCameraGranted?.invoke()
             } else {
-                // Permission denied
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-                    // Permanently denied (user denied 2 times / Don't ask again). Send to Settings.
-                    openAppSettings()
+                    showCameraDialog()
                 } else {
-                    // Denied once. Optional: Show a message explaining why it's needed.
                     Toast.makeText(requireContext(), "Camera permission is required for image translation.", Toast.LENGTH_SHORT).show()
                 }
+            }
+            actionOnCameraGranted = null
+        }
+
+    private val audioLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                actionOnAudioGranted?.invoke()
+            } else {
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+                    showMicrophoneDialog()
+                } else {
+                    Toast.makeText(requireContext(), "Microphone permission is required for voice features.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            actionOnAudioGranted = null
+        }
+
+    // --- Launchers for Startup (One by One) ---
+    private val startupAudioLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted && !shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+                showMicrophoneDialog()
+            }
+        }
+
+    private val startupCameraLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted && !shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                showCameraDialog()
+            }
+            // After handling Camera, ask for Audio if not granted
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                startupAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
 
@@ -92,8 +132,6 @@ class TranslationFragment : Fragment() {
         binding = FragmentTranslationBinding.inflate(inflater, container, false)
         return binding.root
     }
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onResume() {
@@ -177,7 +215,7 @@ class TranslationFragment : Fragment() {
             )
             txtSindhiKeyboard.text = resources.getString(R.string.label_translation)
 
-            val gapInDp = 12 // Change this to make the gap bigger or smaller
+            val gapInDp = 12
             val gapInPx = (gapInDp * resources.displayMetrics.density).toInt()
             txtSindhiKeyboard.compoundDrawablePadding = gapInPx
 
@@ -205,13 +243,10 @@ class TranslationFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // FIX: Check if we are actually on the TranslationFragment before navigating
                     if (navController?.currentDestination?.id == R.id.translationFragment) {
-                        val action =
-                            TranslationFragmentDirections.actionTranslationFragmentToNavHome()
+                        val action = TranslationFragmentDirections.actionTranslationFragmentToNavHome()
                         navController?.safeNavigate(action)
                     } else {
-                        // If we are on a different tab/fragment, let the system handle the back press naturally
                         isEnabled = false
                         requireActivity().onBackPressed()
                         isEnabled = true
@@ -219,122 +254,99 @@ class TranslationFragment : Fragment() {
                 }
             })
 
+        // Request startup permissions one by one on fragment enter
+        requestPermissionsOnStartup()
+
         binding.clTextTranslator.blockingClickListener {
             onCvTextTranslatorClickWithInterstitial()
         }
 
         binding.clImageTranslation.blockingClickListener {
-            if (navController != null) {
-                val action = TranslationFragmentDirections.actionTranslationFragmentToPhotoFragment()
-                navController?.navigate(action)
-            } else {
-                isNavControllerAdded()
+            handleCameraAction {
+                navigateToPhotoFragment()
             }
         }
 
-
-
         binding.clConversation.blockingClickListener {
-            if (navController != null) {
-                if (isPurchase!!) {
-                    btnClConversation()
-                } else {
-                    if (isNetworkAvailable(requireContext())
-                        && requireActivity().getSharedPreferences(
-                            "RemoteConfig",
-                            Context.MODE_PRIVATE
-                        ).getString(SHOW_INTER_CONVERSATION_ENTER, "ON")
-                            .equals("ON", true)
-                    ) {
-                        InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
-                            context = context,
-                            nameFragment = "TranslationFragment",
-                            onAdClosedCallBackAdmob = {
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    btnClConversation()
-                                }, 300)
-                            },
-                            onAdShowedCallBackAdmob = { })
-                    } else {
+            handleAudioAction {
+                if (navController != null) {
+                    if (isPurchase) {
                         btnClConversation()
+                    } else {
+                        if (isNetworkAvailable(requireContext())
+                            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                                .getString(SHOW_INTER_CONVERSATION_ENTER, "ON").equals("ON", true)
+                        ) {
+                            InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                                context = context,
+                                nameFragment = "TranslationFragment",
+                                onAdClosedCallBackAdmob = {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        btnClConversation()
+                                    }, 300)
+                                },
+                                onAdShowedCallBackAdmob = { })
+                        } else {
+                            btnClConversation()
+                        }
                     }
+                } else {
+                    isNavControllerAdded()
                 }
-            } else {
-                isNavControllerAdded()
             }
         }
 
         binding.clSpeechToText.blockingClickListener {
-            if (navController != null) {
-                if (isPurchase!!) {
-                    btnClSpeechToText()
-                } else {
-                    if (isNetworkAvailable(requireContext())
-                        && requireActivity().getSharedPreferences(
-                            "RemoteConfig",
-                            Context.MODE_PRIVATE
-                        ).getString(SHOW_INTER_VOICE_TRANSLATOR_ENTER, "ON")
-                            .equals("ON", true)
-                    ) {
-                        InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
-                            context = context,
-                            nameFragment = "TranslationFragment",
-                            onAdClosedCallBackAdmob = {
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    btnClSpeechToText()
-                                }, 300)
-                            },
-                            onAdShowedCallBackAdmob = { })
-                    } else {
+            handleAudioAction {
+                if (navController != null) {
+                    if (isPurchase) {
                         btnClSpeechToText()
+                    } else {
+                        if (isNetworkAvailable(requireContext())
+                            && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                                .getString(SHOW_INTER_VOICE_TRANSLATOR_ENTER, "ON").equals("ON", true)
+                        ) {
+                            InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
+                                context = context,
+                                nameFragment = "TranslationFragment",
+                                onAdClosedCallBackAdmob = {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        btnClSpeechToText()
+                                    }, 300)
+                                },
+                                onAdShowedCallBackAdmob = { })
+                        } else {
+                            btnClSpeechToText()
+                        }
                     }
+                } else {
+                    isNavControllerAdded()
                 }
-            } else {
-                isNavControllerAdded()
-            }
-        }
-
-        binding.clImageTranslation.blockingClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                // Permission is already granted
-                navigateToPhotoFragment()
-            } else {
-                // Request the permission
-                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
 
         binding.clHistroy.blockingClickListener {
             if (navController != null) {
-                if (isPurchase!!) {
-                    val action =
-                        TranslationFragmentDirections.actionTranslationFragmentToHistoryFragment()
+                if (isPurchase) {
+                    val action = TranslationFragmentDirections.actionTranslationFragmentToHistoryFragment()
                     navController?.safeNavigate(action)
                 } else {
                     if (isNetworkAvailable(requireContext())
-                        && requireActivity().getSharedPreferences(
-                            "RemoteConfig",
-                            Context.MODE_PRIVATE
-                        ).getString(SHOW_INTER_HISTORY_ENTER, "ON").equals("ON", true)
+                        && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                            .getString(SHOW_INTER_HISTORY_ENTER, "ON").equals("ON", true)
                     ) {
                         InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
                             context = context,
                             nameFragment = "TranslationFragment",
                             onAdClosedCallBackAdmob = {
                                 Handler(Looper.getMainLooper()).postDelayed({
-                                    val action =
-                                        TranslationFragmentDirections.actionTranslationFragmentToHistoryFragment()
+                                    val action = TranslationFragmentDirections.actionTranslationFragmentToHistoryFragment()
                                     navController?.safeNavigate(action)
                                 }, 300)
                             },
                             onAdShowedCallBackAdmob = { })
                     } else {
-                        val action =
-                            TranslationFragmentDirections.actionTranslationFragmentToHistoryFragment()
+                        val action = TranslationFragmentDirections.actionTranslationFragmentToHistoryFragment()
                         navController?.safeNavigate(action)
                     }
                 }
@@ -342,8 +354,108 @@ class TranslationFragment : Fragment() {
                 isNavControllerAdded()
             }
         }
-
     }
+
+    // --- Helper Logic for Permissions ---
+
+    private fun requestPermissionsOnStartup() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            startupCameraLauncher.launch(Manifest.permission.CAMERA)
+        } else if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            startupAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    private fun handleCameraAction(action: () -> Unit) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            action.invoke()
+        } else {
+            actionOnCameraGranted = action
+            cameraLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun handleAudioAction(action: () -> Unit) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            action.invoke()
+        } else {
+            actionOnAudioGranted = action
+            audioLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    // --- Dialogs ---
+
+    private fun showMicrophoneDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.dialog_microphone_permission)
+        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        dialog.show()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val btnDecline = dialog.findViewById<Button>(R.id.btnDecline)
+        val btnAllow = dialog.findViewById<Button>(R.id.btnAllow)
+        val btnClose = dialog.findViewById<ImageView>(R.id.btnClose) // the 'X' icon
+
+        btnDecline.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnClose?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnAllow.setOnClickListener {
+            dialog.dismiss()
+            // Open App Settings so user can manually enable notifications
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", requireContext().packageName, null)
+            }
+            startActivity(intent)
+        }
+
+        dialog.show()
+    }
+
+    private fun showCameraDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.dialog_camera_permission)
+        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        dialog.show()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val btnDecline = dialog.findViewById<Button>(R.id.btnDecline)
+        val btnAllow = dialog.findViewById<Button>(R.id.btnAllow)
+        val btnClose = dialog.findViewById<ImageView>(R.id.btnClose)
+
+        btnDecline.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnClose?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnAllow.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", requireContext().packageName, null)
+            }
+            startActivity(intent)
+        }
+    }
+
+    // --- Other Existing Logic ---
 
     private fun onCvTextTranslatorClickWithInterstitial() {
         if (NetworkCheck.isNetworkAvailable(requireActivity())
@@ -355,7 +467,7 @@ class TranslationFragment : Fragment() {
                 onAdClosedCallBackAdmob = {
                     Handler(Looper.getMainLooper()).postDelayed({
                         onCvTextTranslatorClick()
-                    },300)
+                    }, 300)
                 },
                 onAdShowedCallBackAdmob = {
                 }
@@ -366,11 +478,13 @@ class TranslationFragment : Fragment() {
     }
 
     private fun onCvTextTranslatorClick() {
-        val action = TranslationFragmentDirections.actionTranslationToTextTranslation()
-        navController?.navigate(action)
+        if (navController != null) {
+            val action = TranslationFragmentDirections.actionTranslationToTextTranslation()
+            navController?.navigate(action)
+        } else {
+            isNavControllerAdded()
+        }
     }
-
-
 
     private fun btnClSpeechToText() {
         if (navController != null) {
@@ -394,16 +508,14 @@ class TranslationFragment : Fragment() {
         if (navController != null) {
             val fromCountryName = mSharedPreferences.getString("fromlangconvo", "English (En)")
             val toCountryName = mSharedPreferences.getString("tolangconvo", "Sindhi (سنڌي)")
-            val fromCountryFlag =
-                mSharedPreferences.getInt("fromflagconvo", Language.English.imageId)
+            val fromCountryFlag = mSharedPreferences.getInt("fromflagconvo", Language.English.imageId)
             val toCountryFlag = mSharedPreferences.getInt("toflagconvo", Language.Urdu.imageId)
-            val action =
-                TranslationFragmentDirections.actionTranslationFragmentToConversationFragment(
-                    fromCountryName.toString(),
-                    fromCountryFlag,
-                    toCountryName.toString(),
-                    toCountryFlag
-                )
+            val action = TranslationFragmentDirections.actionTranslationFragmentToConversationFragment(
+                fromCountryName.toString(),
+                fromCountryFlag,
+                toCountryName.toString(),
+                toCountryFlag
+            )
             navController?.safeNavigate(action)
         } else {
             isNavControllerAdded()
@@ -451,18 +563,9 @@ class TranslationFragment : Fragment() {
                 binding.shimmerLayoutBanner.stopShimmer()
                 binding.shimmerLayoutBanner.visibility = View.GONE
             }
-
-            override fun onAdOpened() {
-
-            }
-
-            override fun onAdClicked() {
-
-            }
-
-            override fun onAdClosed() {
-
-            }
+            override fun onAdOpened() {}
+            override fun onAdClicked() {}
+            override fun onAdClosed() {}
         }
     }
 
@@ -473,7 +576,6 @@ class TranslationFragment : Fragment() {
             display.getMetrics(outMetrics)
 
             val density = outMetrics.density
-
             var adWidthPixels = binding.adViewContainer.width.toFloat()
             if (adWidthPixels == 0f) {
                 adWidthPixels = outMetrics.widthPixels.toFloat()
@@ -486,18 +588,9 @@ class TranslationFragment : Fragment() {
             )
         }
 
-
     private fun navigateToPhotoFragment() {
         val action = TranslationFragmentDirections.actionTranslationFragmentToPhotoFragment()
         navController?.navigate(action)
-    }
-
-    private fun openAppSettings() {
-        Toast.makeText(requireContext(), "Please grant camera permission in settings", Toast.LENGTH_LONG).show()
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.fromParts("package", requireActivity().packageName, null)
-        }
-        startActivity(intent)
     }
 
 }

@@ -64,7 +64,6 @@ class StickersViewActivity : AppCompatBaseActivity() {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-
             v.setPadding(0, insets.top, 0, 0)
 
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -95,22 +94,35 @@ class StickersViewActivity : AppCompatBaseActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
-                startActivity(intent)
+                if (intent.getStringExtra("MoveTo").equals("sindhi_editor")) {
+                    val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
+                    intent.putExtra("MoveTo","sindhi_editor")
+                    startActivity(intent)
+                }
+                else{
+                    val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
+                    startActivity(intent)
+                }
+                finish()
             }
         })
 
         binding.ivBackPress.blockingClickListener {
+            if (intent.getStringExtra("MoveTo").equals("sindhi_editor")) {
+                val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
+                intent.putExtra("MoveTo","sindhi_editor")
+                startActivity(intent)
+            }
+            else
+            {
                 val intent = Intent(this@StickersViewActivity, NavigationActivity::class.java)
                 startActivity(intent)
+            }
+            finish()
         }
     }
 
-    // ==========================================
-    // ADDED: Centralized Observers (Prevents multiple triggers)
-    // ==========================================
     private fun setupObservers() {
-        // Observe Sticker Data
         stickerViewModel.stickerPackData.observe(this) { stickerPackData ->
             isDataFetching = false
             if (stickerPackData != null) {
@@ -122,7 +134,6 @@ class StickersViewActivity : AppCompatBaseActivity() {
             }
         }
 
-        // Observe Download Progress
         stickerViewModel.downloadProgress.observe(this) { (packName, progress) ->
             Log.i("DownloadWork", "$packName: $progress")
             stickersPackAdapter.updateProgress(packName, progress)
@@ -260,7 +271,7 @@ class StickersViewActivity : AppCompatBaseActivity() {
         }
     }
 
-        private fun loadCollapsibleBanner() {
+    private fun loadCollapsibleBanner() {
         val adView = AdView(this)
         adView.setAdSize(adSize)
         val pref =getSharedPreferences("RemoteConfig", MODE_PRIVATE)

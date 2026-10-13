@@ -487,14 +487,24 @@ class CustomImeService : InputMethodService(), LifecycleOwner, ViewModelStoreOwn
     }
 
     override fun onDestroy() {
-        speechRecognizer?.destroy()
-        speechRecognizer = null
+        try {
+            speechRecognizer?.destroy()
+        } catch (e: IllegalArgumentException) {
+            // Catches "Service not registered: android.speech.SpeechRecognizer$Connection"
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            speechRecognizer = null
+        }
+
         handler.removeCallbacks(deleteCharacterRunnable)
         handler.removeCallbacks(deleteEmojisRunnable)
         handler.removeCallbacks(previousRunnable)
         handler.removeCallbacks(nextRunnable)
         handler.removeCallbacks(upRunnable)
         handler.removeCallbacks(downRunnable)
+
         handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
     }

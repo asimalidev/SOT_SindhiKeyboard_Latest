@@ -268,14 +268,14 @@
             android:layout_width="@dimen/_45sdp"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginStart="44dp"
-            android:elevation="@dimen/_10sdp"
             app:layout_constraintBottom_toBottomOf="@id/ivStep2Image"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/ivStep2Image"
             app:layout_constraintVertical_bias="0.574"
-            app:lottie_autoPlay="true"
             app:lottie_rawRes="@raw/click_animation"
             app:lottie_repeatCount="999999"
+            android:elevation="@dimen/_10sdp"
+            app:lottie_autoPlay="true"
             app:lottie_repeatMode="reverse" />
 
         <ImageView

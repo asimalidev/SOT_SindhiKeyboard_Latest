@@ -23,8 +23,6 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.stickers.StickerPackData
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.StickersViewActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst
 
-
-
 class StickersPackAdapter(
     private var context: Context,
     private var stickerPackData: StickerPackData? = null,

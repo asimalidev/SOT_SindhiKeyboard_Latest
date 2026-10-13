@@ -27,8 +27,8 @@ android {
         applicationId "com.sindhi.urdu.english.keybad"
         minSdk 24
         targetSdk 37
-        versionCode 78
-        versionName '7.0.4'
+        versionCode 80
+        versionName '7.0.6'
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -166,6 +166,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.15'
     }
+
 }
 
 dependencies {

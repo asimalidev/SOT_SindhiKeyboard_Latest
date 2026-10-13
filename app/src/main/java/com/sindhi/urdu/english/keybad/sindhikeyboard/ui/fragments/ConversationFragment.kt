@@ -1284,9 +1284,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun shrinkFab() {
         binding.mainFabBtn.startAnimation(rotateAntiClockWiseFabAnim)
         binding.imgClear.startAnimation(toBottomFabAnim)
-//        binding.txtDelete.startAnimation(toBottomFabAnim)
         binding.imgSave.startAnimation(toBottomFabAnim)
-//        binding.txtSave.startAnimation(toBottomFabAnim)
         isExpanded = !isExpanded
         delayedActionHandler.removeCallbacks(delayedActionRunnable)
         fadeFabViewButton()
@@ -1296,9 +1294,7 @@ class ConversationFragment : Fragment(), TextToSpeech.OnInitListener {
         binding.fabConstraint.alpha = 1f
         binding.mainFabBtn.startAnimation(rotateClockWiseFabAnim)
         binding.imgSave.startAnimation(fromBottomFabAnim)
-//        binding.txtSave.startAnimation(fromBottomFabAnim)
         binding.imgClear.startAnimation(fromBottomFabAnim)
-//        binding.txtDelete.startAnimation(fromBottomFabAnim)
         isExpanded = !isExpanded
     }
 }

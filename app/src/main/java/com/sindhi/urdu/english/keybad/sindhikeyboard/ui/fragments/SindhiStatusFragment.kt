@@ -159,8 +159,6 @@ class SindhiStatusFragment : Fragment() {
         }
     }
 
-    /*private val adSize: AdSize
-        get() = AdSize.BANNER*/
     private val adSize: AdSize
         get() {
             val display = requireActivity().windowManager.defaultDisplay

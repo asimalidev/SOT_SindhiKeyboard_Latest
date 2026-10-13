@@ -201,16 +201,7 @@ fun moreApps(context: Context) {
     context.startActivity(marketIntent)
 }
 
-//fun composeFeedBackEmail(context: Context) {
-//    val emailIntent = Intent(Intent.ACTION_SENDTO)
-//    emailIntent.data = Uri.parse("mailto:appsol.soloftech@gmail.com")
-//    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feed Back")
-//    try {
-//        context.startActivity(Intent.createChooser(emailIntent, "Send email using..."))
-//    } catch (e: Exception) {
-//        Toast.makeText(context, "No email clients installed.", Toast.LENGTH_SHORT).show()
-//    }
-//}
+
 
  fun composeFeedBackEmail(context: Context) {
 

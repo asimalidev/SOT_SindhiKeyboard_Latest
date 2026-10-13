@@ -94,6 +94,17 @@ class NavigationActivity : AppCompatBaseActivity() {
         }
         hideSystemUI()
 
+        val actionData = intent.getStringExtra("ACTION")
+        val moveToData = intent.getStringExtra("MoveTo")
+        if (moveToData == "sindhi_stickers" || actionData == DESTINATION2) {
+            val stickerIntent = Intent(this, StickersViewActivity::class.java).apply {
+                if (actionData != null) putExtra("ACTION", actionData)
+            }
+            startActivity(stickerIntent)
+            finish()
+            return // Exit the function here so the code below doesn't execute
+        }
+
 
         appUpdateManager = AppUpdateManagerFactory.create(this)
         action = intent?.getStringExtra(ACTION)
@@ -109,30 +120,35 @@ class NavigationActivity : AppCompatBaseActivity() {
         googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(applicationContext)
         isPurchased = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PURCHASE, false)
 
-        // Set navigation graph start destination
         navController = findNavController(R.id.nav_host_fragment_content_navigation)
         val navGraph = navController.navInflater.inflate(R.navigation.mobile_navigation)
 
         val moveTo = intent?.getStringExtra("MoveTo")
+        Log.e("movetoo","home move to is : $moveTo")
 
         val startDest = when {
-            action == DESTINATION1 -> R.id.nav_editor
-            action == DESTINATION3 -> R.id.themesFragment
+            actionData == "DESTINATION1" -> R.id.nav_editor
+            actionData == "DESTINATION3" -> R.id.themesFragment
             moveTo == "Settings" -> R.id.settingsFragment
             moveTo == "themes" -> R.id.themesFragment
             moveTo == "sindhi_status" -> R.id.navSindhiStatus
             moveTo == "sindhi_editor" -> R.id.nav_editor
             moveTo == "text_translator" -> R.id.navTextTranslator
-            moveTo =="speech_to_text" -> R.id.speechFragment
-            moveTo =="ibadat" -> R.id.navIbadatFragment
+            moveTo == "speech_to_text" -> R.id.speechFragment
+            moveTo == "ibadat" -> R.id.navIbadatFragment
             else -> R.id.nav_home
         }
 
         Log.d("action", "Setting Start Destination to: $startDest")
         navGraph.setStartDestination(startDest)
+
+        // Assign the graph ONLY ONCE
         navController.graph = navGraph
-        intent?.removeExtra(ACTION)
+
+        // Clean up intent extras so they don't re-trigger on screen rotation
+        intent?.removeExtra("ACTION")
         intent?.removeExtra("MoveTo")
+
         action = null
         navController.graph = navGraph
     }

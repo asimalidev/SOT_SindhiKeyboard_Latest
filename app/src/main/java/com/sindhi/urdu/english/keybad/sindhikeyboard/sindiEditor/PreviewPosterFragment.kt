@@ -159,6 +159,78 @@ class PreviewPosterFragment : Fragment() {
     }
 
 
+//    private fun saveImageToGallery(cachedUri: Uri) {
+//        val resolver = requireContext().contentResolver
+//        val displayName = "Urdu_Post_${System.currentTimeMillis()}.png"
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            // --- FOR ANDROID 10 AND ABOVE (Scoped Storage) ---
+//            val contentValues = ContentValues().apply {
+//                put(MediaStore.Images.Media.DISPLAY_NAME, displayName)
+//                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+//                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Urdu Poster")
+//            }
+//
+//            val galleryUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+//
+//            try {
+//                if (galleryUri != null) {
+//                    resolver.openOutputStream(galleryUri).use { outputStream ->
+//                        resolver.openInputStream(cachedUri).use { inputStream ->
+//                            inputStream?.copyTo(outputStream!!)
+//                        }
+//                    }
+//                    Toast.makeText(requireContext(), "Saved to Gallery successfully!", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    Toast.makeText(requireContext(), "Failed to create gallery entry", Toast.LENGTH_SHORT).show()
+//                }
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                Toast.makeText(requireContext(), "Error saving image", Toast.LENGTH_SHORT).show()
+//            }
+//
+//        } else {
+//            // --- FOR ANDROID 9 AND BELOW (Legacy Storage) ---
+//
+//            // 1. Create the specific folder path
+//            val storageDir = File(
+//                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+//                "Sindhi Poster"
+//            )
+//            if (!storageDir.exists()) {
+//                storageDir.mkdirs()
+//            }
+//
+//            // 2. Create the file
+//            val imageFile = File(storageDir, displayName)
+//
+//            try {
+//                // 3. Write the bytes to the legacy file system
+//                FileOutputStream(imageFile).use { outputStream ->
+//                    resolver.openInputStream(cachedUri).use { inputStream ->
+//                        inputStream?.copyTo(outputStream)
+//                    }
+//                }
+//
+//                // 4. CRITICAL: Tell the Android Media Scanner to scan the new file,
+//                // otherwise it won't show up in the gallery app!
+//                MediaScannerConnection.scanFile(
+//                    requireContext(),
+//                    arrayOf(imageFile.absolutePath),
+//                    arrayOf("image/png")
+//                ) { path, uri ->
+//                    Log.i("PreviewPosterFragment", "Scanned $path:")
+//                }
+//
+//                Toast.makeText(requireContext(), "Saved to Gallery successfully!", Toast.LENGTH_SHORT).show()
+//
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                Toast.makeText(requireContext(), "Error saving image on Android 9", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+
     private fun saveImageToGallery(cachedUri: Uri) {
         val resolver = requireContext().contentResolver
         val displayName = "Urdu_Post_${System.currentTimeMillis()}.png"
@@ -168,7 +240,8 @@ class PreviewPosterFragment : Fragment() {
             val contentValues = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, displayName)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Urdu Poster")
+                // FIX: Changed from "Urdu Poster" to "Sindhi Poster"
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Sindhi Poster")
             }
 
             val galleryUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
@@ -191,8 +264,6 @@ class PreviewPosterFragment : Fragment() {
 
         } else {
             // --- FOR ANDROID 9 AND BELOW (Legacy Storage) ---
-
-            // 1. Create the specific folder path
             val storageDir = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "Sindhi Poster"
@@ -201,19 +272,15 @@ class PreviewPosterFragment : Fragment() {
                 storageDir.mkdirs()
             }
 
-            // 2. Create the file
             val imageFile = File(storageDir, displayName)
 
             try {
-                // 3. Write the bytes to the legacy file system
                 FileOutputStream(imageFile).use { outputStream ->
                     resolver.openInputStream(cachedUri).use { inputStream ->
                         inputStream?.copyTo(outputStream)
                     }
                 }
 
-                // 4. CRITICAL: Tell the Android Media Scanner to scan the new file,
-                // otherwise it won't show up in the gallery app!
                 MediaScannerConnection.scanFile(
                     requireContext(),
                     arrayOf(imageFile.absolutePath),

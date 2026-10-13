@@ -74,7 +74,6 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
         // 4. EXCLUSION LIST
         val excludedActivities = listOf(
             "ui.activities.FOFStartActivity",
-            "ui.activities.KeyboardSelectionActivity",
             "com.manual.mediation.library.sotadlib.activities.LanguageScreenOne",
             "com.manual.mediation.library.sotadlib.activities.WalkThroughConfigActivity",
             "com.manual.mediation.library.sotadlib.activities.LanguageScreenDup",
@@ -94,7 +93,6 @@ class ResumeAd(globalClass: ApplicationClass? = null) : Application.ActivityLife
             return
         }
 
-        // 5. REMOTE CONFIG & NETWORK
         val prefs = activity.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
         val isPremium = prefs?.getBoolean(IS_PURCHASED, false) ?: false
         val isResumeEnabled = prefs?.getBoolean("RESUME_OVERALL", true) ?: true

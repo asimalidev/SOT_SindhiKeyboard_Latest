@@ -165,6 +165,7 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHO
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.RemoteConfigConst.SHOW_REWARDED_SINDHI_STICKERS
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlin.jvm.java
 
 class FOFStartActivity : AppCompatActivity() {
     private var firstOpenFlowAdIds: HashMap<String, String> = HashMap()
@@ -399,55 +400,129 @@ class FOFStartActivity : AppCompatActivity() {
 
     }
 
+
+
     private fun gotoMainActivity() {
         Log.d("action", "intent?.action :${intent?.action} ")
         Log.d("action", "action :$action ")
 
+        // 1. Handle Uninstall Shortcut (Early Return)
         if (intent?.action == "android.intent.action.SHORTCUT_UNINSTALL_APP") {
-            val uninstallIntent =
-                Intent(this@FOFStartActivity, ConfirmUninstallActivity::class.java)
-            uninstallIntent.putExtra(FROM_SHORTCUT, intent?.getStringExtra(FROM_SHORTCUT))
+            val uninstallIntent = Intent(this@FOFStartActivity, ConfirmUninstallActivity::class.java).apply {
+                putExtra(FROM_SHORTCUT, intent?.getStringExtra(FROM_SHORTCUT))
+            }
             startActivity(uninstallIntent)
             finish()
-        } else {
-            if (action != null) {
-                when (action) {
-                    // COMBINED DESTINATION1, 2, and 3
-                    DESTINATION1, DESTINATION2, DESTINATION3 -> {
-                        startActivity(
-                            Intent(this, SubscriptionActivity::class.java)
-                                .putExtra("fromName", "Splash")
-                                .putExtra(ACTION, action) // 'action' will hold DESTINATION2
-                        )
-                        action = null
-                        finish()
-                    }
-                }
-            } else {
-                val nextIntent: Intent = if (!isKeyboardEnabled(this) || !isKeyboardSelected(this)) {
-                    Intent(this, KeyboardSelectionActivity::class.java).putExtra(
-                        "MoveTo", intent.getStringExtra("MoveTo")
-                    )
-                } else if (intent.getStringExtra("MoveTo") == "sindhi_stickers") {
-                    Intent(this, SubscriptionActivity::class.java).putExtra(
-                        "MoveTo", intent.getStringExtra("MoveTo")
-                    )
-                }
-                else {
-                    if (NetworkCheck.isNetworkAvailable(this)){
-                        Intent(this, SubscriptionActivity::class.java).apply {
-                            putExtra("fromName", "Splash")
-                            putExtra("MoveTo", intent.getStringExtra("MoveTo"))
-                        }
+            return // Exits the function early
+        }
+
+        val isNetworkAvailable = NetworkCheck.isNetworkAvailable(this@FOFStartActivity)
+        val moveTo = intent?.getStringExtra("MoveTo")
+
+        // 2. Handle Action Destinations (Early Return)
+//        if (action != null) {
+//            when (action) {
+//                DESTINATION1, DESTINATION2, DESTINATION3 -> {
+//                    val targetClass = if (isNetworkAvailable) {
+//                        SubscriptionActivity::class.java
+//                    } else {
+//                        NavigationActivity::class.java
+//                    }
+//
+//                    startActivity(Intent(this@FOFStartActivity, targetClass).apply {
+//                        putExtra("fromName", "Splash")
+//                        putExtra(ACTION, action)
+//                    })
+//
+//                    action = null
+//                    finish()
+//                    return
+//                }
+//            }
+//        }
+
+
+        if (action != null) {
+            when (action) {
+                // Scenario: Stickers Shortcut
+                "DESTINATION2" -> {
+                    if (isNetworkAvailable) {
+                        // Online -> Subscription -> Stickers
+                        startActivity(Intent(this, SubscriptionActivity::class.java).apply {
+                            putExtra("ACTION", "DESTINATION2")
+                        })
                     } else {
-                        Intent(this, NavigationActivity::class.java)
+                        // Offline -> Directly to Stickers
+                        startActivity(Intent(this, StickersViewActivity::class.java).apply {
+                            putExtra("ACTION", "DESTINATION2")
+                        })
                     }
+                    finish()
+                    return
                 }
 
-                startActivity(nextIntent)
-                finish()
+                // Scenario: Themes Shortcut
+                "DESTINATION3" -> {
+                    if (isNetworkAvailable) {
+                        // Online -> Subscription -> Navigation (Themes)
+                        startActivity(Intent(this, SubscriptionActivity::class.java).apply {
+                            putExtra("ACTION", "DESTINATION3")
+                        })
+                    } else {
+                        // Offline -> Directly to Navigation (Themes)
+                        startActivity(Intent(this, NavigationActivity::class.java).apply {
+                            putExtra("ACTION", "DESTINATION3")
+                        })
+                    }
+                    finish()
+                    return
+                }
             }
         }
+
+        // 3. Handle Keyboard and "MoveTo" Logic
+        val nextIntent: Intent = when {
+            // Condition A: Keyboard setup isn't complete
+            !isKeyboardEnabled(this@FOFStartActivity) || !isKeyboardSelected(this@FOFStartActivity) -> {
+                Intent(this@FOFStartActivity, KeyboardSelectionActivity::class.java).apply {
+                    putExtra("MoveTo", moveTo)
+                }
+            }
+
+            // Condition B: MoveTo is sindhi_stickers AND Network is Available
+            moveTo == "sindhi_stickers" && isNetworkAvailable -> {
+                Intent(this@FOFStartActivity, SubscriptionActivity::class.java).apply {
+                    putExtra("MoveTo", moveTo)
+                }
+            }
+
+            // Condition C: MoveTo is sindhi_stickers AND Network is NOT Available
+            moveTo == "sindhi_stickers" && !isNetworkAvailable -> {
+                // IMPORTANT: If "StickerActivity" is causing the error, make sure
+                // you import it, or rename it to whatever your actual activity is called!
+                Intent(this@FOFStartActivity, StickersViewActivity::class.java).apply {
+                    putExtra("MoveTo", moveTo)
+                }
+            }
+
+            // Condition D: Default fallback with Network
+            isNetworkAvailable -> {
+                Intent(this@FOFStartActivity, SubscriptionActivity::class.java).apply {
+                    putExtra("fromName", "Splash")
+                    putExtra("MoveTo", moveTo)
+                }
+            }
+
+            // Condition E: Default fallback without Network
+            else -> {
+                Intent(this@FOFStartActivity, NavigationActivity::class.java).apply {
+                    putExtra("MoveTo", moveTo)
+                }
+            }
+        }
+
+        startActivity(nextIntent)
+        finish()
     }
 
     private fun getWalkThroughList(context: Context): ArrayList<WalkThroughItem> {

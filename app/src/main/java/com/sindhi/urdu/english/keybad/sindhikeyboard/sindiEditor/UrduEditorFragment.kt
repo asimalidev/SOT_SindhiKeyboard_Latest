@@ -1,12 +1,9 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -14,7 +11,6 @@ import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import com.sindhi.urdu.english.keybad.R
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -32,9 +28,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
@@ -42,10 +36,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.manual.mediation.library.sotadlib.utils.NetworkCheck
+import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.databinding.FragmentUrduEditorBinding
 import com.sindhi.urdu.english.keybad.sindhikeyboard.jetpack_version.utilityClasses.blockingClickListener
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.editorAdapters.BackgroundImagesAdapter
@@ -60,12 +56,10 @@ import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.FontCache
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.StickerDataCache
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.model.TextItem
 import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.stickerview.StickerImageView
+import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.viewModels.StickerViewModel
+import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.NavigationActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.StickersViewActivity
 import com.sindhi.urdu.english.keybad.sindhikeyboard.utils.hideKeyboard
-import com.sindhi.urdu.english.keybad.sindhikeyboard.sindiEditor.viewModels.StickerViewModel
-import kotlin.collections.iterator
-import androidx.navigation.NavOptions
-import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.activities.NavigationActivity
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -165,7 +159,7 @@ class UrduEditorFragment : Fragment() {
                     Intent(
                         requireActivity(),
                         StickersViewActivity::class.java
-                    ).putExtra("From", "FromUrduEditor")
+                    ).putExtra("MoveTo", "sindhi_editor")
                 )
             } else {
                 isNavControllerAdded()
@@ -560,8 +554,6 @@ class UrduEditorFragment : Fragment() {
         }
 
         binding.ivdoneEditor.setOnClickListener {
-            // 1. Add watermark and capture
-//            binding.textEditorView.addWaterMarkText("Urdu Keyboard")
             val bitmap = binding.textEditorView.captureAsBitmap()
 
             // 2. Save to cache so we can safely pass it to the next screen

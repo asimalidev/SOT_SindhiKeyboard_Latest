@@ -342,6 +342,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/footer_text_editor"
             android:paddingTop="@dimen/_8sdp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -1,28 +1,40 @@
 package com.sindhi.urdu.english.keybad.sindhikeyboard.ui.fragments
 
+import android.Manifest
+import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -78,6 +90,79 @@ class HomeFragment : Fragment(), IBillingHandler {
     var isPurchased: Boolean? = null
     var bp: BillingProcessor? = null
     var bundle = Bundle()
+
+    private val requestNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (!isGranted) {
+            // Increment the deny count if permission is refused
+            val prefs = requireActivity().getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            val denyCount = prefs.getInt("notification_deny_count", 0)
+            prefs.edit().putInt("notification_deny_count", denyCount + 1).apply()
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permission = Manifest.permission.POST_NOTIFICATIONS
+
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    permission
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                // Permission already granted, do nothing
+                return
+            }
+
+            val prefs = requireActivity().getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            val denyCount = prefs.getInt("notification_deny_count", 0)
+
+            if (denyCount >= 2) {
+                // Denied 2 or more times, show custom dialog
+                showCustomNotificationDialog()
+            } else {
+                // Request the standard permission
+                requestNotificationPermissionLauncher.launch(permission)
+            }
+        }
+    }
+
+    private fun showCustomNotificationDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.dialog_notification_permission)
+        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        dialog.show()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val btnDecline = dialog.findViewById<Button>(R.id.btnDecline)
+        val btnAllow = dialog.findViewById<Button>(R.id.btnAllow)
+        val btnClose = dialog.findViewById<ImageView>(R.id.btnClose) // the 'X' icon
+
+        btnDecline.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnClose?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnAllow.setOnClickListener {
+            dialog.dismiss()
+            // Open App Settings so user can manually enable notifications
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", requireContext().packageName, null)
+            }
+            startActivity(intent)
+        }
+
+        dialog.show()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -294,6 +379,7 @@ class HomeFragment : Fragment(), IBillingHandler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController()
+        checkNotificationPermission()
         isPurchased = requireContext().getSharedPreferences(REMOTE_CONFIG, MODE_PRIVATE)
             ?.getBoolean(IS_PURCHASED, false) == true
 
@@ -463,39 +549,41 @@ class HomeFragment : Fragment(), IBillingHandler {
             }
         }
 
-        binding!!.clStickers.blockingClickListener {
+        binding?.clStickers?.blockingClickListener {
+            val currentActivity = activity ?: return@blockingClickListener
+
             CustomFirebaseEvents.activitiesFragmentEvent(
-                requireActivity(),
+                currentActivity,
                 "home_scr_tap_sindhi_stickers"
             )
-            if (NetworkCheck.isNetworkAvailable(requireActivity())
-                && requireActivity().getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
-                    .getString(SHOW_INTER_SINDHI_STICKERS_ENTER, "ON").equals("ON", true)
-            ) {
+
+            val isNetworkAvailable = NetworkCheck.isNetworkAvailable(currentActivity)
+            val showAd = currentActivity.getSharedPreferences("RemoteConfig", Context.MODE_PRIVATE)
+                .getString(SHOW_INTER_SINDHI_STICKERS_ENTER, "ON")
+                .equals("ON", true)
+
+            if (isNetworkAvailable && showAd) {
                 InterstitialClassAdMob.showIfAvailableOrLoadAdMobInterstitial(
-                    context = requireActivity(),
+                    context = currentActivity,
                     nameFragment = "StickersViewActivity",
                     onAdClosedCallBackAdmob = {
-                        if (isAdded && navController != null) {
-                            Handler(Looper.getMainLooper()).postDelayed({
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            // Re-verify that the fragment is still attached when the delay expires
+                            val validActivity = activity
+                            if (isAdded && validActivity != null) {
                                 startActivity(
-                                    Intent(
-                                        requireActivity(),
-                                        StickersViewActivity::class.java
-                                    ).putExtra("From", "FromHome")
+                                    Intent(validActivity, StickersViewActivity::class.java)
+                                        .putExtra("From", "FromHome")
                                 )
-                            }, 300)
-                        }
+                            }
+                        }, 300)
                     },
-                    onAdShowedCallBackAdmob = {
-                    }
+                    onAdShowedCallBackAdmob = { }
                 )
             } else {
                 startActivity(
-                    Intent(
-                        requireActivity(),
-                        StickersViewActivity::class.java
-                    ).putExtra("From", "FromHome")
+                    Intent(currentActivity, StickersViewActivity::class.java)
+                        .putExtra("From", "FromHome")
                 )
             }
         }
@@ -586,21 +674,6 @@ class HomeFragment : Fragment(), IBillingHandler {
         navController?.safeNavigate(HomeFragmentDirections.actionNavHomeToSettingsFragment())
     }
 
-    private fun onBtnDisableClick() {
-        bundle = Bundle()
-        bundle.putString("HomeFragment_DisableKeyboard", "HomeFragment_DisableKeyboard")
-        FirebaseLog.getAnalytics(requireContext()).logEvent("event_home_disable_keyboard", bundle)
-        try {
-            val mgr =
-                requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-            mgr.showInputMethodPicker()
-        } catch (ignored: ActivityNotFoundException) {
-        }
-    }
-
-    private fun onRemoveAdsClick() {
-        bp?.purchase(requireActivity(), getString(R.string.product_id))
-    }
 
     private fun showRestartDialog() {
         val builder = AlertDialog.Builder(requireContext())

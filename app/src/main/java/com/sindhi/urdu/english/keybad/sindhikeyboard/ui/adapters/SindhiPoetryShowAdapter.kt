@@ -11,9 +11,6 @@ import com.sindhi.urdu.english.keybad.R
 import com.sindhi.urdu.english.keybad.sindhikeyboard.ui.sindhiPoetryModels.SindhiPoetryItemClickListener
 
 
-
-
-
 class SindhiPoetryShowAdapter(
     private val poetryList: List<String>,
     private val sindhiPoetryItemClickListener: SindhiPoetryItemClickListener

@@ -21,7 +21,7 @@ object TranslatorCall {
             str = str.trim { it <= ' ' }.replace(str2, "^~^").trim { it <= ' ' }.replace(str3, "~~")
         }
         val sb = StringBuilder()
-        sb.append("https://translate.googleapis.com/translate_a/single?client=gtx&sl=")
+        sb.append("https://translate.googleapis.com/translate_a/single?client=dict-chrome-ex&sl=")
         //   sb.append("inputLangCode");
         sb.append(inputCode)
         sb.append("&tl=")
